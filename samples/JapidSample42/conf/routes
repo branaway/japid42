@@ -1,0 +1,22 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                                       controllers.Application.index()
+GET     /hello   controllers.Application.hello()
+GET     /h1   controllers.Application.h1()
+GET     /hello/:name/:age   controllers.Application.validate(name, age:Integer)
+GET     /reverseUrl   controllers.Application.reverseUrl()
+# GET     /search/:key   controllers.Application.search(key : models.SearchParams)
+GET     /echo/:m        controllers.more.MyController.echo(m)
+
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+# GET		/go/{<.+>template}             Application.go
+
+# the staticFile is only available from 1.1.x trunk. Not in the 1.1 release.
+# GET /favicon.ico                                staticFile:/public/images/favicon.png
+# Catch all
+# *       /{controller}/{action}                  {controller}.{action}
