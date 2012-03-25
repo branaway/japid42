@@ -4,6 +4,7 @@
 
 # Home page
 GET     /                                       controllers.Application.index()
+GET     /application/callTag   controllers.Application.callTag()
 GET     /hello   controllers.Application.hello()
 GET     /h1   controllers.Application.h1()
 GET     /hello/:name/:age   controllers.Application.validate(name, age:Integer)

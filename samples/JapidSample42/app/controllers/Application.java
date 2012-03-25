@@ -186,6 +186,10 @@ public class Application extends JapidController {
 		return renderJapidWith("templates/callPicka");
 	}
 	
+	public static Result callTag2() {
+		return renderJapidWith("templates/callPicka");
+	}
+	
 	public static Result postList() {
 		String title = "my Blog";
 		List<Post> posts = createPosts();

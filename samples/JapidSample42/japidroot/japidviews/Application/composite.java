@@ -15,6 +15,7 @@ import play.mvc.Http.Flash;
 import japidviews ._layouts.*;
 import play.data.validation.Validation;
 import java.util.*;
+import static cn.bran.japid.util.WebUtils.*;
 import controllers.*;
 import static cn.bran.japid.util.StringUtils.*;
 //

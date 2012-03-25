@@ -14,7 +14,7 @@ public class Global extends GlobalSettings {
 	@Override
 	public void onStart(Application app) {
 		JapidRenderer.setParentClassLoader(app.classloader());
-		JapidRenderer.init(Play.isDev()? OpMode.dev:  OpMode.prod, "japidroot", 2);
+		JapidRenderer.init(Play.isDev()? OpMode.dev:  OpMode.prod, "japidroot", 2, app);
 		JapidRenderer.addImportStatic(StringUtils.class);
 		JapidRenderer.gen();
 	}

@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import play.Application;
+import play.Play;
+
 import cn.bran.japid.compiler.OpMode;
 import cn.bran.japid.compiler.TranslateTemplateTask;
 import cn.bran.japid.rendererloader.RendererClass;
@@ -704,13 +707,35 @@ public class JapidRenderer {
 	 *            detect any changes in the file system.
 	 */
 	public static void init(OpMode opMode, String templateRoot,
-			int refreshInterval) {
+			int refreshInterval, Application app) {
 		inited = true;
 		JapidRenderer.opMode = opMode;
 		setTemplateRoot(templateRoot);
 		setRefreshInterval(refreshInterval);
-	}
+		
+		String 
+		
+		// play has tree like configuration nestings. japid.trace.file is a tree, cannot be a string
+//		property = app.configuration().getString("japid.trace.file");
+//		property = property == null ?  "false" : property;
+//			
+//		if ("on".equalsIgnoreCase(property) || "yes".equalsIgnoreCase(property))
+//			property = "true";
+//		JapidTemplateBaseWithoutPlay.globalTraceFile = new Boolean(property);
 
+		
+		property = app.configuration().getString("japid.trace.file.html");
+		property = property == null ?  "false" : property;
+		if ("on".equalsIgnoreCase(property) || "yes".equalsIgnoreCase(property))
+			property = "true";
+		JapidTemplateBaseWithoutPlay.globalTraceFileHtml = new Boolean(property);
+
+		property = app.configuration().getString("japid.trace.file.json");
+		property = property == null ?  "false" : property;
+		if ("on".equalsIgnoreCase(property) || "yes".equalsIgnoreCase(property))
+			property = "true";
+		JapidTemplateBaseWithoutPlay.globalTraceFileJson = new Boolean(property);
+	}
 	/**
 	 * a facet method to wrap implicit template binding. The default template is
 	 * named as the class and method that immediately invoke this method. e.g.

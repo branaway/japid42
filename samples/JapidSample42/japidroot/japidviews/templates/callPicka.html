@@ -1,39 +1,39 @@
-<p>beginning...<p>
-<p>
-<p>call a simple tag</p>
+`stopwatch on
+
+<p>invoke a simple tag</p>
 
 Another simple tag aTag, which locates in the same directory as this template:
 
+*{
+}*
+`tag picka("a", "b" + "c") | String r
+    the tag chosed: $r
+    <p>and we can call a tag recursively?</p>
+    `tag SampleTag(r)
+    <p>yes we can!</p>
+`
+
 first define something in a Java code block. 
 
-*{
-java.util.* is automatically imported
-}*
-
-` List<String> strings = new ArrayList<String>(){{add("you");add("me");add("everyone");}};
+` List<String> strings = new ArrayList<String>(){{add("u");add("m");add("everyone");}};
 
 `t aTag(strings)
 
 note: the picka tag is defined in the japidviews/_tags directory
-
-`tag picka("a", "b" + "c") | String rr
-    the tag chosed: $rr
-    <p>and we can can call a tag recursively?</p>
-    `tag SampleTag(rr)
-`
 </p>
 
 <p>
 we can call without the body part:
 
-`tag picka a = "aa", b = "bb"
+`tag picka ("cc", "dd")
 
-or 
-`tag picka "cc", "dd"
+or with named args
+
+`tag picka(a = "aa", b = "bb")
 
 </p>
 <p>
-Or using the full path of the tag
+Or using the full path of the tag starting with japidview
 </p>
 
 `tag japidviews/templates/aTag(strings)

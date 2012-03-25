@@ -6,6 +6,7 @@ import japidviews ._tags.*;
 import models.*;
 import japidviews ._layouts.*;
 import java.util.*;
+import static cn.bran.japid.util.WebUtils.*;
 import controllers.*;
 import static cn.bran.japid.util.StringUtils.*;
 //
