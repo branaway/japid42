@@ -1,0 +1,106 @@
+h1. japid42 - Japid for Play 2
+
+Bing Ran (bing.ran@gmail.com)
+
+Status: somewhere between alpha and beta. 
+
+h2. About
+
+This is a port of Japid to the Play2 framework. 
+
+The idea is to have a native Java based template engine for Java programmers using Play2. 
+
+Some of the benefits of using Japid in Play2:
+
+1. Almost no latency in reloading changed views. Japid manages its own view compilation and class loading. Changes in the Japid views are isolated from the Play reloading mechanism. 
+
+2. Full featured. It at least matches the feature set of the built-in Scala based template engine. 
+
+3. Excellent runtime performance. 
+
+4. Java-based, thus very friendly to Java programmers.
+
+5. The core Japid has been used in production for a long time and is very robust.  
+
+
+h2. Features
+
+Most of the Japid 1 features have been ported:
+
+- layout
+- tags
+- action invocations from views
+- implicit objects available in views: request, response, session, flash
+- other language constructs
+
+What are missing?
+
+- cache with action invocation, i.e., the @`a@ command does not support cache yet.
+- validation: I'm still investigating how the whole validation thing works in Play2. 
+- Flash success/error: the new flash in Play2 is a generic HashMap. 
+- session.authentityToken not supported
+- implicit objects: params, args
+- pretty error page for japid errors, compile time or runtime. 
+
+What are different?
+
+- reverse routing: @{} not supported and deprecated by Play2's direct route class call for each route rule. 
+
+h2. Build the module from source
+
+1. Git clone the Japid42 project to your local computer. 
+2. Build it and publish it to your local repository: "play publish-local", where the play is the Play2 binary. I'm using sbt 0.11.2 locally. 
+
+
+h2. Usage
+
+
+Please check out the JapidSample project in the samples directory for an example. 
+
+Basically you'll need to do three things:
+
+0. Get the dependencies
+
+- declare it in the project/Build.scala:
+<pre>
+    val appDependencies = Seq(
+      "japid42" % "japid42_2.9.1" % "0.1-SNAPSHOT"
+    )
+</pre>
+
+Note: adjust the version number accordingly. 
+
+- copy the javaparser-1.0.8.jar and org.eclipse.jdt.core-3.8.0.v_C18.jar from the lib directory to the lib directory in your project. 
+
+1. Initialize Japid in Global:
+
+<pre>
+
+public class Global extends GlobalSettings {
+    @Override
+    public void onStart(Application app) {
+        JapidRenderer.setParentClassLoader(app.classloader());
+        JapidRenderer.init(Play.isDev()? OpMode.dev:  OpMode.prod, "japidroot", 2);
+        JapidRenderer.addImportStatic(StringUtils.class);
+        JapidRenderer.gen();
+    }
+}
+</pre>  
+
+Note:
+
+a. The "japidroot" in the second line in the method can be anything you like. It's a folder in the application root and it contains all the japid artifacts. Essentially it needs to be outside of the app directory. 
+  
+b. The addImportStatic line is up to you if you need to include some implicit imports in all the japid views. 
+ 
+2. Extend JapidController to create your own controllers and use the renderJapid(...) etc to render the views. These views are in the japid root directory in a similar directory structure as the the controller hierarchy. 
+
+For detailed Japid grammar please refer to the Japid 1 manual. 
+
+h2. History
+
+2012.3.28: v0.1
+    1. initial commit. 
+
+
+ 
