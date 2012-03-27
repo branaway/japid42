@@ -108,7 +108,9 @@ For detailed Japid grammar please refer to the Japid 1 manual before I write som
 
 － https://github.com/branaway/Japid/wiki
 
+h2. A sample application
 
+There is a sample application in the sample/JapidSample. Please update the dependency entry in the project/Build.scala file. 
 
 h2. History
 

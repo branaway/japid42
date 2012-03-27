@@ -48,6 +48,9 @@
 	<classpathentry kind="lib" path="/Users/bran/projects/Play20/repository/cache/tyrex/tyrex/jars/tyrex-1.0.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/Play20/repository/cache/jaxen/jaxen/jars/jaxen-1.1.3.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/Play20/repository/cache/net.sf.ehcache/ehcache-core/jars/ehcache-core-2.5.0.jar"/>
+	<classpathentry kind="lib" path="/Users/bran/projects/Play20/repository/cache/org.apache.commons/commons-email/jars/commons-email-1.2.jar"/>
+	<classpathentry kind="lib" path="/Users/bran/projects/Play20/repository/cache/javax.mail/mail/jars/mail-1.4.1.jar"/>
+	<classpathentry kind="lib" path="/Users/bran/projects/Play20/repository/cache/javax.activation/activation/jars/activation-1.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/Play20/repository/local/play/play-test_2.9.1/2.0-SNAPSHOT/jars/play-test_2.9.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/Play20/repository/cache/org.specs2/specs2_2.9.1/jars/specs2_2.9.1-1.7.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/Play20/repository/cache/org.specs2/specs2-scalaz-core_2.9.1/jars/specs2-scalaz-core_2.9.1-6.0.1.jar"/>
