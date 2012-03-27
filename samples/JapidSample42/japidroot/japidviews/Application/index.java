@@ -173,7 +173,7 @@ int ag = 123;// line 80
 "	<li><a href=\"/assets/images/favicon.png\">static mapping</a></li>\n" + 
 "</ul>\n" + 
 "\n" + 
-"<p>Reverse lookup is slow...</p>\n" + 
+"<p>Reverse lookup is slow? not any longer since play2 uses pre compiled reverse router!</p>\n" + 
 "\n" + 
 "<p>app modeis DEV? \"");// line 95
 		p(_play.isDev());// line 101

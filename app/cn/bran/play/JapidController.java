@@ -50,19 +50,28 @@ public class JapidController extends Controller {
 		try {
 			RenderResult rr = invokeRender(c, args);
 			JapidResult japidResult = new JapidResult(rr);
-			applyHeaders(japidResult);
+			postProcess(japidResult);
 			return japidResult;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private static void applyHeaders(JapidResult japidResult) {
+	private static JapidResult postProcess(JapidResult japidResult) {
 		// apply headers
-		Map<String, String> headers = japidResult.getHeaders();
-		for (String k : headers.keySet()) {
-			response().setHeader(k, headers.get(k));
+		try {
+			Map<String, String> currentHeaders = response().getHeaders();
+			
+			Map<String, String> headers = japidResult.getHeaders();
+			for (String k : headers.keySet()) {
+				if (!currentHeaders.containsKey(k))
+					response().setHeader(k, headers.get(k));
+			}
+		} catch (RuntimeException e) {
 		}
+		
+		// eagerly evaluate. The consequence is that there is no cache support in each included part
+		return japidResult.eval();
 	}
 
 	/**
@@ -173,7 +182,7 @@ public class JapidController extends Controller {
 	 * @param rr
 	 */
 	protected static JapidResult render(RenderResult rr) {
-		return new JapidResult(rr);
+		return postProcess(new JapidResult(rr));
 	}
 
 	/**
@@ -186,19 +195,19 @@ public class JapidController extends Controller {
 	 * 
 	 * @param objects
 	 */
-	protected static JapidResult renderJapid(Object... objects) {
+	public static JapidResult renderJapid(Object... objects) {
 		String action = template("renderJapid");
 		return renderJapidWith(action, objects);
 	}
 
-	protected static JapidResult renderJapidByName(NamedArgRuntime... namedArgs) {
+	public static JapidResult renderJapidByName(NamedArgRuntime... namedArgs) {
 		String action = template("renderJapidByName");
 		return renderJapidWith(action, namedArgs);
 	}
 
 	public static JapidResult renderJapidWith(String template, Object... args) {
 		JapidResult japidResult = new JapidResult(getRenderResultWith(template, args));
-		applyHeaders(japidResult);
+		postProcess(japidResult);
 		return japidResult;
 	}
 
@@ -233,6 +242,7 @@ public class JapidController extends Controller {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private static Class<? extends JapidTemplateBaseWithoutPlay> getTemplateClass(
 			String templateClassName) {
 		Class<? extends JapidTemplateBaseWithoutPlay> tClass = null;
@@ -262,10 +272,8 @@ public class JapidController extends Controller {
 	public static JapidResult renderJapidWith(String template,
 			NamedArgRuntime[] namedArgs) {
 		JapidResult japidResult = new JapidResult(getRenderResultWith(template, namedArgs));
-		applyHeaders(japidResult);
-		return japidResult;
+		return postProcess(japidResult);
 	}
-
 
 	protected static String template(String method) {
 //		return StackTraceUtils.getJapidRenderInvoker();
@@ -432,7 +440,7 @@ public class JapidController extends Controller {
 	}
 	
 	public static String genCacheKey() {
-		throw new RuntimeException("not implemented");
+		throw new RuntimeException("not implemented in this version");
 //		return "japidcache:" + Request.current().action + ":"
 //				+ Request.current().querystring;
 	}

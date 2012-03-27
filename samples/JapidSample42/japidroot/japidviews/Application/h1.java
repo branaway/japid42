@@ -81,17 +81,17 @@ public class h1 extends cn.bran.play.JapidTemplateBase
 		p("\n" + 
 "\n" + 
 "	");// line 3
-				actionRunners.put(getOut().length(), new cn.bran.play.CacheablePlayActionRunner("", Application.class, "echo", 2) {
+				actionRunners.put(getOut().length(), new cn.bran.play.CacheablePlayActionRunner("", Application.class, "echo", 3) {
 			@Override
 			public cn.bran.play.JapidResult runPlayAction()  {
-				return (cn.bran.play.JapidResult)Application.echo(2); // line 5
+				return (cn.bran.play.JapidResult)Application.echo(3); // line 5
 			}
 		}); p("\n");// line 5
 		p("	");// line 5
-				actionRunners.put(getOut().length(), new cn.bran.play.CacheablePlayActionRunner("", Application.class, "echo", 4) {
+				actionRunners.put(getOut().length(), new cn.bran.play.CacheablePlayActionRunner("", Application.class, "echo", 1) {
 			@Override
 			public cn.bran.play.JapidResult runPlayAction()  {
-				return (cn.bran.play.JapidResult)Application.echo(4); // line 6
+				return (cn.bran.play.JapidResult)Application.echo(1); // line 6
 			}
 		}); p("\n");// line 6
 		;// line 6

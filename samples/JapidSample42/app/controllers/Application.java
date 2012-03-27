@@ -10,6 +10,7 @@ import models.SearchParams;
 import models.japidsample.Author;
 import models.japidsample.Author2;
 import models.japidsample.Post;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import cn.bran.japid.template.JapidRenderer;
 import cn.bran.japid.template.RenderResult;
@@ -89,7 +90,7 @@ public class Application extends JapidController {
 	
 	public static Result seconds() {
 		String b = "" + new Date().getSeconds();
-		return renderText(b);
+		return doHello(b);
 	}
 	
 //	@CacheFor("4s")
@@ -117,10 +118,15 @@ public class Application extends JapidController {
 		String m = "hi there and....";
 		String am = m + "!";
 //		renderText("hello，Japid Play!");
+		return doHello(am);
+	}
+	 static JapidResult doHello(String am) {
 		return renderText(am);
 	}
 	
+	
 	public static Result h1() {
+		System.out.println(">>" + Thread.currentThread());
 		return renderJapid("h1");
 	}
 	/**
@@ -228,9 +234,27 @@ public class Application extends JapidController {
 	 * test using primitive with renderText
 	 * @param i
 	 */
-	public static Result echo(int i) {
-		return renderText(i * 2);
+	public static Result echo(Integer i) {
+		System.out.println(">>>"+Thread.currentThread());
+		
+		Request req = request();
+		return renderText( i * 8);
+//		return renderText(req.uri() + i * 10);
+//		return doecho(i);
 	}
+
+	public static Result ec(Integer i) {
+//		Request req = request();
+//		return renderText(i * 2);
+		return doecho(i);
+	}
+	
+	static Result doecho(int i) {
+		Request req = request();
+		return renderText(req.uri() + i * 2);
+	}
+	
+	
 	
 	public static Result invokeInLoop() {
 		return renderJapidWith("templates/invokeInLoop", createPosts());
@@ -334,7 +358,7 @@ public class Application extends JapidController {
 	public static Result groovy() {
 		String a = "Groovy";
 		// render with Groovy
-		return renderText(a);
+		return doHello(a);
 	}
 	
 	public static Result list() {

@@ -11,7 +11,10 @@ GET     /hello/:name/:age   controllers.Application.validate(name, age:Integer)
 GET     /reverseUrl   controllers.Application.reverseUrl()
 # GET     /search/:key   controllers.Application.search(key : models.SearchParams)
 GET     /echo/:m        controllers.more.MyController.echo(m)
+GET     /ec        controllers.Application.ec(i:Integer = 10)
+GET     /more.Portlets/index        controllers.more.Portlets.index()
 
+GET     /go/*template             controllers.Application.go(template)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

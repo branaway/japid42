@@ -3,11 +3,7 @@ package cn.bran.japid.template;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
-
-import cn.bran.japid.util.StringUtils;
 
 
 /**
@@ -48,10 +44,6 @@ public class RenderResultPartial extends RenderResult {
 
 	@Override
 	public StringBuilder getContent() {
-		// let's interpolate the static content with the result from the actions
-		
-		// wrap the output in a pair of content type safe markers for better displaying output 
-		// view composition in the output for debugging
 		StringBuilder superContent = super.getContent();
 			
 		StringBuilder sb = new StringBuilder();
@@ -65,18 +57,9 @@ public class RenderResultPartial extends RenderResult {
 				sb.append(a.run().getContent().toString());
 			}
 			sb.append(superContent.substring(segStart));
-//			if (injectTemplateBorder ) {
-//				sb.insert(0,  makeBeginBorder());
-//				sb.append(makeEndBorder());
-//			}
-
 			return sb;
 		} else {
 			sb.append(superContent.toString());
-//			if (injectTemplateBorder ) {
-//				sb.insert(0,  makeBeginBorder());
-//				sb.append(makeEndBorder());
-//			}
 			return sb;
 		}
 	}

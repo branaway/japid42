@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2
 
 Bing Ran (bing.ran@gmail.com)
 
-Status: somewhere between alpha and beta. 
+Status: alpha 
 
 h2. About
 
