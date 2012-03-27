@@ -18,18 +18,15 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import cn.bran.japid.util.StringUtils;
-
 import cn.bran.japid.classmeta.MimeTypeEnum;
-import cn.bran.japid.compiler.NamedArg;
 import cn.bran.japid.compiler.NamedArgRuntime;
 import cn.bran.japid.util.HTMLUtils;
+import cn.bran.japid.util.StringUtils;
 import cn.bran.japid.util.WebUtils;
 
 /**
@@ -40,6 +37,7 @@ import cn.bran.japid.util.WebUtils;
  * 
  */
 public abstract class JapidTemplateBaseWithoutPlay implements Serializable {
+	private static final long serialVersionUID = -7556859353507170142L;
 	protected String sourceTemplate = "";
 	private StringBuilder out;
 	private Map<String, String> headers = new TreeMap<String, String>();

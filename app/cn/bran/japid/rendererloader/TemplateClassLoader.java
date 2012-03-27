@@ -1,26 +1,14 @@
 package cn.bran.japid.rendererloader;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.bran.japid.template.JapidRenderer;
 import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
-import cn.bran.japid.template.RenderResult;
 import cn.bran.japid.util.JapidFlags;
-import cn.bran.japid.util.RenderInvokerUtils;
 
 /**
  * The template class loader that detects changes and recompile on the fly. 
@@ -40,13 +28,9 @@ public class TemplateClassLoader extends ClassLoader {
 
 	private ClassLoader parentClassLoader;
 
-	private TemplateClassLoader() {
+	public TemplateClassLoader(ClassLoader parentClassLoader) {
 		super(TemplateClassLoader.class.getClassLoader());
-	}
-	
-	public TemplateClassLoader(ClassLoader cld) {
-		super(TemplateClassLoader.class.getClassLoader());
-		parentClassLoader = cld;
+		this.parentClassLoader = parentClassLoader;
 	}
 	
 	

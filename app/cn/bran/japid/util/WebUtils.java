@@ -65,10 +65,14 @@ public class WebUtils {
 		return Messages.get(key);
 	}
 
-	public static String getMessage(String key, String sub) {
-		String m = Messages.get(key);
-		if (m == null)
-			m = sub;
+	public static String getMessage(String key, Object... args) {
+		String m = Messages.get(key, args);
+		if (m == null) {
+			if (args.length > 0)
+				m = args[0].toString();
+			else 
+				m = "";
+		}
 		return m;
 	}
 
@@ -76,7 +80,7 @@ public class WebUtils {
 		return getMessage(key);
 	}
 	
-	public static String i18n(String key, String sub) {
-		return getMessage(key, sub);
+	public static String i18n(String key, String args) {
+		return getMessage(key, args);
 	}
 }

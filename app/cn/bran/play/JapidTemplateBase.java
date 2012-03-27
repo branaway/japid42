@@ -31,6 +31,8 @@ public abstract class JapidTemplateBase extends JapidTemplateBaseWithoutPlay {
 //	public static final String CONTENT_TYPE_TXT = MimeTypeEnum.txt.header;
 //	public static final String CONTENT_TYPE_CSS = MimeTypeEnum.css.header;
 	
+	private static final long serialVersionUID = 98249167751601311L;
+
 	public JapidTemplateBase(StringBuilder out) {
 		super(out);
 	}

@@ -16,8 +16,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import play.Application;
-import play.Play;
-
 import cn.bran.japid.compiler.OpMode;
 import cn.bran.japid.compiler.TranslateTemplateTask;
 import cn.bran.japid.rendererloader.RendererClass;
@@ -44,10 +42,6 @@ public class JapidRenderer {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public static void setParentClassLoader(ClassLoader cloader) {
-		parentClassLoader = cloader;
 	}
 
 	public static void addImport(String imp) {
@@ -101,6 +95,7 @@ public class JapidRenderer {
 		}
 		TemplateClassLoader classReloader = new TemplateClassLoader(parentClassLoader);
 		try {
+			@SuppressWarnings("unchecked")
 			Class<JapidTemplateBaseWithoutPlay> loadClass = (Class<JapidTemplateBaseWithoutPlay>) classReloader
 					.loadClass(name);
 			rc.setClz(loadClass);
@@ -289,8 +284,9 @@ public class JapidRenderer {
 		// the names start with template root
 		Set<String> names = new HashSet<String>();
 		for (String f : allHtml) {
-			if (f.startsWith(JAPIDVIEWS))
+			if (f.startsWith(JAPIDVIEWS)) {
 				names.add(getClassName(new File(f)));
+			}
 		}
 		return names;
 	}
@@ -335,14 +331,32 @@ public class JapidRenderer {
 
 	static String getClassName(File f) {
 		String path = f.getPath();
-		String substring = path.substring(path.indexOf(JAPIDVIEWS));
-		substring = substring.replace('/', '.').replace('\\', '.');
-		if (substring.endsWith(".java")) {
-			substring = substring.substring(0, substring.length() - 5);
-		} else if (substring.endsWith(".html")) {
-			substring = substring.substring(0, substring.length() - 5);
+		String k = path.substring(path.indexOf(JAPIDVIEWS));
+		k = k.replace('/', '.').replace('\\', '.');
+		
+		if (k.endsWith(".java")) {
+			k = k.substring(0, k.length() - 5);
+		} else if (k.endsWith(".html")) {
+			k = k.substring(0, k.length() - 5);
+		} else if (k.endsWith(".txt")) {
+			k = k.substring(0, k.length() - 4) + "_txt";
 		}
-		return substring;
+		else if (k.endsWith(".xml")) {
+			k = k.substring(0, k.length() - 4) + "_xml";
+		}
+		else if (k.endsWith(".json")) {
+			k = k.substring(0, k.length() - 5) + "_json";
+		}
+		else if (k.endsWith(".css")) {
+			k = k.substring(0, k.length() - 4) + "_css";
+		}
+		else if (k.endsWith(".js")) {
+			k = k.substring(0, k.length() - 3) + "_js";
+		}
+		else {
+			k = k + "";
+		}
+		return k;
 	}
 
 	/**
@@ -477,11 +491,11 @@ public class JapidRenderer {
 		// moved to reloadChanged
 		List<File> changedFiles = reloadChanged(packageRoot);
 		if (changedFiles.size() > 0) {
-			for (File f : changedFiles) {
-				// log("updated: " + f.getName().replace("html", "java"));
-			}
+//			for (File f : changedFiles) {
+//				// log("updated: " + f.getName().replace("html", "java"));
+//			}
 		} else {
-			log("All java files are up to date.");
+			log("nothing changed");
 		}
 
 		rmOrphanJava(packageRoot);
@@ -735,6 +749,10 @@ public class JapidRenderer {
 		if ("on".equalsIgnoreCase(property) || "yes".equalsIgnoreCase(property))
 			property = "true";
 		JapidTemplateBaseWithoutPlay.globalTraceFileJson = new Boolean(property);
+		
+		parentClassLoader = app.classloader();
+		crlr = new TemplateClassLoader(parentClassLoader);
+		compiler = new RendererCompiler(classes, crlr);
 	}
 	/**
 	 * a facet method to wrap implicit template binding. The default template is

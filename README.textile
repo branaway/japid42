@@ -6,7 +6,7 @@ Status: alpha
 
 h2. About
 
-This is a port of Japid to the Play2 framework. 
+This is a port of Japid to the Play2 framework, which I'm still exploring.  
 
 The idea is to have a native Java based template engine for Java programmers using Play2. 
 
@@ -65,7 +65,13 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.1-SNAPSHOT"
+      // Add your project dependencies here,
+      "japid42" % "japid42_2.9.1" % "0.2"
+    )
+
+    val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
+      // Add your own project settings here  
+      resolvers += "Local Play Repository" at "/my/path/to/Play20/repository/local"
     )
 //...
 </pre>
@@ -98,12 +104,18 @@ b. The addImportStatic line is up to you if you need to include some implicit im
  
 2. Extend JapidController to create your own controllers and use the renderJapid(...) etc to render the views. These views are in the japid root directory in a similar directory structure as the the controller hierarchy. 
 
-For detailed Japid grammar please refer to the Japid 1 manual. 
+For detailed Japid grammar please refer to the Japid 1 manual before I write something formal： 
+
+－ https://github.com/branaway/Japid/wiki
+
+
 
 h2. History
 
-2012.3.28: v0.1
+2012.3.24: v0.1
     1. initial commit. 
+2012.3.27: v0.2
+    1. lots of fix and the JapidSample mostly works now.  
 
 
  

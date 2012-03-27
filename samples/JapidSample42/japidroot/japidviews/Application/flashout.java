@@ -73,6 +73,8 @@ public class flashout extends cn.bran.play.JapidTemplateBase
 ;// line 1
 		p("\n");// line 1
 		p("\n" + 
+"\n" + 
+"well, need to wrap the raw flash with more API\n" + 
 "\n");// line 15
 		
 		endDoLayout(sourceTemplate);

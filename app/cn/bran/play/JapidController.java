@@ -61,7 +61,7 @@ public class JapidController extends Controller {
 		// apply headers
 		try {
 			Map<String, String> currentHeaders = response().getHeaders();
-			
+
 			Map<String, String> headers = japidResult.getHeaders();
 			for (String k : headers.keySet()) {
 				if (!currentHeaders.containsKey(k))
@@ -69,8 +69,9 @@ public class JapidController extends Controller {
 			}
 		} catch (RuntimeException e) {
 		}
-		
-		// eagerly evaluate. The consequence is that there is no cache support in each included part
+
+		// eagerly evaluate. The consequence is that there is no cache support
+		// in each included part
 		return japidResult.eval();
 	}
 
@@ -111,8 +112,8 @@ public class JapidController extends Controller {
 		} catch (InvocationTargetException e) {
 			// e.printStackTrace();
 			Throwable te = e.getTargetException();
-//			if (te instanceof TemplateExecutionException)
-//				throw (TemplateExecutionException) te;
+			// if (te instanceof TemplateExecutionException)
+			// throw (TemplateExecutionException) te;
 			Throwable cause = te.getCause();
 			if (cause != null)
 				if (cause instanceof RuntimeException)
@@ -206,7 +207,8 @@ public class JapidController extends Controller {
 	}
 
 	public static JapidResult renderJapidWith(String template, Object... args) {
-		JapidResult japidResult = new JapidResult(getRenderResultWith(template, args));
+		JapidResult japidResult = new JapidResult(getRenderResultWith(template,
+				args));
 		postProcess(japidResult);
 		return japidResult;
 	}
@@ -233,8 +235,11 @@ public class JapidController extends Controller {
 		Class<? extends JapidTemplateBaseWithoutPlay> tClass = getTemplateClass(templateClassName);
 
 		if (tClass == null) {
-			String templateFileName = templateClassName.replace(DOT, '/') + HTML;
-			throw new RuntimeException("Could not find a Japid template with the name of: " + templateFileName);
+			String templateFileName = templateClassName.replace(DOT, '/')
+					+ HTML;
+			throw new RuntimeException(
+					"Could not find a Japid template with the name: "
+							+ templateFileName);
 		} else {
 			// render(tClass, args);
 			RenderResult rr = invokeRender(tClass, args);
@@ -242,50 +247,101 @@ public class JapidController extends Controller {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private static Class<? extends JapidTemplateBaseWithoutPlay> getTemplateClass(
 			String templateClassName) {
 		Class<? extends JapidTemplateBaseWithoutPlay> tClass = null;
 
-		if (JapidRenderer.isDevMode())
-			tClass = JapidRenderer.getClass(templateClassName);
-		else
-			try {
-				tClass = (Class<? extends JapidTemplateBaseWithoutPlay>)
-						JapidController.class.getClassLoader().loadClass(templateClassName);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+		tClass = JapidRenderer.getClass(templateClassName);
 		return tClass;
 	}
 
 	private static String getTemplateClassName(String template) {
-		String templateClassName = template.startsWith(JAPIDVIEWS_ROOT) ?
-					template :
-					JAPIDVIEWS_ROOT + File.separator + template;
+		String templateClassName = template.startsWith(JAPIDVIEWS_ROOT) ? template
+				: JAPIDVIEWS_ROOT + File.separator + template;
 
-		templateClassName = templateClassName.replace('/', DOT).replace('\\', DOT);
+		templateClassName = templateClassName.replace('/', DOT).replace('\\',
+				DOT);
 		return templateClassName;
 	}
 
-	
 	public static JapidResult renderJapidWith(String template,
 			NamedArgRuntime[] namedArgs) {
-		JapidResult japidResult = new JapidResult(getRenderResultWith(template, namedArgs));
+		JapidResult japidResult = new JapidResult(getRenderResultWith(template,
+				namedArgs));
 		return postProcess(japidResult);
 	}
 
 	protected static String template(String method) {
-//		return StackTraceUtils.getJapidRenderInvoker();
-		String japidControllerInvoker = StackTraceUtils.getJapidControllerInvoker(method);
+		// return StackTraceUtils.getJapidRenderInvoker();
+		String japidControllerInvoker = StackTraceUtils
+				.getJapidControllerInvoker(method);
 		if (japidControllerInvoker.startsWith(CONTROLLERS))
-			japidControllerInvoker = japidControllerInvoker.substring(CONTROLLERS.length());
-		return japidControllerInvoker;
+			japidControllerInvoker = japidControllerInvoker
+					.substring(CONTROLLERS.length());
+
+		
+		String expr = japidControllerInvoker;
+		
+		// some content negotiation
+		// TODO: shall we set the response content type accordingly?
+		String format = resolveFormat(request().headers());
+		if ("html".equals(format)) {
+			return expr;
+		} else { 
+			String expr_format = expr + "_" + format;
+			try {
+				Class<?> appClass = getTemplateClass(getTemplateClassName(expr_format));
+				if (appClass != null)
+					return expr_format;
+				else {
+					return expr;
+				}
+			} catch (RuntimeException e) {
+				return expr;
+			}
+		}
+	}
+
+	public static String resolveFormat(Map<String, String[]> headers) {
+		String format = "html";
+
+		if (headers.get("accept") == null 
+				&& headers.get("Accept") == null 
+				&& headers.get("ACCEPT") == null 
+				) {
+			return format;
+		}
+
+		
+		String accept = "";
+		if (headers.get("accept") != null )
+			accept = headers.get("accept")[0];
+		else if(headers.get("Accept") != null)
+			accept = headers.get("Accept")[0];
+		else if(headers.get("ACCEPT") != null)
+			accept = headers.get("ACCEPT")[0];
+
+		if (accept.indexOf("application/xhtml") != -1
+				|| accept.indexOf("text/html") != -1
+				|| accept.startsWith("*/*")) {
+			format = "html";
+		} else if (accept.indexOf("application/xml") != -1
+				|| accept.indexOf("text/xml") != -1) {
+			format = "xml";
+		} else if (accept.indexOf("text/plain") != -1) {
+			format = "txt";
+		} else if (accept.indexOf("application/json") != -1
+				|| accept.indexOf("text/javascript") != -1) {
+			format = "json";
+		} else if (accept.endsWith("*/*")) {
+			format = "html";
+		}
+		return format;
 	}
 
 	public static RenderResult getRenderResultWith(String template,
 			NamedArgRuntime[] args) {
-		
+
 		String templateClassName = getTemplateClassName(template);
 		Class<? extends JapidTemplateBaseWithoutPlay> tClass = getTemplateClass(templateClassName);
 
@@ -369,7 +425,6 @@ public class JapidController extends Controller {
 		return caller;
 	}
 
-
 	/**
 	 * render a text in a RenderResult so it can work with invoke tag in
 	 * templates.
@@ -411,7 +466,6 @@ public class JapidController extends Controller {
 		return renderText(new String(new char[] { o }));
 	}
 
-
 	protected static NamedArgRuntime named(String name, Object val) {
 		return new NamedArgRuntime(name, val);
 	}
@@ -438,14 +492,15 @@ public class JapidController extends Controller {
 		}
 		return false;
 	}
-	
+
 	public static String genCacheKey() {
 		throw new RuntimeException("not implemented in this version");
-//		return "japidcache:" + Request.current().action + ":"
-//				+ Request.current().querystring;
+		// return "japidcache:" + Request.current().action + ":"
+		// + Request.current().querystring;
 	}
-	
-//	public static Result ok(String s) {
-//		return new JapidResult(new RenderResult(new HashMap(), new StringBuilder(s), -1));
-//	}
+
+	// public static Result ok(String s) {
+	// return new JapidResult(new RenderResult(new HashMap(), new
+	// StringBuilder(s), -1));
+	// }
 }

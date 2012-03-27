@@ -10,6 +10,7 @@ import models.SearchParams;
 import models.japidsample.Author;
 import models.japidsample.Author2;
 import models.japidsample.Post;
+import play.data.Form;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import cn.bran.japid.template.JapidRenderer;
@@ -279,6 +280,39 @@ public class Application extends JapidController {
 		if (f2 == null)
 			f2 = "";
 		
+		if (body == null)
+			body = "";
+		else
+			System.out.println("body: " + body);
+		
+		return renderJapidWith("templates/dumpPost.html", f1, f2, body);
+	}
+
+	/**
+	 * POST method cannot pass args as parameters
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @return
+	 */
+	
+	public static class Dump {
+		public String f1, f2, body;
+	}
+	
+	public static Result dumpPost2() {
+		Form<Dump> dumpForm = form(Dump.class).bindFromRequest();
+		
+		Dump dump = dumpForm.get();
+		
+		String f1 = dump.f1;
+		if (f1 == null)
+			f1 = "";
+		
+		String f2 = dump.f2;
+		if (f2 == null)
+			f2 = "";
+		
+		String body = dump.body;
 		if (body == null)
 			body = "";
 		else

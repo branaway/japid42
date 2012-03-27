@@ -13,8 +13,8 @@ import cn.bran.japid.util.StringUtils;
 public class Global extends GlobalSettings {
 	@Override
 	public void onStart(Application app) {
-		JapidRenderer.setParentClassLoader(app.classloader());
-		JapidRenderer.init(Play.isDev()? OpMode.dev:  OpMode.prod, "japidroot", 2, app);
+//		JapidRenderer.setParentClassLoader(app.classloader());
+		JapidRenderer.init(Play.isDev()? OpMode.dev:  OpMode.prod, "japidroot", 3, app);
 		JapidRenderer.addImportStatic(StringUtils.class);
 		JapidRenderer.gen();
 	}

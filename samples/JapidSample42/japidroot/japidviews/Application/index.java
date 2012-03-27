@@ -99,9 +99,6 @@ public class index extends cn.bran.play.JapidTemplateBase
 "	<li><a href=\"application/renderByPosition\">implicit template\n" + 
 "	binding with <b>JapidController.renderJapid()</b> </a></li>\n" + 
 "	\n" + 
-"	<li><a href=\"application/postList\">a template with template\n" + 
-"	and tags etc...</a></li>\n" + 
-"	\n" + 
 "	<li><a href=\"go/templates/log.html\">use the log\n" + 
 "	macro in a template. watch the output in the console</a></li>\n" + 
 "	<li><a href=\"go/templates/Msg.html\">i18n, use\n" + 
@@ -124,21 +121,17 @@ public class index extends cn.bran.play.JapidTemplateBase
 "	local variables requires final attribute</a></li>\n" + 
 "	<li><a href=\"go/templates/suppressNull.html\">suppressNull,\n" + 
 "	a directive to allow safe navigation in expression, default off</a></li>\n" + 
-"	<li><a href=\"application/dumpPost\">show how to dump a post\n" + 
+"	<li><a href=\"application/dumpPost/a/bb/ccc\">show how to dump a post\n" + 
 "	detail with japid.dump.request spec in the application.conf. see\n" + 
-"	console for output.</a></li>\n" + 
-"	<li><a href=\"application/cacheWithRenderJapid?a=hi\">cache with\n" + 
-"	renderJapid</a></li>\n" + 
-"	<li><a href=\"application/testCacheFor\">using the CacheFor\n" + 
-"	annotation</a></li>\n" + 
-"	<li><a href=\"application/in\">action forwarding with\n" + 
-"	dontRedirect() from JapidController</a></li>\n" + 
+"	console for output.</a></li>\n");// line 19
+		p("\n" + 
+"	<li><a href=\"application/in\">action forwarding </a></li>\n" + 
 "	<li><a href=\"go/templates/openBrace.html\"> use\n" + 
 "	`{ in if and while </a></li>\n" + 
-"	<li><a href=\"application/escapedExpr\"> ");// line 19
+"	<li><a href=\"application/escapedExpr\"> ");// line 56
 		p("\n" + 
 "	raw expression with ${} and html-safe expression with ~{}\n" + 
-"	");// line 62
+"	");// line 60
 		p("	</li>\n" + 
 "	<li><a href=\"more.ContentNegotiation/index\"> content\n" + 
 "	negotiation.</a> Use tools like CURL to test it: <pre>curl -i -H \"Accept: application/json\" http://127.0.0.1:9000/more.ContentNegotiation/index</pre>\n" + 
@@ -151,33 +144,28 @@ public class index extends cn.bran.play.JapidTemplateBase
 "	<li><a href=\"more.MyController/quickview\"> Use relative path\n" + 
 "	in layout spec and tags</a>: prefix the layout name or the tag name with a\n" + 
 "	dot \".\" to let the compiler prefix the path with the current package.\n" + 
-"	This saves using the full and long class qualifications.</li>\n" + 
-"\n");// line 64
-		String na = "bran";// line 79
-int ag = 123;// line 80
-		p("	<li><a href=\"");// line 80
-		p(controllers.routes.Application.validate(na, ag));// line 81
-		p("\">validation and errors</a></li>\n" + 
+"	This saves using the full and long class qualifications.</li>\n");// line 62
+		p("\n" + 
 "    <li> using the <em>flash</em> object\n" + 
-"		<ul>\n" + 
-"			<li><a href=\"application/flashgood\">flash with success</a></li>\n" + 
-"			<li><a href=\"");// line 81
-		p(controllers.routes.Application.reverseUrl());// line 85
-		p("\">flash with a message</a></li>\n" + 
-"			<li><a href=\"application/flashbad\">flash with errors</a></li>\n" + 
+"		<ul>\n");// line 80
+		p("\n" + 
+"			<li><a href=\"");// line 85
+		p(controllers.routes.Application.reverseUrl());// line 86
+		p("\">flash with a message</a></li>\n");// line 86
+		p("\n" + 
 "			<li><a href=\"application/flashmsg\">flash with a message</a></li>\n" + 
 "		</ul>\n" + 
 "    </li>\n" + 
-"    ");// line 85
+"    ");// line 89
 		p("\n" + 
 "	<li><a href=\"/assets/images/favicon.png\">static mapping</a></li>\n" + 
 "</ul>\n" + 
 "\n" + 
 "<p>Reverse lookup is slow? not any longer since play2 uses pre compiled reverse router!</p>\n" + 
 "\n" + 
-"<p>app modeis DEV? \"");// line 95
-		p(_play.isDev());// line 101
-		p("\"</p>\n");// line 101
+"<p>app modeis DEV? \"");// line 98
+		p(_play.isDev());// line 104
+		p("\"</p>\n");// line 104
 		
 		endDoLayout(sourceTemplate);
 	}

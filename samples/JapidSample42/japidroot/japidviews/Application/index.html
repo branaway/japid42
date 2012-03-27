@@ -23,9 +23,6 @@ source code.</p>
 	<li><a href="application/renderByPosition">implicit template
 	binding with <b>JapidController.renderJapid()</b> </a></li>
 	
-	<li><a href="application/postList">a template with template
-	and tags etc...</a></li>
-	
 	<li><a href="go/templates/log.html">use the log
 	macro in a template. watch the output in the console</a></li>
 	<li><a href="go/templates/Msg.html">i18n, use
@@ -48,15 +45,16 @@ source code.</p>
 	local variables requires final attribute</a></li>
 	<li><a href="go/templates/suppressNull.html">suppressNull,
 	a directive to allow safe navigation in expression, default off</a></li>
-	<li><a href="application/dumpPost">show how to dump a post
+	<li><a href="application/dumpPost/a/bb/ccc">show how to dump a post
 	detail with japid.dump.request spec in the application.conf. see
 	console for output.</a></li>
+*{
 	<li><a href="application/cacheWithRenderJapid?a=hi">cache with
 	renderJapid</a></li>
 	<li><a href="application/testCacheFor">using the CacheFor
 	annotation</a></li>
-	<li><a href="application/in">action forwarding with
-	dontRedirect() from JapidController</a></li>
+}*
+	<li><a href="application/in">action forwarding </a></li>
 	<li><a href="go/templates/openBrace.html"> use
 	``{ in if and while </a></li>
 	<li><a href="application/escapedExpr"> `verbatim
@@ -75,15 +73,20 @@ source code.</p>
 	in layout spec and tags</a>: prefix the layout name or the tag name with a
 	dot "." to let the compiler prefix the path with the current package.
 	This saves using the full and long class qualifications.</li>
-
+*{
 `String na = "bran";
 `int ag = 123;
 	<li><a href="$controllers.routes.Application.validate(na, ag)">validation and errors</a></li>
+}*
     <li> using the <em>flash</em> object
 		<ul>
+*{
 			<li><a href="application/flashgood">flash with success</a></li>
+}*
 			<li><a href="${controllers.routes.Application.reverseUrl()}">flash with a message</a></li>
+*{
 			<li><a href="application/flashbad">flash with errors</a></li>
+}*
 			<li><a href="application/flashmsg">flash with a message</a></li>
 		</ul>
     </li>
