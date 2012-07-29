@@ -2,17 +2,17 @@ h1. japid42 - Japid for Play 2
 
 Bing Ran (bing.ran@gmail.com)
 
-Status: alpha 
+Status: alpha
 
 h2. About
 
-This is a port of Japid to the Play2 framework, which I'm still exploring.  
+This is a port of Japid to the Play2 framework.  
 
 The idea is to have a native Java based template engine for Java programmers using Play2. 
 
 Some of the benefits of using Japid in Play2:
 
-1. Almost no latency in reloading changed views. Japid manages its own view compilation and class loading. Changes in the Japid views are isolated from the Play reloading mechanism. 
+1. No latency in reloading changed views. You simply change the views and refresh your browser to get it right away in literally a blink instead of a coffee break. Japid manages its own view compilation and class loading. Changes in the Japid views are isolated from the Play reloading mechanism. 
 
 2. Full featured. It at least matches the feature set of the built-in Scala based template engine. 
 
@@ -49,7 +49,12 @@ What are different?
 h2. Build the module from source
 
 1. Git clone the Japid42 project to your local computer. 
-2. Build it and publish it to your local repository: "play publish-local", where the play is the Play2 binary. I'm using sbt 0.11.2 locally. 
+2. Build it and publish it to your local repository: "play publish-local", where the play is the Play2 binary. 
+
+Note:
+
+- I'm using sbt 0.11.2 locally. Match the sbt version in the "project/build.properties" file to yours . 
+- Also check and match the sbt-plugin version in the "project/plugins.sbt" file to your local version. 
 
 
 h2. Usage
@@ -61,12 +66,12 @@ Basically you'll need to do three things:
 
 0. Get the dependencies
 
-- declare it in the project/Build.scala:
+- declare Japid in the project/Build.scala:
 <pre>
 //...
     val appDependencies = Seq(
       // Add your project dependencies here,
-      "japid42" % "japid42_2.9.1" % "0.2"
+      "japid42" % "japid42_2.9.1" % "0.2.2"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
@@ -87,10 +92,10 @@ Note: adjust the version number accordingly.
 public class Global extends GlobalSettings {
     @Override
     public void onStart(Application app) {
-        JapidRenderer.setParentClassLoader(app.classloader());
-        JapidRenderer.init(Play.isDev()? OpMode.dev:  OpMode.prod, "japidroot", 2);
-        JapidRenderer.addImportStatic(StringUtils.class);
-        JapidRenderer.gen();
+		JapidRenderer.init(app.isDev() ? OpMode.dev : OpMode.prod, "japidroot", 3, app);
+		JapidRenderer.addImportStatic(StringUtils.class);
+		JapidRenderer.setLogVerbose(true);
+		JapidRenderer.gen();
     }
     //...
 }
@@ -98,11 +103,20 @@ public class Global extends GlobalSettings {
 
 Note:
 
-a. The "japidroot" in the second line in the method can be anything you like. It's a folder in the application root and it contains all the japid artifacts. Essentially it needs to be outside of the app directory. 
-  
-b. The addImportStatic line is up to you if you need to include some implicit imports in all the japid views. 
- 
+
+- The "japidroot" in the init line in the method can be any path you like. It's a folder in the application root and it contains all the japid artifacts. Importantly it needs to be outside of the app directory. 
+
+- The addImportStatic line is up to you if you need to include some implicit imports in all the japid views. 
+
+- Since version 0.2.2, there is a simpler version of init that takes just the app as the argument and use the values in the sample as defaults. So you can do
+  <pre>
+  JapidRenderer.init(app);
+  </pre> 
+   
+   
+   
 2. Extend JapidController to create your own controllers and use the renderJapid(...) etc to render the views. These views are in the japid root directory in a similar directory structure as the the controller hierarchy. 
+
 
 For detailed Japid grammar please refer to the Japid 1 manual before I write something formal： 
 
@@ -118,6 +132,9 @@ h2. History
     1. initial commit. 
 2012.3.27: v0.2
     1. lots of fix and the JapidSample mostly works now.  
-
+2012.4.4: v0.2.1
+    1. added JapidRenderer.setLogVerbose() to control logging verbosity of Japid activities.
+2012.7.28: v0.2.2
+    1. updated the README and fixed the initialization part. 
 
  

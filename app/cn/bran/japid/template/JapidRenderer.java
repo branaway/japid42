@@ -704,6 +704,17 @@ public class JapidRenderer {
 	}
 
 	/**
+	 * A shorter version init() that takes default arguments. The mode matches that of the app;
+	 *  the japidviews folder is located in the "japidroot" directory in the application; the
+	 *  no-change-detection peroid is 3 seconds. 
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param app
+	 */
+	public static void init(Application app) {
+		init(app.isDev() ? OpMode.dev : OpMode.prod, "japidroot", 3, app);
+	}
+	/**
 	 * The <em>required</em> initialization step in using the JapidRender.
 	 * 
 	 * @param opMode
@@ -719,6 +730,8 @@ public class JapidRenderer {
 	 * @param refreshInterval
 	 *            the minimal time, in second, that must elapse before trying to
 	 *            detect any changes in the file system.
+	 * @param app
+	 * 	           the Play application instance 
 	 */
 	public static void init(OpMode opMode, String templateRoot,
 			int refreshInterval, Application app) {
@@ -804,4 +817,13 @@ public class JapidRenderer {
 		return JapidPlainController.renderWith(cla, args);
 	}
 
+	/**
+	 * If true, allow verbose logging to the console of the Japid activities.
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param logVerbose
+	 */
+	public static void setLogVerbose(boolean logVerbose) {
+		JapidFlags.verbose = logVerbose;
+	}
 }
