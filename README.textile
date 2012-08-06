@@ -53,7 +53,7 @@ h2. Build the module from source
 
 Note:
 
-- I'm using sbt 0.11.2 locally. Match the sbt version in the "project/build.properties" file to yours . 
+- I'm using sbt 0.11.3 locally. Match the sbt version in the "project/build.properties" file to yours . 
 - Also check and match the sbt-plugin version in the "project/plugins.sbt" file to your local version. 
 
 
@@ -136,5 +136,8 @@ h2. History
     1. added JapidRenderer.setLogVerbose() to control logging verbosity of Japid activities.
 2012.7.28: v0.2.2
     1. updated the README and fixed the initialization part. 
+2012.7.28: v0.3
+    1. bug fix: import of empty _tags or _layouts caused compiler error. Now imports those packages only if there are any templates in the folders.
+    2. enhancement: updated build files to work with play-2.0.3 release.
 
  

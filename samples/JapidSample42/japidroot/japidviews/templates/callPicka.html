@@ -6,6 +6,14 @@ Another simple tag aTag, which locates in the same directory as this template:
 
 *{
 }*
+first define something in a Java code block. 
+
+` List<String> strings = new ArrayList<String>(){{add("u");add("m");add("everyone");}};
+
+`t aTag(strings)
+
+again: `t aTag(strings)
+
 `tag picka("a", "b" + "c") | String r
     the tag chosed: $r
     <p>and we can call a tag recursively?</p>
@@ -13,11 +21,6 @@ Another simple tag aTag, which locates in the same directory as this template:
     <p>yes we can!</p>
 `
 
-first define something in a Java code block. 
-
-` List<String> strings = new ArrayList<String>(){{add("u");add("m");add("everyone");}};
-
-`t aTag(strings)
 
 note: the picka tag is defined in the japidviews/_tags directory
 </p>

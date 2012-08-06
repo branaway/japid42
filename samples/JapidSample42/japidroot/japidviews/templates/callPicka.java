@@ -82,18 +82,29 @@ public class callPicka extends cn.bran.play.JapidTemplateBase
 "\n" + 
 "Another simple tag aTag, which locates in the same directory as this template:\n" + 
 "\n");// line 1
-		p("\n");// line 8
-		final picka _picka0 = new picka(getOut()); _picka0.setActionRunners(getActionRunners()).setOut(getOut()); _picka0.render(// line 9
-"a", "b" + "c", new picka.DoBody<String>(){ // line 9
-public void render(final String r) { // line 9
-// line 9
-		p("    the tag chosed: ");// line 9
-		p(r);// line 10
+		p("\n" + 
+"first define something in a Java code block. \n" + 
+"\n");// line 8
+		 List<String> strings = new ArrayList<String>(){{add("u");add("m");add("everyone");}};// line 11
+		p("\n");// line 11
+		final aTag _aTag0 = new aTag(getOut()); _aTag0.setActionRunners(getActionRunners()).setOut(getOut()); _aTag0.render(strings); // line 13// line 13
+		p("\n" + 
+"again: ");// line 13
+		final aTag _aTag1 = new aTag(getOut()); _aTag1.setActionRunners(getActionRunners()).setOut(getOut()); _aTag1.render(strings); // line 15// line 15
+		p("\n" + 
+"\n" + 
+"\n");// line 15
+		final picka _picka2 = new picka(getOut()); _picka2.setActionRunners(getActionRunners()).setOut(getOut()); _picka2.render(// line 19
+"a", "b" + "c", new picka.DoBody<String>(){ // line 19
+public void render(final String r) { // line 19
+// line 19
+		p("    the tag chosed: ");// line 19
+		p(r);// line 20
 		p("\n" + 
 "    <p>and we can call a tag recursively?</p>\n" + 
-"    ");// line 10
-		final SampleTag _SampleTag1 = new SampleTag(getOut()); _SampleTag1.setActionRunners(getActionRunners()).setOut(getOut()); _SampleTag1.render(r); // line 12// line 12
-		p("    <p>yes we can!</p>\n");// line 12
+"    ");// line 20
+		final SampleTag _SampleTag3 = new SampleTag(getOut()); _SampleTag3.setActionRunners(getActionRunners()).setOut(getOut()); _SampleTag3.render(r); // line 22// line 22
+		p("    <p>yes we can!</p>\n");// line 22
 		
 }
 
@@ -110,37 +121,32 @@ public void resetBuffer() {
 }
 
 }
-);// line 9
+);// line 19
 		p("\n" + 
-"first define something in a Java code block. \n" + 
-"\n");// line 14
-		 List<String> strings = new ArrayList<String>(){{add("u");add("m");add("everyone");}};// line 18
-		p("\n");// line 18
-		final aTag _aTag2 = new aTag(getOut()); _aTag2.setActionRunners(getActionRunners()).setOut(getOut()); _aTag2.render(strings); // line 20// line 20
-		p("\n" + 
+"\n" + 
 "note: the picka tag is defined in the japidviews/_tags directory\n" + 
 "</p>\n" + 
 "\n" + 
 "<p>\n" + 
 "we can call without the body part:\n" + 
-"\n");// line 20
-		final picka _picka3 = new picka(getOut()); _picka3.setActionRunners(getActionRunners()).setOut(getOut()); _picka3.render("cc","dd"); // line 28// line 28
+"\n");// line 24
+		final picka _picka4 = new picka(getOut()); _picka4.setActionRunners(getActionRunners()).setOut(getOut()); _picka4.render("cc","dd"); // line 33// line 33
 		p("\n" + 
 "or with named args\n" + 
-"\n");// line 28
-		final picka _picka4 = new picka(getOut()); _picka4.setActionRunners(getActionRunners()).setOut(getOut()); _picka4.render(named("a", "aa"), named("b", "bb")); // line 32// line 32
+"\n");// line 33
+		final picka _picka5 = new picka(getOut()); _picka5.setActionRunners(getActionRunners()).setOut(getOut()); _picka5.render(named("a", "aa"), named("b", "bb")); // line 37// line 37
 		p("\n" + 
 "</p>\n" + 
 "<p>\n" + 
 "Or using the full path of the tag starting with japidview\n" + 
 "</p>\n" + 
-"\n");// line 32
-		final japidviews.templates.aTag _japidviews_templates_aTag5 = new japidviews.templates.aTag(getOut()); _japidviews_templates_aTag5.setActionRunners(getActionRunners()).setOut(getOut()); _japidviews_templates_aTag5.render(strings); // line 39// line 39
+"\n");// line 37
+		final japidviews.templates.aTag _japidviews_templates_aTag6 = new japidviews.templates.aTag(getOut()); _japidviews_templates_aTag6.setActionRunners(getActionRunners()).setOut(getOut()); _japidviews_templates_aTag6.render(strings); // line 44// line 44
 		p("\n" + 
 "<p>You can use \".\" instead of \"/\" on the path:</p>\n" + 
-"\n");// line 39
-		final japidviews.templates.aTag _japidviews_templates_aTag6 = new japidviews.templates.aTag(getOut()); _japidviews_templates_aTag6.setActionRunners(getActionRunners()).setOut(getOut()); _japidviews_templates_aTag6.render(strings); // line 43// line 43
-		;// line 43
+"\n");// line 44
+		final japidviews.templates.aTag _japidviews_templates_aTag7 = new japidviews.templates.aTag(getOut()); _japidviews_templates_aTag7.setActionRunners(getActionRunners()).setOut(getOut()); _japidviews_templates_aTag7.render(strings); // line 48// line 48
+		;// line 48
 		
 		endDoLayout(sourceTemplate);
 	}

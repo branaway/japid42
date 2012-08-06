@@ -519,9 +519,10 @@ public class JapidRenderer {
 		File rootDir = new File(root);
 		t.setPackageRoot(rootDir);
 		t.setInclude(new File(japidviews));
-		t.addImport("japidviews ._layouts.*");
-		// t.addImport(root + "/" + "._javatags.*");
-		t.addImport("japidviews ._tags.*");
+		if (DirUtil.hasLayouts(root))
+			t.addImport("japidviews._layouts.*");
+		if (DirUtil.hasTags(root))
+			t.addImport("japidviews._tags.*");		
 		t.addImport("controllers.*");
 		t.addImport("models.*");
 		t.addImport("play.data.validation.Validation");

@@ -133,8 +133,8 @@ public class index extends cn.bran.play.JapidTemplateBase
 "	raw expression with ${} and html-safe expression with ~{}\n" + 
 "	");// line 60
 		p("	</li>\n" + 
-"	<li><a href=\"more.ContentNegotiation/index\"> content\n" + 
-"	negotiation.</a> Use tools like CURL to test it: <pre>curl -i -H \"Accept: application/json\" http://127.0.0.1:9000/more.ContentNegotiation/index</pre>\n" + 
+"	<li><a href=\"more.ContentNegotiation/index\">content\n" + 
+"	negotiation. Not quite working yet.</a> Use tools like CURL to test it: <pre>curl -i -H \"Accept: application/json\" http://127.0.0.1:9000/more.ContentNegotiation/index</pre>\n" + 
 "	<p>Content negotiation works with renderJapid(), which does\n" + 
 "	implicit parameter binding and template picking.</p>\n" + 
 "	<p>For more doc: see <a\n" + 
