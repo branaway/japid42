@@ -2,7 +2,6 @@ h1. japid42 - Japid for Play 2
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.3
 
 Status: beta
 
@@ -139,18 +138,17 @@ There is a sample application in the sample/JapidSample. Please update the depen
 h2. History
 
 2012.3.24: v0.1
-    1. initial commit. 
+# initial commit. 
 2012.3.27: v0.2
-    1. lots of fix and the JapidSample mostly works now.  
+# lots of fix and the JapidSample mostly works now.  
 2012.4.4: v0.2.1
-    1. added JapidRenderer.setLogVerbose() to control logging verbosity of Japid activities.
+# added JapidRenderer.setLogVerbose() to control logging verbosity of Japid activities.
 2012.7.28: v0.2.2
-    1. updated the README and fixed the initialization part. 
+# updated the README and fixed the initialization part. 
 2012.7.28: v0.3
-    1. bug fix: import of empty _tags or _layouts caused compiler error. Now imports those packages only if there are any templates in the folders.
-    2. enhancement: updated build files to work with play-2.0.3 release.
-    
-2012.10.12. v0.3, beta
-	1. made it play 2.0.4 compatible
-	2. major bug fix: class reloading on the controller side or the model side caused type mismatched problem. 
+# bug fix: import of empty _tags or _layouts caused compiler error. Now imports those packages only if there are any templates in the folders.
+# enhancement: updated build files to work with play-2.0.3 release.
+2012.10.12. v0.4, beta
+# made it play 2.0.4 compatible
+# major bug fix: class reloading on the controller side or the model side caused type mismatched problem. 
  

@@ -5,7 +5,7 @@ import PlayProject._
 object ApplicationBuild extends Build {
 
     val appName         = "japid42"
-    val appVersion      = "0.3"
+    val appVersion      = "0.4"
 
     val appDependencies = Seq(
     		"org.apache.commons" % "commons-email" % "1.2"
