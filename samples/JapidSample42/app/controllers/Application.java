@@ -137,7 +137,7 @@ public class Application extends JapidController {
 	 */
 	public static Result renderByPosition() {
 		String s = "hello，renderByPosition！";
-		int i = 100;
+		int i = 1000;
 		Author a = new Author();
 		a.name = "author1";
 

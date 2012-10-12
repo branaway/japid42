@@ -56,6 +56,12 @@ Note:
 - I'm using sbt 0.11.3 locally. Match the sbt version in the "project/build.properties" file to yours . 
 - Also check and match the sbt-plugin version in the "project/plugins.sbt" file to your local version. 
 
+h2. Hack Japid42 in Eclipse
+
+1. In the root directory of japid42: play eclipse 
+2. import the project in Eclipse. 
+3. Fix the missing classes_managed folder as reported. 
+
 
 h2. Usage
 
