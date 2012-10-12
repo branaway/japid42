@@ -6,6 +6,8 @@ public class Author {
 	public String name;
 	public Date birthDate;
 	public char gender;
+//	public int age;
+	
 	public String getName() {
 		return name;
 	}

@@ -3,7 +3,7 @@ import java.util.*;
 import java.io.*;
 import cn.bran.japid.tags.Each;
 import models.japidsample.*;
-import japidviews ._tags.*;
+import japidviews._layouts.*;
 import play.mvc.Http.Context.Implicit;
 import models.*;
 import play.i18n.Lang;
@@ -11,10 +11,10 @@ import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Http.Session;
 import play.mvc.Http.Flash;
-import japidviews ._layouts.*;
 import play.data.validation.Validation;
 import java.util.*;
 import static cn.bran.japid.util.WebUtils.*;
+import japidviews._tags.*;
 import controllers.*;
 import static cn.bran.japid.util.StringUtils.*;
 //
@@ -93,15 +93,17 @@ public class renderByPosition extends cn.bran.play.JapidTemplateBase
 		p("\n" + 
 "got: ");// line 5
 		p(au1.name);// line 6
-		p(", ");// line 6
-		p(au2.name);// line 6
-		p(", ");// line 6
-		p(au22.who);// line 6
+		p(" ->  \n");// line 6
+		p("\n" + 
+"\n");// line 9
+		p(au2.name);// line 11
+		p(", ");// line 11
+		p(au22.who);// line 11
 		p("\n" + 
 "\n" + 
-"<p>Lets call a tag by name:</p>\n" + 
-"\n");// line 6
-		final tagPrimitives _tagPrimitives0 = new tagPrimitives(getOut()); _tagPrimitives0.setActionRunners(getActionRunners()).setOut(getOut()); _tagPrimitives0.render(named("s", "hello"), named("b", true), named("f", 1.2f), named("d", 3.6)); // line 10// line 10
+"<p>Let's call a tag by name:</p>\n" + 
+"\n");// line 11
+		final tagPrimitives _tagPrimitives0 = new tagPrimitives(getOut()); _tagPrimitives0.setActionRunners(getActionRunners()).setOut(getOut()); _tagPrimitives0.render(named("s", "hello"), named("b", true), named("f", 1.2f), named("d", 3.6)); // line 15// line 15
 		
 		endDoLayout(sourceTemplate);
 	}

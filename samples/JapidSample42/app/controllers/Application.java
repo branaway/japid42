@@ -137,10 +137,11 @@ public class Application extends JapidController {
 	 */
 	public static Result renderByPosition() {
 		String s = "hello，renderByPosition！";
-		int i = 1000;
+		int i = 111;
 		Author a = new Author();
 		a.name = "author1";
-
+//		a.age = 99;
+		
 		Author2 a2 = new Author2();
 		a2.name = "author2";
 		

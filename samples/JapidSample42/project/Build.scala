@@ -14,7 +14,7 @@ object ApplicationBuild extends Build {
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
       // Add your own project settings here  
-      resolvers += "Local Play Repository" at "/Users/bran/projects/Play20/repository/local"
+      resolvers += "Local Play Repository" at "/Users/bran/projects/playscala/repository/local"
     )
 
 }

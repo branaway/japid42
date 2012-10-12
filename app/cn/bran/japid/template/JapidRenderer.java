@@ -78,13 +78,18 @@ public class JapidRenderer {
 		if (rc == null)
 			throw new RuntimeException("renderer class not found: " + name);
 		else {
-			try {
-				Class<? extends JapidTemplateBaseWithoutPlay> cls = rc.getClz();
-				if (cls != null) {
-					return cls;
+			if (playClassloaderChanged()) {
+				// fall thru to reload all
+			}
+			else {
+				try {
+					Class<? extends JapidTemplateBaseWithoutPlay> cls = rc.getClz();
+					if (cls != null) {
+						return cls;
+					}
+				} catch (Exception e) {
+					throw new RuntimeException(e);
 				}
-			} catch (Exception e) {
-				throw new RuntimeException(e);
 			}
 		}
 
@@ -104,6 +109,28 @@ public class JapidRenderer {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @return
+	 */
+	private static boolean playClassloaderChanged() {
+		// for some reason even if the classloader remains the same, the classes are new
+		if (opMode ==OpMode.prod)
+			return false;
+		
+		parentClassLoader = _app.classloader();
+		return true;
+//		if (_app.classloader() != parentClassLoader) {
+//			System.out.println("play classloader changed");
+//			parentClassLoader = _app.classloader();
+//			return true;
+//		}
+//		else {
+//			System.out.println("play classloader not changed");
+//			return false;
+//		}
 	}
 
 	static boolean timeToRefresh() {
@@ -260,6 +287,7 @@ public class JapidRenderer {
 	}
 
 	private static OpMode opMode;
+	private static Application _app;
 
 	public static OpMode getOpMode() {
 		return opMode;
@@ -767,6 +795,8 @@ public class JapidRenderer {
 		parentClassLoader = app.classloader();
 		crlr = new TemplateClassLoader(parentClassLoader);
 		compiler = new RendererCompiler(classes, crlr);
+		
+		_app = app;
 	}
 	/**
 	 * a facet method to wrap implicit template binding. The default template is

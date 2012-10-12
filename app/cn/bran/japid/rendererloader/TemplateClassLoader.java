@@ -67,7 +67,7 @@ public class TemplateClassLoader extends ClassLoader {
 		rc.setClz(cl);
 		localClasses.put(name, cl);
 		rc.lastUpdated = 1;// System.currentTimeMillis();
-		if (JapidFlags.verbose) System.out.println(oid + " reloaded from bytecode: " + name);
+//		if (JapidFlags.verbose) System.out.println(oid + " reloaded from bytecode: " + name);
 		return cl;
 
 	}
