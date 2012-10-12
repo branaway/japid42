@@ -80,7 +80,7 @@ Basically you'll need to do three things:
 //...
     val appDependencies = Seq(
       // Add your project dependencies here,
-      "japid42" % "japid42_2.9.1" % "0.2.2"
+      "japid42" % "japid42_2.9.1" % "0.4"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
@@ -101,7 +101,7 @@ Note: adjust the version number accordingly.
 public class Global extends GlobalSettings {
     @Override
     public void onStart(Application app) {
-		JapidRenderer.init(app.isDev() ? OpMode.dev : OpMode.prod, "japidroot", 3, app);
+		JapidRenderer.init(app);
 		JapidRenderer.addImportStatic(StringUtils.class);
 		JapidRenderer.setLogVerbose(true);
 		JapidRenderer.gen();
@@ -116,11 +116,6 @@ Note:
 - The "japidroot" in the init line in the method can be any path you like. It's a folder in the application root and it contains all the japid artifacts. Importantly it needs to be outside of the app directory. 
 
 - The addImportStatic line is up to you if you need to include some implicit imports in all the japid views. 
-
-- Since version 0.2.2, there is a simpler version of init that takes just the app as the argument and use the values in the sample as defaults. So you can do
-  <pre>
-  JapidRenderer.init(app);
-  </pre> 
    
    
    
