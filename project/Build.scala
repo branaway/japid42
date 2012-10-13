@@ -9,12 +9,12 @@ object ApplicationBuild extends Build {
 
   val appDependencies = Seq(
     "org.apache.commons" % "commons-email" % "1.2",
-    "commons-lang" % "commons-lang" % "2.6"
-    // "javax.activation" % "activation" % "1.1",
-    //"javax.mail" % "mail" % "1.4.1"
+    "commons-lang" % "commons-lang" % "2.6",
+    "com.google.code.javaparser" % "javaparser" % "1.0.8"
   )
 
-  val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
-    // Add your own project settings here
+  val main = PlayProject(
+    appName, appVersion, appDependencies,
+    mainLang = JAVA
   )
 }
