@@ -114,10 +114,11 @@ public class TranslateTemplateTask {
 			throw new RuntimeException("srcdir \"" + packageRoot + "\" does not exist!");
 		}
 
-		changedFiles = DirUtil.findChangedSrcFiles(include);
+		if(changedFiles == null) 
+			changedFiles = DirUtil.findChangedSrcFiles(include);
 
 		if (changedFiles.size() > 0) {
-			if (JapidFlags.verbose) System.out.println("[Japid] Processing " + changedFiles.size() + " template" + (changedFiles.size() == 1 ? "" : "s") + " in directory tree: " + destDir);
+			JapidFlags.log("[Japid] Processing " + changedFiles.size() + " template" + (changedFiles.size() == 1 ? "" : "s") + " in directory tree: " + destDir);
 
 			JapidTemplateTransformer tran = new JapidTemplateTransformer(packageRoot.getPath(), null);
 			tran.usePlay(this.usePlay);
@@ -133,13 +134,13 @@ public class TranslateTemplateTask {
 
 			for (int i = 0; i < changedFiles.size(); i++) {
 				File templateFile = changedFiles.get(i);
-				if (JapidFlags.verbose) System.out.println("[Japid] Transforming template: " + templateFile.getPath() + " to: " + DirUtil.mapSrcToJava(templateFile.getName()));
-				if (JapidFlags.verbose && listFiles) {
-					System.out.println(templateFile.getAbsolutePath());
+				JapidFlags.log("[Japid] Transforming template: " + templateFile.getPath() + " to: " + DirUtil.mapSrcToJava(templateFile.getName()));
+				if (listFiles) {
+					JapidFlags.log(templateFile.getAbsolutePath());
 				}
 
 				try {
-					String relativePath = JapidTemplateTransformer.getRelativePath(templateFile, packageRoot);
+					String relativePath = DirUtil.getRelativePath(templateFile, packageRoot);
 					File generate = tran.generate(relativePath);
 					changedTargetFiles.add(generate);
 				} catch (JapidCompilationException e) {
@@ -220,5 +221,12 @@ public class TranslateTemplateTask {
 		imports.clear();
 		
 		AbstractTemplateClassMetaData.clearImports();
+	}
+
+	/**
+	 * @param changedFiles the changedFiles to set. Each file starts with the package root. 
+	 */
+	public void setChangedFiles(List<File> changedFiles) {
+		this.changedFiles = changedFiles;
 	}
 }

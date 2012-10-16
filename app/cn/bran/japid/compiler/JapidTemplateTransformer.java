@@ -13,12 +13,9 @@
  */
 package cn.bran.japid.compiler;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.regex.Pattern;
 
@@ -117,7 +114,7 @@ public class JapidTemplateTransformer {
 	 */
 	public File generate(String fileName) throws Exception {
 		String realSrcFile = sourceFolder == null ? fileName : sourceFolder + "/" + fileName;
-		String src = readFileAsString(realSrcFile);
+		String src = DirUtil.readFileAsString(realSrcFile);
 		JapidTemplate temp = new JapidTemplate(fileName, src);
 		JapidAbstractCompiler c = null;
 		// TODO: more robust way of determine layout file or view file
@@ -152,37 +149,6 @@ public class JapidTemplateTransformer {
 
 	}
 
-	// this method is entirely safe ???
-	private String readFileAsString(String filePath) throws Exception {
-		// let're remove dependency on commons IO
-//		return IOUtils.toString(new FileInputStream(filePath), "UTF-8");
-		byte[] buffer = new byte[(int) new File(filePath).length()];
-		BufferedInputStream f = new BufferedInputStream(new FileInputStream(filePath));
-		// not sure if this is always safe assume it'll read all bytes in
-		f.read(buffer);
-		f.close();
-		return new String(buffer, "UTF-8");
-
-	}
-
-	/**
-	 * a utility method. Should be somewhere else.
-	 * 
-	 * @param srcDir
-	 * @param cf
-	 * @throws IOException
-	 */
-	public static String getRelativePath(File child, File parent) throws IOException {
-		String curPath = parent.getCanonicalPath();
-		String childPath = child.getCanonicalPath();
-		assert (childPath.startsWith(curPath));
-		String srcRelative = childPath.substring(curPath.length());
-		if (srcRelative.startsWith(File.separator)) {
-			srcRelative = srcRelative.substring(File.separator.length());
-		}
-		return srcRelative;
-	}
-
 	/**
 	 * transform a source template to Java
 	 * 
@@ -192,7 +158,7 @@ public class JapidTemplateTransformer {
 	 * @throws Exception
 	 */
 	public File generate(File file) throws Exception {
-		String rela = getRelativePath(file, new File("."));
+		String rela = DirUtil.getRelativePath(file, new File("."));
 		return generate(rela);
 	}
 

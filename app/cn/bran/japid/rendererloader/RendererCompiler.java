@@ -1,10 +1,13 @@
 package cn.bran.japid.rendererloader;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -22,6 +25,10 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
+import cn.bran.japid.compiler.JapidCompilationException;
+import cn.bran.japid.exceptions.JapidTemplateException;
+import cn.bran.japid.template.JapidTemplate;
+import cn.bran.japid.util.DirUtil;
 import cn.bran.japid.util.JapidFlags;
 
 
@@ -244,18 +251,63 @@ public class RendererCompiler {
 			public void acceptResult(CompilationResult result) {
                 // If error
                 if (result.hasErrors()) {
-                    for (IProblem problem: result.getErrors()) {
+                	// bran: sort the problems and report the first one
+                    CategorizedProblem[] errors = result.getErrors();
+                    Arrays.sort(errors, new Comparator<CategorizedProblem>() {
+						@Override
+						public int compare(CategorizedProblem o1, CategorizedProblem o2) {
+							return o1.getSourceLineNumber() - o2.getSourceLineNumber();
+						}
+                    });
+                    
+                    for (IProblem problem: errors) {
                         String className = new String(problem.getOriginatingFileName()).replace("/", ".");
                         className = className.substring(0, className.length() - 5);
                         String message = problem.getMessage();
+                        int line = problem.getSourceLineNumber();
+                        String srcFile = new String(problem.getOriginatingFileName());
                         if (problem.getID() == IProblem.CannotImportPackage) {
                             // Non sense !
                             message = problem.getArguments()[0] + " cannot be resolved";
                         }
-                        throw new RuntimeException(className + ": " + message);
-//                        throw new RuntimeException(className + message +  problem);
+                        
+                        RendererClass rc = classes.get(className);
+                        
+                        if (rc.getScriptFile() == null)
+                        	throw new RuntimeException("no source file for compiling " + className);
+                        
+                        if (rc.getOriSourceCode() == null)
+                        	throw new RuntimeException("no original source code for compiling " + className);
+                        
+                        String descr = srcFile + "(" + line  + "): " + message;
+                        
+                        int oriSrcLineNum = DirUtil.mapJavaLineToSrcLine(rc.getSourceCode(), problem.getSourceLineNumber());
+                        String scriptPath = rc.getScriptFile().getPath();
+						if (oriSrcLineNum > 0) {
+							// has a original script marker
+							descr = scriptPath + "(" + oriSrcLineNum + "): " + message;
+							JapidTemplateException te = new JapidTemplateException(
+									"Japid Compilation Error",
+									descr,
+									oriSrcLineNum, 
+									scriptPath,
+									rc.getOriSourceCode());
+							throw te;
+						}
+						else {
+							JapidTemplateException te = new JapidTemplateException(
+									"Japid Compilation Error",
+									descr,
+									line, 
+									srcFile,
+									rc.getSourceCode());
+							throw te;
+							
+						}
                     }
                 }
+                
+                
                 // Something has been compiled
                 ClassFile[] clazzFiles = result.getClassFiles();
                 for (int i = 0; i < clazzFiles.length; i++) {

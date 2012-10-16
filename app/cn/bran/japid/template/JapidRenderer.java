@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -18,11 +17,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import play.Application;
 import cn.bran.japid.compiler.OpMode;
 import cn.bran.japid.compiler.TranslateTemplateTask;
+import cn.bran.japid.exceptions.JapidTemplateException;
 import cn.bran.japid.rendererloader.RendererClass;
 import cn.bran.japid.rendererloader.RendererCompiler;
 import cn.bran.japid.rendererloader.TemplateClassLoader;
 import cn.bran.japid.util.DirUtil;
 import cn.bran.japid.util.JapidFlags;
+import cn.bran.japid.util.PlayDirUtil;
 import cn.bran.japid.util.StackTraceUtils;
 import cn.bran.japid.util.WebUtils;
 
@@ -30,6 +31,7 @@ public class JapidRenderer {
 
 	static HashSet<String> imports;
 	private static ClassLoader parentClassLoader;
+	private static boolean classesInited;
 	static {
 		imports = new HashSet<String>();
 		addImportStatic(WebUtils.class);
@@ -72,9 +74,15 @@ public class JapidRenderer {
 	public static Class<? extends JapidTemplateBaseWithoutPlay> getClass(
 			String name) {
 
-		refreshClasses(name);
+		refreshClasses();
 
-		RendererClass rc = classes.get(name);
+		return getClassWithoutRefresh(name);
+
+	}
+
+	private static Class<? extends JapidTemplateBaseWithoutPlay> getClassWithoutRefresh(
+			String name) {
+		RendererClass rc = japidClasses.get(name);
 		if (rc == null)
 			throw new RuntimeException("renderer class not found: " + name);
 		else {
@@ -94,8 +102,8 @@ public class JapidRenderer {
 		}
 
 		// always clear the mark to reload all
-		for (String c : classes.keySet()) {
-			RendererClass rendererClass = classes.get(c);
+		for (String c : japidClasses.keySet()) {
+			RendererClass rendererClass = japidClasses.get(c);
 			rendererClass.setLastUpdated(0);
 		}
 		TemplateClassLoader classReloader = new TemplateClassLoader(parentClassLoader);
@@ -108,7 +116,6 @@ public class JapidRenderer {
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	/**
@@ -134,6 +141,9 @@ public class JapidRenderer {
 	}
 
 	static boolean timeToRefresh() {
+		if (opMode == OpMode.prod)
+			return false;
+		
 		long now = System.currentTimeMillis();
 		if (now - lastRefreshed > refreshInterval) {
 			lastRefreshed = now;
@@ -143,25 +153,30 @@ public class JapidRenderer {
 
 	}
 
-	static synchronized void refreshClasses(String targetClass) {
-		if (!timeToRefresh())
-			return;
-
+	static synchronized void refreshClasses() {
+		if (!classesInited) {
+			classesInited = true;
+		}
+		else {
+			if (!timeToRefresh())
+				return;
+		}
 		try {
 			// find out all removed classes
-			String[] allHtml = DirUtil.getAllTemplateHtmlFiles(new File(
-					templateRoot));
-			Set<String> currentClassesOnDir = createNameSet(allHtml);
-			Set<String> tmp = new HashSet<String>(currentClassesOnDir);
+			// XXX  just html? not xml, css, js?
+			// XXX need to add other files as well. The old code is for plain text rendering only
+			String[] allTemps = DirUtil.getAllTemplateFiles(new File(templateRoot));
+			Set<String> currentClassesOnDir = createNameSet(allTemps);
+			Set<String> allNames = new HashSet<String>(currentClassesOnDir);
 
-			Set<String> keySet = classes.keySet();
-			tmp.removeAll(keySet); // added html
+			Set<String> keySet = japidClasses.keySet();
+			allNames.removeAll(keySet); // got new templates
 
 			removeRemoved(currentClassesOnDir, keySet);
 
-			for (String c : tmp) {
+			for (String c : allNames) {
 				RendererClass rc = newRendererClass(c);
-				classes.put(c, rc);
+				japidClasses.put(c, rc);
 			}
 			// now all the class set size is up to date
 
@@ -171,32 +186,33 @@ public class JapidRenderer {
 			// this would include both new and updated java
 			Set<String> updatedClasses = new HashSet<String>();
 			if (gen.size() > 0) {
-				// int i = 0;
 				for (File f : gen) {
 					String className = getClassName(f);
 					updatedClasses.add(className);
-					RendererClass rendererClass = classes.get(className);
+					RendererClass rendererClass = japidClasses.get(className);
 					if (rendererClass == null) {
 						// this should not happen, since
-						throw new RuntimeException(
-								"any new key should have been in the classes container: "
-										+ className);
+						throw new RuntimeException("any new class names should have been in the classes container: " + className);
 						// rendererClass = newRendererClass(className);
-						// classes.put(className, rendererClass);
+						// japidClasses.put(className, rendererClass);
 					}
-					rendererClass.setSourceCode(readSource(f));
+					
+					setSources(rendererClass, f);
 					removeInnerClasses(className);
 					cleanClassHolder(rendererClass);
 				}
 			}
 
 			// find all render class without bytecode
-			for (Iterator<String> i = classes.keySet().iterator(); i.hasNext();) {
+			for (Iterator<String> i = japidClasses.keySet().iterator(); i.hasNext();) {
 				String k = i.next();
-				RendererClass rc = classes.get(k);
+				RendererClass rc = japidClasses.get(k);
 				if (rc.getSourceCode() == null) {
 					if (!rc.getClassName().contains("$")) {
-						rc.setSourceCode(getSourceCode(k));
+						String pathname = templateRoot + sep + k;
+						pathname = pathname.replace(".", sep);
+						File f = new File(pathname + ".java");
+						setSources(rc, f);
 						cleanClassHolder(rc);
 						updatedClasses.add(k);
 					} else {
@@ -218,22 +234,43 @@ public class JapidRenderer {
 					names[i++] = s;
 				}
 				long t = System.currentTimeMillis();
+				// newly compiled class bytecode bodies are set in the global classes set ready for defining
 				compiler.compile(names);
 				howlong("compile time for " + names.length + " classes", t);
 
-				// clear the global class cache
-				for (String k : classes.keySet()) {
-					RendererClass rc = classes.get(k);
+				// clear the global defined class cache
+				for (String k : japidClasses.keySet()) {
+					RendererClass rc = japidClasses.get(k);
 					rc.setClz(null);
 				}
 			}
-		} catch (Exception e) {
+		} 
+//		catch (JapidCompilationException e) {
+//			String tempName = e.getTemplateName();
+//			if (tempName.startsWith(templateRoot)) {
+//			}else {
+//				tempName = templateRoot + File.separator + tempName;
+//			}
+//			VirtualFile vf = VirtualFile.fromRelativePath(tempName);
+//			CompilationException ce = new CompilationException(vf, "\"" + e.getMessage() + "\"", e.getLineNumber(), 0, 0);
+//			throw ce;
+//		}
+		catch (Exception e) {
+			if (e instanceof JapidTemplateException)
+				throw (JapidTemplateException)e;
 			throw new RuntimeException(e);
 		}
 	}
 
+	private static void setSources(RendererClass rc, File f) {
+		rc.setSourceCode(readSource(f));
+		File srcFile = DirUtil.mapJavatoSrc(f);
+		rc.setOriSourceCode(readSource(srcFile));
+		rc.setScriptFile(srcFile);
+	}
+
 	public static void removeInnerClasses(String className) {
-		for (Iterator<String> i = classes.keySet().iterator(); i.hasNext();) {
+		for (Iterator<String> i = japidClasses.keySet().iterator(); i.hasNext();) {
 			String k = i.next();
 			if (k.startsWith(className + "$")) {
 				i.remove();
@@ -263,14 +300,14 @@ public class JapidRenderer {
 	}
 
 	// <classname RendererClass>
-	public final static Map<String, RendererClass> classes = new ConcurrentHashMap<String, RendererClass>();
+	public final static Map<String, RendererClass> japidClasses = new ConcurrentHashMap<String, RendererClass>();
 	public static TemplateClassLoader crlr = new TemplateClassLoader(parentClassLoader);
 
 	public static TemplateClassLoader getCrlr() {
 		return crlr;
 	}
 
-	public static RendererCompiler compiler = new RendererCompiler(classes,
+	public static RendererCompiler compiler = new RendererCompiler(japidClasses,
 			crlr);
 	public static String templateRoot = "plainjapid";
 	public static final String JAPIDVIEWS = "japidviews";
@@ -359,32 +396,15 @@ public class JapidRenderer {
 
 	static String getClassName(File f) {
 		String path = f.getPath();
-		String k = path.substring(path.indexOf(JAPIDVIEWS));
-		k = k.replace('/', '.').replace('\\', '.');
-		
-		if (k.endsWith(".java")) {
-			k = k.substring(0, k.length() - 5);
-		} else if (k.endsWith(".html")) {
-			k = k.substring(0, k.length() - 5);
-		} else if (k.endsWith(".txt")) {
-			k = k.substring(0, k.length() - 4) + "_txt";
+		String substring = path.substring(path.indexOf(JAPIDVIEWS));
+		substring = substring.replace('/', '.').replace('\\', '.');
+		substring = DirUtil.mapSrcToJava(substring);
+		if (substring.endsWith(".java")) {
+			substring = substring.substring(0, substring.length() - 5);
+		} else {
+			substring = DirUtil.mapSrcToJava(substring);
 		}
-		else if (k.endsWith(".xml")) {
-			k = k.substring(0, k.length() - 4) + "_xml";
-		}
-		else if (k.endsWith(".json")) {
-			k = k.substring(0, k.length() - 5) + "_json";
-		}
-		else if (k.endsWith(".css")) {
-			k = k.substring(0, k.length() - 4) + "_css";
-		}
-		else if (k.endsWith(".js")) {
-			k = k.substring(0, k.length() - 3) + "_js";
-		}
-		else {
-			k = k + "";
-		}
-		return k;
+		return substring;
 	}
 
 	/**
@@ -454,27 +474,7 @@ public class JapidRenderer {
 	 * 
 	 */
 	static List<File> mkdir(String root) throws IOException {
-		String japidviewsDir = getJapidviewsDir(root);
-		File layouts = new File(japidviewsDir + "_layouts");
-		if (!layouts.exists()) {
-			boolean mkdirs = layouts.mkdirs();
-			assert mkdirs == true;
-			log("created: " + layouts.getPath());
-		}
-
-		File tags = new File(japidviewsDir + "_tags");
-		if (!tags.exists()) {
-			boolean mkdirs = tags.mkdirs();
-			assert mkdirs == true;
-			log("created: " + tags.getPath());
-		}
-
-		File[] dirs = new File[] { layouts, tags };
-		List<File> res = new ArrayList<File>();
-		res.addAll(Arrays.asList(dirs));
-
-		return res;
-
+		return PlayDirUtil.mkdir(root);
 	}
 
 	/**
@@ -515,15 +515,10 @@ public class JapidRenderer {
 	 * @throws IOException
 	 */
 	static List<File> gen(String packageRoot) throws IOException {
-		// mkdir(packageRoot);
-		// moved to reloadChanged
 		List<File> changedFiles = reloadChanged(packageRoot);
 		if (changedFiles.size() > 0) {
-//			for (File f : changedFiles) {
-//				// log("updated: " + f.getName().replace("html", "java"));
-//			}
 		} else {
-			log("nothing changed");
+			JapidFlags.log(":");
 		}
 
 		rmOrphanJava(packageRoot);
@@ -617,9 +612,9 @@ public class JapidRenderer {
 				File file = new File(realfile);
 				boolean r = file.delete();
 				if (r)
-					log("deleted orphan " + realfile);
+						JapidFlags.log("deleted orphan " + realfile);
 				else
-					log("failed to delete: " + realfile);
+						JapidFlags.log("failed to delete: " + realfile);
 			}
 
 		} catch (Exception e) {
@@ -665,10 +660,10 @@ public class JapidRenderer {
 	// devMode = false;
 	// }
 	//
-
-	public static boolean isDevMode() {
-		return opMode == OpMode.dev;
-	}
+//
+//	public static boolean isDevMode() {
+//		return opMode == OpMode.dev;
+//	}
 
 	static String removeSemi(String imp) {
 		imp = imp.trim();
@@ -721,27 +716,20 @@ public class JapidRenderer {
 //	}
 
 	/**
-	 * one of the ways to invoke a renderer
-	 * 
-	 * @param cls
-	 * @param args
-	 * @return
-	 */
-	public String render(Class<? extends JapidTemplateBaseWithoutPlay> cls,
-			Object... args) {
-		return JapidPlainController.renderWith(cls, args);
-	}
-
-	/**
 	 * A shorter version init() that takes default arguments. The mode matches that of the app;
 	 *  the japidviews folder is located in the "japidroot" directory in the application; the
 	 *  no-change-detection peroid is 3 seconds. 
 	 * 
 	 * @author Bing Ran (bing.ran@hotmail.com)
 	 * @param app
+	 * @throws IOException 
 	 */
 	public static void init(Application app) {
-		init(app.isDev() ? OpMode.dev : OpMode.prod, "japidroot", 3, app);
+		try {
+			init(app.isDev() ? OpMode.dev : OpMode.prod, "japidroot", 3, app);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	/**
 	 * The <em>required</em> initialization step in using the JapidRender.
@@ -761,9 +749,10 @@ public class JapidRenderer {
 	 *            detect any changes in the file system.
 	 * @param app
 	 * 	           the Play application instance 
+	 * @throws IOException 
 	 */
 	public static void init(OpMode opMode, String templateRoot,
-			int refreshInterval, Application app) {
+			int refreshInterval, Application app) throws IOException {
 		inited = true;
 		JapidRenderer.opMode = opMode;
 		setTemplateRoot(templateRoot);
@@ -794,59 +783,19 @@ public class JapidRenderer {
 		
 		parentClassLoader = app.classloader();
 		crlr = new TemplateClassLoader(parentClassLoader);
-		compiler = new RendererCompiler(classes, crlr);
+		compiler = new RendererCompiler(japidClasses, crlr);
 		
 		_app = app;
-	}
-	/**
-	 * a facet method to wrap implicit template binding. The default template is
-	 * named as the class and method that immediately invoke this method. e.g.
-	 * for an invocation scenario like this
-	 * 
-	 * <pre>
-	 * package pack;
-	 * 
-	 * public class Foo {
-	 * 	public String bar() {
-	 * 		return JapidRender.render(p);
-	 * 	}
-	 * }
-	 * </pre>
-	 * 
-	 * The template to use is "{templateRoot}/japidviews/pack/Foo/bar.html".
-	 * 
-	 * @param p
-	 * @return
-	 */
-	public static String render(Object... args) {
-		String templateName = findTemplate();
-		return JapidPlainController.renderJapidWith(templateName, args);
+		
+		initErrorRenderer();
 	}
 
-	/**
-	 * render with the specified template.
-	 * 
-	 * @param templateName
-	 *            The template must be rooted in the {templateRoot/}/japidviews
-	 *            tree. The template name starts with or without "japidviews".
-	 *            The naming pattern is the same as in
-	 *            ClassLoader.getResource().
-	 * @param args
-	 * @return the result string
-	 */
-	public static String renderWith(String templateName, Object... args) {
-		return JapidPlainController.renderJapidWith(templateName, args);
-	}
 
 	public static String findTemplate() {
 		String japidRenderInvoker = StackTraceUtils.getJapidRenderInvoker();
 		return japidRenderInvoker;
 	}
 
-	public static String renderWith(
-			Class<? extends JapidTemplateBaseWithoutPlay> cla, Object... args) {
-		return JapidPlainController.renderWith(cla, args);
-	}
 
 	/**
 	 * If true, allow verbose logging to the console of the Japid activities.
@@ -856,5 +805,82 @@ public class JapidRenderer {
 	 */
 	public static void setLogVerbose(boolean logVerbose) {
 		JapidFlags.verbose = logVerbose;
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @return
+	 */
+	public static Class<? extends JapidTemplateBaseWithoutPlay> getErrorRendererClass() {
+		String className = "japidviews._errors.devError";
+		return getClassWithoutRefresh(className);
+	}
+	
+	@SuppressWarnings("serial")
+	public static List<File> initErrorRenderer() throws IOException {
+		PlayDirUtil.mkdir(templateRoot);
+		String pathname = templateRoot + "/japidviews/_errors/devError.html";
+		final File devErrorRendererFile = new File(pathname);
+		if (devErrorRendererFile.exists()) {
+			TranslateTemplateTask t = new TranslateTemplateTask();
+			t.setChangedFiles(new ArrayList<File>() {{add(devErrorRendererFile);}});
+			t.setUsePlay(true);
+			File rootDir = new File(templateRoot);
+			t.setPackageRoot(rootDir);
+			t.setInclude(new File(japidviews));
+			t.addImport("java.util.*");
+			t.addImport("play.data.validation.Validation");
+			t.addImport("play.i18n.Lang");
+			t.addImport("play.mvc.Http.Context.Implicit");
+			t.addImport("play.mvc.Http.Flash");
+			t.addImport("play.mvc.Http.Request");
+			t.addImport("play.mvc.Http.Response");
+			t.addImport("play.mvc.Http.Session");
+			t.execute();
+			// List<File> changedFiles = t.getChangedFiles();
+			List<File> changedTargetFiles = t.getChangedTargetFiles();
+		
+			String[] names = new String[changedTargetFiles.size()];
+			int i = 0;
+			for (File f : changedTargetFiles) {
+				String path = f.getPath();
+				if (path.contains("japidviews")){
+					path = path.substring(path.indexOf("japidviews"));
+				}
+				path = path.replace('/', '.');
+				path = path.replace('\\', '.');
+				if (path.endsWith(".java")){
+					path = path.substring(0, path.lastIndexOf(".java"));
+				}
+				RendererClass rc = newRendererClass(path);
+				japidClasses.put(path, rc);
+				names[i++] = path;
+				setSources(rc, f);
+				removeInnerClasses(path);
+				cleanClassHolder(rc);
+			}
+
+			// compile them
+			compiler.compile(names);
+
+			TemplateClassLoader classReloader = new TemplateClassLoader(parentClassLoader);
+			for (String name: names) {
+				try {
+					@SuppressWarnings("unchecked")
+					Class<JapidTemplateBaseWithoutPlay> loadClass = (Class<JapidTemplateBaseWithoutPlay>) classReloader
+							.loadClass(name);
+					japidClasses.get(name).setClz(loadClass);
+				} catch (ClassNotFoundException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			// define the classes
+			
+			return changedTargetFiles;
+		}
+		else {
+			JapidFlags.log("No error displaying page found. Will use general error page. Was looking for: " + pathname);
+			return null;
+		}
 	}
 }

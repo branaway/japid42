@@ -52,7 +52,7 @@ public class TemplateClassLoader extends ClassLoader {
 		}
 			
 		// System.out.println("[TemplateClassLoader] loading: " + name);
-		RendererClass rc = JapidRenderer.classes.get(name);
+		RendererClass rc = JapidRenderer.japidClasses.get(name);
 
 		byte[] bytecode = rc.bytecode;
 
