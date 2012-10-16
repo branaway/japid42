@@ -146,4 +146,7 @@ h2. History
 2012.10.12. v0.4, beta
 # made it play 2.0.4 compatible
 # major bug fix: class reloading on the controller side or the model side caused type mismatched problem. 
+2012.10.17. v0.5
+# major feature: added nice error reporting.  
+# bug fix: htmlentities.properties file moved to conf
  
