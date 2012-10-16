@@ -14,10 +14,12 @@ first define something in a Java code block.
 
 again: `t aTag(strings)
 
-`tag picka("a", "b" + "c") | String r
-    the tag chosed: $r
-    <p>and we can call a tag recursively?</p>
+`tag picka("aa", "b" + "c") | String r
+    the tag chosen: $r
+    <p>and we can call a tag recursively? Yes we can!</p>
+    
     `tag SampleTag(r)
+    
     <p>yes we can!</p>
 `
 

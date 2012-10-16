@@ -13,7 +13,6 @@ import models.japidsample.Post;
 import play.data.Form;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import cn.bran.japid.template.JapidRenderer;
 import cn.bran.japid.template.RenderResult;
 import cn.bran.play.JapidController;
 import cn.bran.play.JapidResult;
@@ -29,6 +28,7 @@ public class Application extends JapidController {
 //		renderJapidWith("@index.html"); // use the default index.html in the japidviews/SampleController directory
 	}
 	public static Result indexAt() {
+		request();
 		return renderJapid(); // 
 	}
 	public static Result authorPanel(final Author a) {
@@ -136,10 +136,11 @@ public class Application extends JapidController {
 	 * 
 	 */
 	public static Result renderByPosition() {
+		Request req = request();
 		String s = "hello，renderByPosition！";
 		int i = 111;
 		Author a = new Author();
-		a.name = "author1";
+		a.name = "author-1";
 //		a.age = 99;
 		
 		Author2 a2 = new Author2();
@@ -439,8 +440,5 @@ public class Application extends JapidController {
 		return renderJapid();
 	}
 	
-	public static Result plainjapid() {
-		return renderText(JapidRenderer.render("Steve Jobs"));
-	}
-	
+
 }

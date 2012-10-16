@@ -2,7 +2,7 @@ package japidviews.Application;
 import java.util.*;
 import java.io.*;
 import cn.bran.japid.tags.Each;
-import japidviews ._tags.*;
+import japidviews._layouts.*;
 import play.mvc.Http.Context.Implicit;
 import models.*;
 import play.i18n.Lang;
@@ -10,10 +10,10 @@ import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Http.Session;
 import play.mvc.Http.Flash;
-import japidviews ._layouts.*;
 import play.data.validation.Validation;
 import java.util.*;
 import static cn.bran.japid.util.WebUtils.*;
+import japidviews._tags.*;
 import controllers.*;
 import static cn.bran.japid.util.StringUtils.*;
 //
@@ -78,7 +78,7 @@ public class index extends cn.bran.play.JapidTemplateBase
 //------
 ;// line 1
 		p("\n" + 
-"<h2>Some Samples that demonstrate Japid features.</h2>\n" + 
+"<h2>Samples that demonstrate Japid features.</h2>\n" + 
 "\n" + 
 "<p>Please follow the controller actions and render paths for the\n" + 
 "source code.</p>\n" + 
@@ -86,7 +86,7 @@ public class index extends cn.bran.play.JapidTemplateBase
 "<ul>\n" + 
 "	<li><a href=\"");// line 1
 		p(controllers.routes.Application.hello());// line 9
-		p("\">Hello Japid, using reverse router an overridden\n" + 
+		p("\">Hi Japid, using reverse router an overridden\n" + 
 "	version of renderText()</a></li>\n" + 
 "	<li><a href=\"application/callTag\">using tags in a template</a></li>\n" + 
 "	<li><a href=\"go/templates/def.html\"><em>def</em>\n" + 
