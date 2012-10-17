@@ -84,7 +84,7 @@ public class JapidRenderer {
 			String name) {
 		RendererClass rc = japidClasses.get(name);
 		if (rc == null)
-			throw new RuntimeException("renderer class not found: " + name);
+			throw new RuntimeException("renderer class not found: " + name + ". Consider creating the Japid view file @: " + templateRoot + sep + name.replace('.', File.separatorChar) + ".html");
 		else {
 			if (playClassloaderChanged()) {
 				// fall thru to reload all

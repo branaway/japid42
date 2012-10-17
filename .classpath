@@ -1,7 +1,6 @@
 <classpath>
   <classpathentry output=".target" path="app" kind="src"></classpathentry>
   <classpathentry output=".target" path="test" kind="src"></classpathentry>
-  <classpathentry path="./lib/javaparser-1.0.8.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib/org.eclipse.jdt.core-3.8.0.v_C18.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/japid42/target/scala-2.9.1/classes_managed" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/play/play_2.9.1/2.0.4/jars/play_2.9.1.jar" kind="lib"></classpathentry>
@@ -50,6 +49,8 @@
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/cache/org.apache.commons/commons-email/jars/commons-email-1.2.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/cache/javax.mail/mail/jars/mail-1.4.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/cache/javax.activation/activation/jars/activation-1.1.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/commons-lang/commons-lang/2.6/jars/commons-lang.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/cache/com.google.code.javaparser/javaparser/jars/javaparser-1.0.8.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/play/play-test_2.9.1/2.0.4/jars/play-test_2.9.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/org.specs2/specs2_2.9.1/1.9/jars/specs2_2.9.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/org.specs2/specs2-scalaz-core_2.9.1/6.0.1/jars/specs2-scalaz-core_2.9.1.jar" kind="lib"></classpathentry>
@@ -78,7 +79,6 @@
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/xalan/serializer/2.7.1/jars/serializer.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/xml-apis/xml-apis/1.3.04/jars/xml-apis.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/commons-collections/commons-collections/3.2.1/jars/commons-collections.jar" kind="lib"></classpathentry>
-  <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/commons-lang/commons-lang/2.6/jars/commons-lang.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/org.apache.httpcomponents/httpmime/4.1.2/jars/httpmime.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/net.sourceforge.htmlunit/htmlunit-core-js/2.9/jars/htmlunit-core-js.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.0.4/framework/../repository/local/xerces/xercesImpl/2.9.1/jars/xercesImpl.jar" kind="lib"></classpathentry>
