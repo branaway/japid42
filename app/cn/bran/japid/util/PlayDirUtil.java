@@ -58,7 +58,7 @@ public class PlayDirUtil {
 			// error renderer
 			File errors = new File(japidViews + DirUtil.ERRORS);
 			if (!errors.exists()) {
-				boolean mkdirs = notifiers.mkdirs();
+				boolean mkdirs = errors.mkdirs();
 				assert mkdirs;
 				JapidFlags.log("created: " + japidViews + DirUtil.ERRORS);
 			}

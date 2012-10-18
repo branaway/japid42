@@ -518,7 +518,7 @@ public class JapidRenderer {
 		List<File> changedFiles = reloadChanged(packageRoot);
 		if (changedFiles.size() > 0) {
 		} else {
-			JapidFlags.log(":");
+//			if (JapidFlags.verbose) System.out.print(":");
 		}
 
 		rmOrphanJava(packageRoot);
@@ -758,17 +758,8 @@ public class JapidRenderer {
 		setTemplateRoot(templateRoot);
 		setRefreshInterval(refreshInterval);
 		
-		String 
-		
-		// play has tree like configuration nestings. japid.trace.file is a tree, cannot be a string
-//		property = app.configuration().getString("japid.trace.file");
-//		property = property == null ?  "false" : property;
-//			
-//		if ("on".equalsIgnoreCase(property) || "yes".equalsIgnoreCase(property))
-//			property = "true";
-//		JapidTemplateBaseWithoutPlay.globalTraceFile = new Boolean(property);
+		String  
 
-		
 		property = app.configuration().getString("japid.trace.file.html");
 		property = property == null ?  "false" : property;
 		if ("on".equalsIgnoreCase(property) || "yes".equalsIgnoreCase(property))

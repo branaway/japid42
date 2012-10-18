@@ -42,8 +42,7 @@ What are missing?
 - validation: I'm still investigating how the whole validation thing works in Play2. 
 - Flash success/error: the new flash in Play2 is a generic HashMap. 
 - session.authentityToken not supported
-- implicit objects: params, args
-- pretty error page for japid errors, compile time or runtime. 
+- implicit objects: "params" and "args"
 
 What are different?
 
@@ -75,16 +74,15 @@ Basically you'll need to do three things:
 
 0. Get the dependencies
 
-- declare Japid in the project/Build.scala:
+- declare Japid in the project/Build.scala and add the local repository resolver:
 <pre>
 //...
     val appDependencies = Seq(
-      // Add your project dependencies here,
-      "japid42" % "japid42_2.9.1" % "0.4"
+      "japid42" % "japid42_2.9.1" % "0.5",
+      "com.google.code.javaparser" % "javaparser" % "1.0.8"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
-      // Add your own project settings here  
       resolvers += "Local Play Repository" at "/my/path/to/Play20/repository/local"
     )
 //...
@@ -92,39 +90,64 @@ Basically you'll need to do three things:
 
 Note: adjust the version number accordingly. 
 
-- copy the javaparser-1.0.8.jar and org.eclipse.jdt.core-3.8.0.v_C18.jar from the lib directory to the lib directory in your project. 
+- copy the org.eclipse.jdt.core-3.8.0.v_C18.jar from the lib directory to the lib directory of your project. 
 
 1. Initialize Japid in Global.java in the app directory:
 
 <pre>
-//...
+
+import play.Application;
+import play.GlobalSettings;
+import cn.bran.japid.template.JapidRenderer;
+
 public class Global extends GlobalSettings {
-    @Override
-    public void onStart(Application app) {
+	@Override
+	public void onStart(Application app) {
 		JapidRenderer.init(app);
-		JapidRenderer.addImportStatic(StringUtils.class);
-		JapidRenderer.setLogVerbose(true);
-		JapidRenderer.gen();
-    }
-    //...
+// there are more customization you can do to Japid
+//		JapidRenderer.addImportStatic(StringUtils.class);
+//		JapidRenderer.setLogVerbose(true);
+	}
+
 }
 </pre>  
 
 Note:
 
 
-- The "japidroot" in the init line in the method can be any path you like. It's a folder in the application root and it contains all the japid artifacts. Importantly it needs to be outside of the app directory. 
+- There are q few things that can be customized. Please see the javadoc of JapidRenderer. 
+   
+   
+2. Extend cn.bran.play.JapidController to create your own controllers and use the renderJapid(...) etc to render the views. 
 
-- The addImportStatic line is up to you if you need to include some implicit imports in all the japid views. 
-   
-   
-   
-2. Extend JapidController to create your own controllers and use the renderJapid(...) etc to render the views. These views are in the japid root directory in a similar directory structure as the the controller hierarchy. 
+<pre>
+package controllers;
+
+import play.mvc.Result;
+import cn.bran.play.JapidController;
+
+public class Application extends JapidController {
+  
+  public static Result index() {
+	  return renderJapid("cool");
+  }
+}
+</pre>
+
+3. Create the Japid view script "japidroot/japidviews/Application/index.html":
+
+<pre>
+@(String m)
+alright: $m!
+</pre>
+
+4. Hit http://localhost:9000/ to see Japid at work!
+
 
 
 For detailed Japid grammar please refer to the Japid 1 manual before I write something formal： 
 
-－ https://github.com/branaway/Japid/wiki
+－ https://github.com/branaway/Japid
 
 h2. A sample application
 

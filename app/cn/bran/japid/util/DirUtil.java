@@ -391,7 +391,7 @@ public class DirUtil {
 		 * @throws IOException
 		 * 
 		 */
-		public static List<File> mkdir(String root) throws IOException {
+		private static List<File> mkdir(String root) throws IOException {
 			String sep = File.separator;
 			String japidViews = root + sep + JAPIDVIEWS_ROOT + sep;
 			File javatags = new File(japidViews + JAVATAGS);

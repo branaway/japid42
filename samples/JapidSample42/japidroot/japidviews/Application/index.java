@@ -78,7 +78,7 @@ public class index extends cn.bran.play.JapidTemplateBase
 //------
 ;// line 1
 		p("\n" + 
-"<h2>Samples that demonstrate Japid features.</h2>\n" + 
+"<h2>Some Samples that demonstrate Japid features.</h2>\n" + 
 "\n" + 
 "<p>Please follow the controller actions and render paths for the\n" + 
 "source code.</p>\n" + 
@@ -161,11 +161,9 @@ public class index extends cn.bran.play.JapidTemplateBase
 "	<li><a href=\"/assets/images/favicon.png\">static mapping</a></li>\n" + 
 "</ul>\n" + 
 "\n" + 
-"<p>Reverse lookup is slow? not any longer since play2 uses pre compiled reverse router!</p>\n" + 
-"\n" + 
 "<p>app modeis DEV? \"");// line 98
-		p(_play.isDev());// line 104
-		p("\"</p>\n");// line 104
+		p(_play.isDev());// line 102
+		p("\"</p>\n");// line 102
 		
 		endDoLayout(sourceTemplate);
 	}
