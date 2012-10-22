@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2
 
 Bing Ran (bing.ran@gmail.com)
 
-
+version 0.5.1
 Status: beta
 
 
@@ -78,7 +78,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.5",
+      "japid42" % "japid42_2.9.1" % "0.5.1",
       "com.google.code.javaparser" % "javaparser" % "1.0.8"
     )
 
@@ -89,8 +89,6 @@ Basically you'll need to do three things:
 </pre>
 
 Note: adjust the version number accordingly. 
-
-- copy the org.eclipse.jdt.core-3.8.0.v_C18.jar from the lib directory to the lib directory of your project. 
 
 1. Initialize Japid in Global.java in the app directory:
 
