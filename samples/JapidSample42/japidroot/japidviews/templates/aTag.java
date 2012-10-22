@@ -75,21 +75,22 @@ public class aTag extends cn.bran.play.JapidTemplateBase
 //------
 ;// line 1
 		p("\n" + 
-"<p>hi: ");// line 1
-		p("hiiii:" + join(strings, "|"));// line 3
+"\n" + 
+"<p>hi1: ");// line 3
+		p("hiiii:" + join(strings, "|"));// line 5
 		p("</p>\n" + 
 "\n" + 
-"<p>hi2: ");// line 3
-		p("hi:" + join(strings, "|"));// line 5
-		p("</p>\n" + 
-"\n" + 
-"<p>hi3: ");// line 5
+"<p>hi2: ");// line 5
 		p("hi:" + join(strings, "|"));// line 7
+		p("</p>\n" + 
+"\n" + 
+"<p>hi3: ");// line 7
+		p("hi:" + join(strings, "|"));// line 9
 		p("</p>\n" + 
 "\n" + 
 "<em>\n" + 
 "Note: the join() is defined in the JavaExtensions class in the Play! framework, which is automatically imported. \n" + 
-"</em>");// line 7
+"</em>");// line 9
 		
 		endDoLayout(sourceTemplate);
 	}
