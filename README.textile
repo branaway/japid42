@@ -154,21 +154,28 @@ h2. History
 
 2012.3.24: v0.1
 # initial commit. 
+
 2012.3.27: v0.2
 # lots of fix and the JapidSample mostly works now.  
+
 2012.4.4: v0.2.1
 # added JapidRenderer.setLogVerbose() to control logging verbosity of Japid activities.
+
 2012.7.28: v0.2.2
 # updated the README and fixed the initialization part. 
+
 2012.7.28: v0.3
 # bug fix: import of empty _tags or _layouts caused compiler error. Now imports those packages only if there are any templates in the folders.
 # enhancement: updated build files to work with play-2.0.3 release.
+
 2012.10.12. v0.4, beta
 # made it play 2.0.4 compatible
 # major bug fix: class reloading on the controller side or the model side caused type mismatched problem. 
+
 2012.10.17. v0.5
 # major feature: added nice error reporting.  
 # bug fix: htmlentities.properties file moved to conf
+
 2012.10.23. v0.5.1
 # enhancement: hide the template for dev error reporting from users. The side effect is users cannot customize the error reporting at dev time. 
 # removed: removed _javatags, _errors special directories in japidviews folder. 
