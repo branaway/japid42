@@ -7,6 +7,8 @@ import japidviews._layouts.*;
 import play.mvc.Http.Context.Implicit;
 import models.*;
 import play.i18n.Lang;
+import play.data.Form;
+import play.data.Form.Field;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Http.Session;
@@ -16,7 +18,6 @@ import java.util.*;
 import static cn.bran.japid.util.WebUtils.*;
 import japidviews._tags.*;
 import controllers.*;
-import static cn.bran.japid.util.StringUtils.*;
 //
 // NOTE: This file was generated from: japidviews/Application/renderByPosition.html
 // Change to this file will be lost next time the template file is compiled.

@@ -1,4 +1,4 @@
-@( cn.bran.japid.exceptions.JapidTemplateException error)
+@(cn.bran.japid.exceptions.JapidTemplateException error)
 *{ copied from devError.scala.html in Play2}*
 <!DOCTYPE html>
 <html>
@@ -101,15 +101,16 @@
 		</style>
 	</head>
 	<body>
-		<h1>$error.title</h1>
+		<h1>~error.title</h1>
 
 		<p id="detail">
-		    $error.description
+		    ~error.description
 		</p>
-		
+		*{
 			<h2>
 				at line $error.errLineNum.
 			</h2>
+		}*
         <div>
         	@TreeMap<Integer, String> lines = error.interestingLines; 
 			@for(int i : lines.keySet()) {

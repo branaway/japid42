@@ -2,20 +2,21 @@ package japidviews.templates;
 import java.util.*;
 import java.io.*;
 import cn.bran.japid.tags.Each;
-import japidviews ._tags.*;
+import japidviews._layouts.*;
 import play.mvc.Http.Context.Implicit;
 import models.*;
 import play.i18n.Lang;
+import play.data.Form;
+import play.data.Form.Field;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Http.Session;
 import play.mvc.Http.Flash;
-import japidviews ._layouts.*;
 import play.data.validation.Validation;
 import java.util.*;
 import static cn.bran.japid.util.WebUtils.*;
+import japidviews._tags.*;
 import controllers.*;
-import static cn.bran.japid.util.StringUtils.*;
 //
 // NOTE: This file was generated from: japidviews/templates/aTag.html
 // Change to this file will be lost next time the template file is compiled.
@@ -86,8 +87,9 @@ public class aTag extends cn.bran.play.JapidTemplateBase
 		p("hi:" + join(strings, "|"));// line 7
 		p("</p>\n" + 
 "\n" + 
-"\n" + 
-"Note: the join() is defined in the JavaExtensions class in the Play! framework, which is automatically imported. ");// line 7
+"<em>\n" + 
+"Note: the join() is defined in the JavaExtensions class in the Play! framework, which is automatically imported. \n" + 
+"</em>");// line 7
 		
 		endDoLayout(sourceTemplate);
 	}

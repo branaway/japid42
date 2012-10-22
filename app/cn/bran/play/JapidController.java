@@ -105,10 +105,22 @@ public class JapidController extends Controller {
 	}
 
 	public static JapidResult renderJapidWith(String template, Object... args) {
+		template = getFullViewName(template);
 		JapidResult japidResult = new JapidResult(getRenderResultWith(template,
 				args));
 		postProcess(japidResult);
 		return japidResult;
+	}
+
+	private static String getFullViewName(String template) {
+		if (template.startsWith("@")){
+			template = template.substring(1);
+			// get parent path
+			String defaultView = template("renderJapidWith");
+			String parent = defaultView.substring(0, defaultView.lastIndexOf('.'));
+			template = parent + "." + template;
+		}
+		return template;
 	}
 
 	/**
@@ -168,6 +180,7 @@ public class JapidController extends Controller {
 
 	public static JapidResult renderJapidWith(String template,
 			NamedArgRuntime[] namedArgs) {
+		template = getFullViewName(template);
 		JapidResult japidResult = new JapidResult(getRenderResultWith(template,
 				namedArgs));
 		return postProcess(japidResult);
@@ -409,14 +422,6 @@ public class JapidController extends Controller {
 //			throw new RuntimeException(e);
 //		
 		Class<? extends JapidTemplateBaseWithoutPlay> rendererClass = JapidRenderer.getErrorRendererClass();
-		if(rendererClass == null) {
-			if (e instanceof RuntimeException) {
-				throw (RuntimeException)e;
-			}
-			else {
-				throw new RuntimeException(e);
-			}
-		}
 		
 		if (e instanceof JapidTemplateException)
 		{

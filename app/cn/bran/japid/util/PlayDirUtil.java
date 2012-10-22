@@ -26,12 +26,12 @@ public class PlayDirUtil {
 		public static List<File> mkdir(String root) throws IOException {
 			String sep = File.separator;
 			String japidViews = root + sep + DirUtil.JAPIDVIEWS_ROOT + sep;
-			File javatags = new File(japidViews + DirUtil.JAVATAGS);
-			if (!javatags.exists()) {
-				boolean mkdirs = javatags.mkdirs();
-				assert mkdirs;
-				JapidFlags.log("created: " + japidViews + DirUtil.JAVATAGS);
-			}
+//			File javatags = new File(japidViews + DirUtil.JAVATAGS);
+//			if (!javatags.exists()) {
+//				boolean mkdirs = javatags.mkdirs();
+//				assert mkdirs;
+//				JapidFlags.log("created: " + japidViews + DirUtil.JAVATAGS);
+//			}
 	
 			File layouts = new File(japidViews + DirUtil.LAYOUTDIR);
 			if (!layouts.exists()) {
@@ -54,26 +54,28 @@ public class PlayDirUtil {
 				assert mkdirs;
 				JapidFlags.log("created: " + japidViews + DirUtil.NOTIFIERS);
 			}
+
+			// let hide this from user for now
 			
-			// error renderer
-			File errors = new File(japidViews + DirUtil.ERRORS);
-			if (!errors.exists()) {
-				boolean mkdirs = errors.mkdirs();
-				assert mkdirs;
-				JapidFlags.log("created: " + japidViews + DirUtil.ERRORS);
-			}
-			// add devError.html
-			InputStream devErr = PlayDirUtil.class.getResourceAsStream("/devError.html"); // file in the conf folder
-			File target = new File(japidViews + DirUtil.ERRORS + "/devError.html");
-			if (!target.exists()) {
-				BufferedOutputStream bf = new BufferedOutputStream(new FileOutputStream(target));
-				DirUtil.copyStream(devErr, bf);
-				devErr.close();
-				bf.close();
-			}
+//			// error renderer
+//			File errors = new File(japidViews + DirUtil.ERRORS);
+//			if (!errors.exists()) {
+//				boolean mkdirs = errors.mkdirs();
+//				assert mkdirs;
+//				JapidFlags.log("created: " + japidViews + DirUtil.ERRORS);
+//			}
+//			// add devError.html
+//			InputStream devErr = PlayDirUtil.class.getResourceAsStream("/devError.html"); // file in the conf folder
+//			File target = new File(japidViews + DirUtil.ERRORS + "/devError.html");
+//			if (!target.exists()) {
+//				BufferedOutputStream bf = new BufferedOutputStream(new FileOutputStream(target));
+//				DirUtil.copyStream(devErr, bf);
+//				devErr.close();
+//				bf.close();
+//			}
 			
 			
-			File[] dirs = new File[] { javatags, layouts, tags };
+			File[] dirs = new File[] { /*javatags,*/ layouts, tags };
 			List<File> res = new ArrayList<File>();
 			res.addAll(Arrays.asList(dirs));
 	

@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,7 +13,6 @@ import java.io.Writer;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,7 +37,7 @@ public class DirUtil {
 		Set<String> srcFiles = new HashSet<String>();
 
 		for (String s : allSrc) {
-			if (s.endsWith(".java")) {
+			if (s.endsWith(".java") ) {
 				javas.add(s);
 			} else /*if (s.endsWith(".html"))*/ {
 				srcFiles.add(mapSrcToJava(s));
@@ -277,7 +275,7 @@ public class DirUtil {
 		File dir = new File(dirName);
 		
 		if (dir.exists()) {
-			String[] temps = getAllFileNames(dir, TEMPLATE_EXTS);
+			String[] temps = getAllFileNames(dir, ALL_EXTS );
 			if (temps.length > 0) 
 				return true;
 			else
@@ -292,10 +290,10 @@ public class DirUtil {
 		return containsTemplateFiles(root, dirName);
 	}
 
-	public static boolean hasJavaTags(String root) {
-		String dirName = DirUtil.JAVATAGS;
-		return containsTemplateFiles(root, dirName);
-	}
+//	public static boolean hasJavaTags(String root) {
+//		String dirName = DirUtil.JAVATAGS;
+//		return containsTemplateFiles(root, dirName);
+//	}
 
 	public static boolean hasLayouts(String root) {
 		String dirName = DirUtil.LAYOUTDIR;
@@ -319,36 +317,37 @@ public class DirUtil {
 	      return true;
 	  }
 
-	public static final String JAVATAGS = "_javatags";
+//	public static final String JAVATAGS = "_javatags";
 	public static final String LAYOUTDIR = "_layouts";
 	public static final String TAGSDIR = "_tags";
 	public static final String JAPIDVIEWS_ROOT = "japidviews";
-	public static List<String> scanJavaTags(String root) {
-		String sep = File.separator;
-		String japidViews = root + sep + JAPIDVIEWS_ROOT + sep;
-		File javatags = new File(japidViews + JAVATAGS);
-		if (!javatags.exists()) {
-			boolean mkdirs = javatags.mkdirs();
-			assert mkdirs == true;
-			JapidFlags.log("created: " + japidViews + JAVATAGS);
-		}
-	
-		File[] javafiles = javatags.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				if (name.endsWith(".java"))
-					return true;
-				return false;
-			}
-		});
-		
-		List<String> files = new ArrayList<String>();
-		for (File f : javafiles) {
-			String fname = f.getName();
-			files.add(JAPIDVIEWS_ROOT + "." + JAVATAGS + "." + fname.substring(0, fname.lastIndexOf(".java")));
-		}
-		return files;
-	}
+
+//	public static List<String> scanJavaTags(String root) {
+//		String sep = File.separator;
+//		String japidViews = root + sep + JAPIDVIEWS_ROOT + sep;
+//		File javatags = new File(japidViews + JAVATAGS);
+//		if (!javatags.exists()) {
+//			boolean mkdirs = javatags.mkdirs();
+//			assert mkdirs == true;
+//			JapidFlags.log("created: " + japidViews + JAVATAGS);
+//		}
+//	
+//		File[] javafiles = javatags.listFiles(new FilenameFilter() {
+//			@Override
+//			public boolean accept(File dir, String name) {
+//				if (name.endsWith(".java"))
+//					return true;
+//				return false;
+//			}
+//		});
+//		
+//		List<String> files = new ArrayList<String>();
+//		for (File f : javafiles) {
+//			String fname = f.getName();
+//			files.add(JAPIDVIEWS_ROOT + "." + JAVATAGS + "." + fname.substring(0, fname.lastIndexOf(".java")));
+//		}
+//		return files;
+//	}
 
 	/**
 	 * @author Bing Ran (bing.ran@hotmail.com)
@@ -380,117 +379,6 @@ public class DirUtil {
 				.trim());
 		return oriLineNumber;
 	}
-
-
-	/**
-		 * create the basic layout: app/japidviews/_javatags app/japidviews/_layouts
-		 * app/japidviews/_tags
-		 * 
-		 * then create a dir for each controller. //TODO
-		 * 
-		 * @throws IOException
-		 * 
-		 */
-		private static List<File> mkdir(String root) throws IOException {
-			String sep = File.separator;
-			String japidViews = root + sep + JAPIDVIEWS_ROOT + sep;
-			File javatags = new File(japidViews + JAVATAGS);
-			if (!javatags.exists()) {
-				boolean mkdirs = javatags.mkdirs();
-				assert mkdirs;
-				JapidFlags.log("created: " + japidViews + JAVATAGS);
-			}
-	
-	//		File webutil = new File(javatags, "JapidWebUtil.java");
-	//		if (!webutil.exists()) {
-	//			DirUtil.writeStringToFile(webutil, JapidWebUtil);
-	//			JapidFlags.log("created JapidWebUtil.java.");
-	//		}
-			// add the place-holder for utility class for use in templates
-	
-			File layouts = new File(japidViews + LAYOUTDIR);
-			if (!layouts.exists()) {
-				boolean mkdirs = layouts.mkdirs();
-				assert mkdirs;
-				JapidFlags.log("created: " + japidViews + LAYOUTDIR);
-			}
-	
-			File tags = new File(japidViews + TAGSDIR);
-			if (!tags.exists()) {
-				boolean mkdirs = tags.mkdirs();
-				assert mkdirs;
-				JapidFlags.log("created: " + japidViews + TAGSDIR);
-			}
-			
-			// email notifiers
-			File notifiers = new File(japidViews + "_notifiers");
-			if (!notifiers.exists()) {
-				boolean mkdirs = notifiers.mkdirs();
-				assert mkdirs;
-				JapidFlags.log("created: " + japidViews + "_notifiers");
-			}
-			
-			
-			File[] dirs = new File[] { javatags, layouts, tags };
-			List<File> res = new ArrayList<File>();
-			res.addAll(Arrays.asList(dirs));
-	
-			// create dirs for controllers
-	
-	//		JapidFlags.log("JapidCommands: check default template packages for controllers.");
-			try {
-				String controllerPath = root + sep + "controllers";
-				File controllerPathFile = new File(controllerPath);
-				if (controllerPathFile.exists()) {
-					String[] controllers = DirUtil.getAllJavaFilesInDir(controllerPathFile);
-					for (String f : controllers) {
-						String cp = japidViews + f;
-						File ff = new File(cp);
-						if (!ff.exists()) {
-							boolean mkdirs = ff.mkdirs();
-							assert mkdirs == true;
-							res.add(ff);
-							JapidFlags.log("created: " + cp);
-						}
-					}
-				}
-			} catch (Exception e) {
-				JapidFlags.log(e.toString());
-			}
-	
-	//		JapidFlags.log("JapidCommands:  check default template packages for email notifiers.");
-			try {
-				String notifiersDir = root + sep + "notifiers";
-				File notifiersDirFile = new File(notifiersDir);
-				if (!notifiersDirFile.exists()) {
-					if (notifiersDirFile.mkdir()) {
-						JapidFlags.log("created the email notifiers directory. ");
-					}
-					else {
-						JapidFlags.log("email notifiers directory did not exist and could not be created for unknow reason. ");
-					}
-				}
-				
-				String[] controllers = DirUtil.getAllJavaFilesInDir(notifiersDirFile);
-				for (String f : controllers) {
-					// note: we keep the notifiers dir to differentiate those from the controller
-					// however this means we cannot have a controller with package like "controllers.notifiers"
-					// so we now use "_notifiers"
-					String cp = japidViews + "_notifiers" + sep + f;
-					File ff = new File(cp);
-					if (!ff.exists()) {
-						boolean mkdirs = ff.mkdirs();
-						assert mkdirs == true;
-						res.add(ff);
-						JapidFlags.log("created: " + cp);
-					}
-				}
-			} catch (Exception e) {
-				JapidFlags.log(e.toString());
-			}
-			return res;
-		}
-
 
 	/**
 	 * get all the java files in a dir with the "java" removed
@@ -551,6 +439,31 @@ public class DirUtil {
 		while ((read = in.read(b)) != -1) {  
 			out.write(b, 0, read);  
 		}  
+	}
+
+	public static void copyStreamClose(InputStream in, OutputStream out) throws IOException {  
+		copyStream(in, out);
+		in.close();
+		out.close();
+	}
+	
+	/**
+	 * a/b.html -> a.b
+	 * a/b.xml -> a.b_xml
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param japidScriptFileName
+	 * @return
+	 */
+	public static String deriveClassName(String japidScriptFileName) {
+		japidScriptFileName = japidScriptFileName.replace('/', '.').replace('\\', '.');
+		if (japidScriptFileName.startsWith("."))
+			japidScriptFileName = japidScriptFileName.substring(1);
+		japidScriptFileName = mapSrcToJava(japidScriptFileName);
+		if (japidScriptFileName.endsWith(".java")) {
+			japidScriptFileName = japidScriptFileName.substring(0, japidScriptFileName.length() - 5);
+		} 
+		return japidScriptFileName;
 	}  
 
 }

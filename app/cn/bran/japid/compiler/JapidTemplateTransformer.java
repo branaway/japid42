@@ -69,7 +69,7 @@ public class JapidTemplateTransformer {
 	 *            add an import to all the files generated. For examples:
 	 *            "my.package.*", "my.package.MyClass"
 	 */
-	public void addImportLine(String importLine) {
+	public static void addImportLine(String importLine) {
 		AbstractTemplateClassMetaData.addImportLineGlobal(importLine);
 	}
 
@@ -79,7 +79,7 @@ public class JapidTemplateTransformer {
 	 * 
 	 * @param class1
 	 */
-	public void addImportStatic(Class<?> class1) {
+	public static void addImportStatic(Class<?> class1) {
 		AbstractTemplateClassMetaData.addImportStatic(class1);
 	}
 
@@ -148,6 +148,29 @@ public class JapidTemplateTransformer {
 		return f;
 
 	}
+	
+	/**
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param scriptSrc the Japid script source code
+	 * @param srcFileName the full path to the script file. Used to parse package and class name
+	 * @return the generated Java code
+	 * 
+	 */
+	public static String generateInMemory(String scriptSrc,  String srcFileName, boolean usePlay) {
+		JapidTemplate temp = new JapidTemplate(srcFileName, scriptSrc);
+		JapidAbstractCompiler c = null;
+		if (looksLikeLayout(scriptSrc)) {
+			c = new JapidLayoutCompiler();
+		} else {
+			// regular template and tag are the same thing
+			c = new JapidTemplateCompiler();
+		}
+		c.setUseWithPlay(usePlay);
+		c.compile(temp);
+		String jsrc = temp.javaSource;
+		return jsrc;
+	}
 
 	/**
 	 * transform a source template to Java
@@ -167,7 +190,7 @@ public class JapidTemplateTransformer {
 	 * 
 	 * @param anno
 	 */
-	public void addAnnotation(Class<? extends Annotation> anno) {
+	public static void addAnnotation(Class<? extends Annotation> anno) {
 		AbstractTemplateClassMetaData.addAnnotation(anno);
 		// typeAnnotations.add(anno);
 	}

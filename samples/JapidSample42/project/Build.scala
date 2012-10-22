@@ -5,10 +5,10 @@ import PlayProject._
 object ApplicationBuild extends Build {
 
     val appName         = "JapidSample42"
-    val appVersion      = "0.5"
+    val appVersion      = "0.5.1"
 
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.5",
+      "japid42" % "japid42_2.9.1" % "0.5.1",
       "com.google.code.javaparser" % "javaparser" % "1.0.8"
     )
 

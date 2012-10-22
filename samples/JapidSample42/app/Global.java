@@ -12,4 +12,5 @@ public class Global extends GlobalSettings {
 //		JapidRenderer.setLogVerbose(true);
 	}
 
+	
 }

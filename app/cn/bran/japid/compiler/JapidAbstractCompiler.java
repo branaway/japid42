@@ -949,35 +949,12 @@ public abstract class JapidAbstractCompiler {
 		this.tagsStackShadow.push(rootTag);
 
 		this.parser = new JapidParser(source);
-
-		String tempName = template.name.replace("-", "_");// .replace('.', '_');
-		String contentTypeHeader = MimeTypeEnum.getHeader(tempName.substring(tempName.lastIndexOf('.')));
-		getTemplateClassMetaData().setContentType(contentTypeHeader);
-		tempName = DirUtil.mapSrcToJava(tempName);
-		tempName = tempName.substring(0, tempName.lastIndexOf(".java"));
-		tempName = tempName.replace('\\', '/');
-		// if (tempName.endsWith(HTML)) {
-		// tempName = tempName.substring(0, tempName.indexOf(HTML));
-		// }
-
-		// extract path
-		int lastSep = tempName.lastIndexOf('/');
-		if (lastSep > 0) {
-			String path = tempName.substring(0, lastSep);
-			path = path.replace('/', '.');
-			path = path.replace('\\', '.');
-			getTemplateClassMetaData().packageName = path;
-			getTemplateClassMetaData().setClassName(tempName.substring(lastSep + 1));
-		} else {
-			getTemplateClassMetaData().setClassName(tempName);
-		}
+		
+		getTemplateClassMetaData().setContentType(template.contentTypeHeader);
+		getTemplateClassMetaData().packageName = template.packageName;
+		getTemplateClassMetaData().setClassName(template.className);
 
 		parse();
-		// for (String n : BranTemplateCompiler.extensionsClassnames) {
-		// println(" } ");
-		// }
-		// println("} }");
-		// println("}");
 
 		Tag tag = popStack();
 		if (!tagsStack.empty())

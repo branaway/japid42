@@ -174,7 +174,7 @@ public class TranslateTemplateTask {
 	}
 
 	public void addImport(Class<?> clz) {
-		this.imports.add(clz.getName());
+		this.imports.add(clz.getName().replace('$', '.'));
 	}
 
 //	private static class JapidFileNameMapper {

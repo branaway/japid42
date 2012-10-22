@@ -6,6 +6,8 @@ import japidviews._layouts.*;
 import play.mvc.Http.Context.Implicit;
 import models.*;
 import play.i18n.Lang;
+import play.data.Form;
+import play.data.Form.Field;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Http.Session;
@@ -15,7 +17,6 @@ import java.util.*;
 import static cn.bran.japid.util.WebUtils.*;
 import japidviews._tags.*;
 import controllers.*;
-import static cn.bran.japid.util.StringUtils.*;
 //
 // NOTE: This file was generated from: japidviews/Application/index.html
 // Change to this file will be lost next time the template file is compiled.
@@ -78,7 +79,7 @@ public class index extends cn.bran.play.JapidTemplateBase
 //------
 ;// line 1
 		p("\n" + 
-"<h2>Some Samples that demonstrate Japid features.</h2>\n" + 
+"<h2>Some Samples that demonstrate Japid42 features.</h2>\n" + 
 "\n" + 
 "<p>Please follow the controller actions and render paths for the\n" + 
 "source code.</p>\n" + 
@@ -145,6 +146,9 @@ public class index extends cn.bran.play.JapidTemplateBase
 "	in layout spec and tags</a>: prefix the layout name or the tag name with a\n" + 
 "	dot \".\" to let the compiler prefix the path with the current package.\n" + 
 "	This saves using the full and long class qualifications.</li>\n");// line 62
+		String na = "bran";// line 76
+int ag = 123;// line 77
+		;// line 77
 		p("\n" + 
 "    <li> using the <em>flash</em> object\n" + 
 "		<ul>\n");// line 80

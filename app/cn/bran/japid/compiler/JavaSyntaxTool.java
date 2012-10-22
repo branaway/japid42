@@ -174,7 +174,7 @@ public class JavaSyntaxTool {
 			cu.accept(visitor, null);
 		} catch (ParseException e) {
 			throw new RuntimeException(
-					"the line does not seem to be a valid param list declaration: "
+					e + ". The line does not seem to be a valid param list declaration: "
 							+ line);
 		}
 		return ret;
