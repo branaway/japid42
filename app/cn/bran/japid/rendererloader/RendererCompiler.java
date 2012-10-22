@@ -103,6 +103,11 @@ public class RendererCompiler {
                 packageName[i] = izer.nextToken().toCharArray();
             }
         }
+        
+        @Override
+        public boolean ignoreOptionalProblems() {
+            return false;
+        }
 
         @Override
 		public char[] getFileName() {
