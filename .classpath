@@ -2,8 +2,7 @@
 <classpath>
 	<classpathentry kind="src" output=".target" path="app"/>
 	<classpathentry kind="src" output=".target" path="test"/>
-	<classpathentry kind="lib" path="lib/org.eclipse.jdt.core-3.8.0.v_C18.jar"/>
-	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/play/play_2.9.1/2.0.4/jars/play_2.9.1.jar" sourcepath="/play2.0.4"/>
+	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/play/play_2.9.1/2.0.4/jars/play_2.9.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/play/templates_2.9.1/2.0.4/jars/templates_2.9.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/com.github.scala-incubator.io/scala-io-file_2.9.1/0.4.0/jars/scala-io-file_2.9.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/com.github.scala-incubator.io/scala-io-core_2.9.1/0.4.0/jars/scala-io-core_2.9.1.jar"/>
@@ -51,6 +50,7 @@
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/cache/javax.activation/activation/jars/activation-1.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/commons-lang/commons-lang/2.6/jars/commons-lang.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/cache/com.google.code.javaparser/javaparser/jars/javaparser-1.0.8.jar"/>
+	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/cache/org.eclipse.tycho/org.eclipse.jdt.core/jars/org.eclipse.jdt.core-3.8.2.v20120814-155456.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/play/play-test_2.9.1/2.0.4/jars/play-test_2.9.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/org.specs2/specs2_2.9.1/1.9/jars/specs2_2.9.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/org.specs2/specs2-scalaz-core_2.9.1/6.0.1/jars/specs2-scalaz-core_2.9.1.jar"/>

@@ -176,3 +176,4 @@ h2. History
 # enhancement: hide the template for dev error reporting from users. The side effect is users cannot customize the error reporting at dev time. 
 # removed: removed _javatags, _errors special directories in japidviews folder. 
 # added: ported some util methods from Play 1's JavaExtensions to WebUtils. 
+# enhancement: merged Yuvi Masory's JDT compiler dependency change
