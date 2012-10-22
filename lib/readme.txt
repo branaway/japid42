@@ -1,1 +1,0 @@
-The JDT compiler does not seem to be found anywhere in repositories. 
