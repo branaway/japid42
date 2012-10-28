@@ -9,40 +9,30 @@ Status: beta
 
 h2. About
 
-This is a port of Japid to the Play2 framework.  
+Japid42 is a native Java based template engine for Java programmers using Play2. 
 
-The idea is to have a native Java based template engine for Java programmers using Play2. 
-
-Some of the benefits of using Japid in Play2:
-
-1. No latency in reloading changed views. You simply change the views and refresh your browser to get it right away in literally a blink instead of a coffee break. Japid manages its own view compilation and class loading. Changes in the Japid views are isolated from the Play reloading mechanism. 
-
-2. Full featured. It at least matches the feature set of the built-in Scala based template engine. 
-
-3. Excellent runtime performance. 
-
-4. Java-based, thus very friendly to Java programmers.
-
-5. The core Japid has been used in production for a long time and is very robust.  
-
+# Very fast in reloading changed views. You simply change the views and refresh your browser to get it right away in a blink instead of taking a coffee break. Japid manages its own view compilation and class loading. Changes in the Japid views are isolated from the Play reloading mechanism. 
+# Full featured. It at least matches the feature set of the built-in Scala based template engine. 
+# Excellent runtime performance. 
+# Java-based, thus very friendly to Java programmers.
+# The core Japid has been used in production for a long time and is very robust.  
+# Japid views compile lazy and compile on demand. 
 
 h2. Features
 
-Most of the Japid 1 features have been ported:
+- freely mixing Java code in templates.
+- layout inheritance
+- tags and local snippet
+- controller action invocations from within views
+- implicit objects available in views: request, response, session, flash, lang
+- all sorts of directives
+- support Play2 forms, fields, data binding and form validations. 
 
-- layout
-- tags
-- action invocations from views
-- implicit objects available in views: request, response, session, flash
-- other language constructs
 
 What are missing?
 
 - cache with action invocation, i.e., the @`a@ command does not support cache yet.
-- validation: I'm still investigating how the whole validation thing works in Play2. 
-- Flash success/error: the new flash in Play2 is a generic HashMap. 
 - session.authentityToken not supported
-- implicit objects: "params" and "args"
 
 What are different?
 
@@ -58,17 +48,11 @@ Note:
 - I'm using sbt 0.11.3 locally. Match the sbt version in the "project/build.properties" file to yours . 
 - Also check and match the sbt-plugin version in the "project/plugins.sbt" file to your local version. 
 
-h2. Hack Japid42 in Eclipse
-
-1. In the root directory of japid42: play eclipse 
-2. import the project in Eclipse. 
-3. Fix the missing classes_managed folder as reported. 
-
 
 h2. Usage
 
-h4. For a full application with Japid, see: http://github.com/branaway/computer-japid
 
+h4. For a full application with Japid, see: http://github.com/branaway/computer-japid
 
 Please check out the JapidSample project in the samples directory for an example. 
 
@@ -148,9 +132,19 @@ For detailed Japid grammar please refer to the Japid 1 manual before I write som
 
 － https://github.com/branaway/Japid
 
-h2. A sample application
+h2. Sample applications
 
-There is a sample application in the sample/JapidSample. Please update the dependency entry in the project/Build.scala file. 
+* http://github.com/branaway/computer-japid
+* There is a sample application in the sample/JapidSample. Please update the dependency entry in the project/Build.scala file. 
+
+
+h2. Hack Japid42 in Eclipse
+
+1. In the root directory of japid42: play eclipse 
+2. import the project in Eclipse. 
+3. Fix the missing classes_managed folder as reported. 
+
+
 
 h2. History
 

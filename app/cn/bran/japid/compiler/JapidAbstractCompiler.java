@@ -328,11 +328,15 @@ public abstract class JapidAbstractCompiler {
 	protected void script(String token) {
 		String[] lines = new String[] { token };
 		if (token.indexOf(NEW_LINE) > -1) {
-			lines = parser.getToken().split(NEW_LINE);
+			String token2 = parser.getToken();
+			lines = token2.split(NEW_LINE);
 		}
 
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i];// .trim();
+			if (lines.length > 1 && line.trim().length() == 0)
+				line = "//japid compiler: artificial line to avoid being treated as a terminating line";
+			
 			if (startsWithIgnoreSpace(line, "import")) {
 				getTemplateClassMetaData().addImportLine(line);
 			} else if (startsWithIgnoreSpace(line, "//")) {
