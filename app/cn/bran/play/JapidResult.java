@@ -10,25 +10,40 @@ import java.util.Map;
 import play.mvc.Result;
 import play.api.mvc.SimpleResult;
 
+import play.mvc.Content;
 import play.mvc.Http.Request;
 import play.mvc.Http.Response;
 import play.mvc.Results.Status;
+import scala.Tuple2;
+import scala.collection.JavaConversions;
+import scala.collection.Seq;
 import cn.bran.japid.template.RenderResult;
 
 /**
- * class for use to indicate that the result has been flushed to the response
- * result
  * 
- * The content extraction from the RenderResult is postponed until the apply()
- * if eval() is not called before apply. The eval() will make the JapidResult
- * render the content eagerly and once, therefore any nested cache will effect
- * once. stage so that JapidResult can be cached and still retain dynamic
- * feature of a RenderResultPartial
- 
+ * The return type of the renderJapid(...) method in JapidController.
+ * 
+ * An object of this class is a valid value for a controller action to return.  Doing this allows
+ * headers set in the Japid content to be carried over to the response. 
+ * 
+ * If the headers are not a concern, the JapidResult is also a valid argument type for ok() and other 
+ * helper methods in a controller. 
+ * 
+ * <pre>
+ * 	public static Result foo() {
+ * 		return renderJapid(); // which return an instance of this class.
+ * }
+ * 
+ * 	public static Result bar() {
+ * 		return ok(renderJapid()); // which allows more response manipulations. 
+ * }
+ * 
+ * </pre>
+ * 
  * @author bran
  * 
  */
-public class JapidResult implements Result,  Externalizable {
+public class JapidResult implements Result,  Externalizable, Content {
 	public static final String CONTENT_TYPE = "Content-Type";
 	public static final String CACHE_CONTROL = "Cache-Control";
 
@@ -78,41 +93,6 @@ public class JapidResult implements Result,  Externalizable {
 		return content;
 	}
 
-//	public void apply(Request request, Response response) {
-//		String content = resultContent;
-//
-//		if (!eager)
-//			// late evaluation
-//			content = extractContent();
-//
-//		if (content != null)
-//			try {
-//				Response.current().out.write(content.getBytes("UTF-8"));
-//			} catch (Exception e) {
-//				throw new RuntimeException(e);
-//			}
-//
-//		Map<String, Header> resHeaders = response.headers;
-//
-//		if (headers != null) {
-//			for (String h : headers.keySet()) {
-//				String value = headers.get(h);
-//				if (CONTENT_TYPE.equals(h)) {
-//					setContentTypeIfNotSet(response, value);
-//				} else {
-//					if (resHeaders.containsKey(h)) {
-//						// shall I override it?
-//						// override it. Consider the value in templates are
-//						// meant to override
-//						response.setHeader(h, value);
-//					} else {
-//						response.setHeader(h, value);
-//					}
-//				}
-//			}
-//		}
-//	}
-
 	public RenderResult getRenderResult() {
 		return renderResult;
 	}
@@ -138,11 +118,13 @@ public class JapidResult implements Result,  Externalizable {
 
     public play.api.mvc.Result getWrappedResult() {
 		String content = resultContent;
-
 		if (!eager)
 			// late evaluation
 			content = extractContent();
-    	Status re = new play.mvc.Results.Status(play.core.j.JavaResults.Status(200), content,  play.api.mvc.Codec.javaSupported("utf-8"));
+    	play.api.mvc.Results.Status sta = play.core.j.JavaResults.Status(200);
+    	Seq<Tuple2<String, String>> seq = JavaConversions.mapAsScalaMap(renderResult.getHeaders()).toSeq();
+    	sta.withHeaders(seq);
+		Status re = new play.mvc.Results.Status(sta, content,  play.api.mvc.Codec.javaSupported("utf-8"));
         return re.getWrappedResult();
     }
 
@@ -160,4 +142,18 @@ public class JapidResult implements Result,  Externalizable {
 		this.headers = headers;
 	}
 
+	@Override
+	public String body() {
+		return this.resultContent;
+	}
+
+	@Override
+	public String contentType() {
+		return headers.get("Content-Type");
+	}
+
+	@Override
+	public String toString() {
+		return resultContent;
+	}
 }

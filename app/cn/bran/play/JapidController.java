@@ -440,9 +440,14 @@ public class JapidController extends Controller {
 			return (rr);
 		}
 
-		JapidFlags.log(e.getClass().getName() + ":" + e.getMessage());
-
-		// find the latest japidviews exception
+		if (JapidFlags.verbose) {
+			e.printStackTrace();
+		}
+		else {
+			System.err.println(e.getClass().getName() + ":" + e.getMessage());
+		}
+		
+		// find the latest japidviews exception or the controller that caused the exception
 		StackTraceElement[] stackTrace = e.getStackTrace();
 		for (StackTraceElement ele : stackTrace){
 			String className = ele.getClassName();
@@ -466,6 +471,12 @@ public class JapidController extends Controller {
 						}
 					}
 				}
+			}
+			else if(className.startsWith("controllers.")) {
+				if (e instanceof RuntimeException)
+					throw (RuntimeException)e;
+				else
+					throw new RuntimeException(e);
 			}
 		}
 		throw new RuntimeException(e);

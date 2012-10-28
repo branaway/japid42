@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 
 import cn.bran.japid.compiler.NamedArg;
 import cn.bran.japid.compiler.NamedArgRuntime;
@@ -28,8 +29,14 @@ public class RenderInvokerUtils {
 				invoke = m.invoke(t, args);
 				return (RenderResult) invoke;
 			} catch (IllegalArgumentException e) {
-				System.err.println(e + ": " + m + args);
-				throw e;
+				String msg = e.getMessage();
+				String paramTypes = flatArgs(m.getParameterTypes());
+				msg = msg + ": the arguments did not match the template " + t.getClass().getName() + 
+						paramTypes;
+				String ss= flatArgs(args);
+				throw new RuntimeException(msg + ": " + ss);
+//				System.err.println(e + ": " + m + args);
+//				throw e;
 			}
 //		} catch (IllegalArgumentException e) {
 //			throw new RuntimeException("Template argument type mismatch: ", e);
@@ -45,6 +52,26 @@ public class RenderInvokerUtils {
 //			e.printStackTrace();
 //			throw new RuntimeException(e);
 //		}
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param args
+	 * @return
+	 */
+	private static String flatArgs(Object[] args) {
+		if (args == null) {
+			return "[]";
+		}
+		
+		String sb = "";
+		for (Object o :args) {
+			sb += o + ", ";
+		}
+		if (sb.endsWith(", ")){
+			sb = sb.substring(0, sb.length() - 2);
+		}
+		return "[" + sb + "]";
 	}
 
 	public static <T extends JapidTemplateBaseWithoutPlay> RenderResult renderWithNamedArgs(T t, NamedArgRuntime... args) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {

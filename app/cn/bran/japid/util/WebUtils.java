@@ -17,7 +17,9 @@ import java.util.TimeZone;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import play.i18n.Lang;
 import play.i18n.Messages;
+import play.mvc.Http.Context;
 
 public class WebUtils {
     public static String fastformat(Date date, String pattern) {
@@ -182,9 +184,10 @@ public class WebUtils {
 //        return new SimpleDateFormat(I18N.getDateFormat()).format(date);
 //    }
 //
-//    public static String format(Date date, String pattern) {
-//        return format(date, pattern, Lang.get());
-//    }
+    public static String format(Date date, String pattern) {
+    	Lang lan = play.i18n.Lang.preferred(Context.current().request().acceptLanguages());
+        return format(date, pattern, lan.language());
+    }
 
     public static String format(Date date, String pattern, String lang) {
         return new SimpleDateFormat(pattern, new Locale(lang)).format(date);

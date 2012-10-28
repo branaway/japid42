@@ -27,6 +27,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import play.mvc.Http.Context;
+
 import cn.bran.japid.compiler.JapidAbstractCompiler;
 //import cn.bran.japid.compiler.Tag;
 import cn.bran.japid.compiler.Tag.TagDef;
@@ -658,14 +660,14 @@ public abstract class AbstractTemplateClassMetaData {
 	 * Note: this basically removes the possibility to reuse the same instance of renderer to render multiple requests. 
 	 */
 	protected void addImplicitFields() {
-		
 		if (useWithPlay) {
-			pln("\n// - add implicit fields with Play\n");
-			pln("	final Request request = Implicit.request(); \n" + 
-					"	final Response response = Implicit.response(); \n" + 
-					"	final Session session = Implicit.session();\n" + 
-					"	final Flash flash = Implicit.flash();\n" + 
-					"	final Lang lang = Implicit.lang();\n" + 
+			pln("\n// - add implicit fields with Play\n" +
+					"boolean hasHttpContext = play.mvc.Http.Context.current.get() != null ? true : false;\n");
+			pln("	final Request request = hasHttpContext? Implicit.request() : null;\n" + 
+					"	final Response response = hasHttpContext ? Implicit.response() : null;\n" + 
+					"	final Session session = hasHttpContext ? Implicit.session() : null;\n" + 
+					"	final Flash flash = hasHttpContext ? Implicit.flash() : null;\n" + 
+					"	final Lang lang = hasHttpContext ? Implicit.lang() : null;\n" + 
 					"	final play.Play _play = new play.Play(); \n" + 
 					"");
 			pln("// - end of implicit fields with Play \n\n");

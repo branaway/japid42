@@ -89,7 +89,7 @@ public class aTag extends cn.bran.play.JapidTemplateBase
 		p("</p>\n" + 
 "\n" + 
 "<em>\n" + 
-"Note: the join() is defined in the JavaExtensions class in the Play! framework, which is automatically imported. \n" + 
+"Note: the join() is defined in Japid WebUtils class, which is automatically imported. \n" + 
 "</em>");// line 9
 		
 		endDoLayout(sourceTemplate);

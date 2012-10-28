@@ -67,6 +67,8 @@ h2. Hack Japid42 in Eclipse
 
 h2. Usage
 
+h4. For a full application with Japid, see: http://github.com/branaway/computer-japid
+
 
 Please check out the JapidSample project in the samples directory for an example. 
 
@@ -181,3 +183,8 @@ h2. History
 # removed: removed _javatags, _errors special directories in japidviews folder. 
 # added: ported some util methods from Play 1's JavaExtensions to WebUtils. 
 # enhancement: merged Yuvi Masory's JDT compiler dependency change
+
+2012.10.23. v0.5.2
+# bug fix: error reporting of argument mismatch in calling Japid views from controller. 
+# enhancement: added toString() to JapidResult so it can be used directly in Japid views as the result of directly calling a controller method. For an example, one can include the result of an action call direcly in a script like this:
+	<code>the value is $MyController.action(...).</code>
