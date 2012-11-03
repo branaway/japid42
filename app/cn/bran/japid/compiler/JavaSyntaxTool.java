@@ -183,12 +183,14 @@ public class JavaSyntaxTool {
 	private static final String classTempForArgs = "class T {  {  foo(%s); } }";
 	private static final String classTempForArgsNoParenthesis = "class T {  {  foo%s; } }";
 
+	@SuppressWarnings("unchecked")
 	public static List<String> parseArgs(String line) {
 		final List<String> ret = new ArrayList<String>();
 		if (line == null || line.trim().length() == 0)
 			return ret;
 
 
+		@SuppressWarnings("rawtypes")
 		VoidVisitorAdapter visitor = new VoidVisitorAdapter() {
 			@Override
 			public void visit(MethodCallExpr n, Object arg) {

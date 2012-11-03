@@ -15,15 +15,12 @@ package cn.bran.japid.classmeta;
 
 import japa.parser.ast.body.Parameter;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import cn.bran.japid.compiler.JavaSyntaxTool;
-import cn.bran.japid.compiler.NamedArgRuntime;
-import cn.bran.japid.compiler.Tag;
 import cn.bran.japid.compiler.Tag.TagSet;
 
 /**
@@ -47,6 +44,10 @@ import cn.bran.japid.compiler.Tag.TagSet;
  */
 public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 
+	/**
+	 * 
+	 */
+	private static final String COMMA = ", ";
 	// there are the "#{set var:val /}
 	// <methName, methodBody
 	Map<String, String> setMethods = new HashMap<String, String>();
@@ -178,6 +179,7 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 				pln("\t\tthis." + p.getId() + " = " + p.getId() + ";");
 			}
 			restOfRenderBody(resultType);
+			// add static apply method
 		} else {
 			if (doBodyArgsString != null) {
 				pln(String.format(NAMED_PARAM_WITH_BODY, getLineMarker()));
@@ -194,9 +196,26 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 			pln("\tpublic " + resultType + " render() {");
 			restOfRenderBody(resultType);
 		}
+
+		// the static apply method
+		String args = "";
+		for (Parameter p: params) {
+			args += p.getId() + COMMA;
+		}
+		if (args.endsWith(COMMA)) {
+			args = args.substring(0, args.lastIndexOf(COMMA));
+		}
+		String applyMethod = String.format(APPLY_METHOD, resultType, renderArgsWithoutAnnos, this.className, args);
+		pln("\n" + applyMethod);
 	
 	}
 
+	static final String APPLY_METHOD = 
+			"	public static %s apply(%s) {\n" + 
+			"		return new %s().render(%s);\n" + 
+			"	}\n" ;
+	
+	
 	private void restOfRenderBody(String resultType) {
 		pln("\t\tlong __t = -1;");
 		if (stopWatch)

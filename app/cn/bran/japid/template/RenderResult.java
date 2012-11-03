@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class RenderResult implements Externalizable {
 	private static final String _NULL = "_null_";
-	private StringBuilder content; // bran can this
+	private StringBuilder content; 
 	long renderTime; // in ms, for recording the time to render.
 	private Map<String, String> headers = new HashMap<String, String>();
 	
@@ -73,12 +73,11 @@ public class RenderResult implements Externalizable {
 
 	@Override
 	public String toString() {
-		if (content != null) {
-			return content.toString();
-		}
-		else {
-			return "RenderResult: null";
-		}
+		StringBuilder c = getContent();
+		if (c == null)
+			return "";
+		else
+			return c.toString();
 	}
 
 	public Map<String, String> getHeaders() {

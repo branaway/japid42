@@ -811,7 +811,6 @@ public class JapidRenderer {
 	 */
 	public static void init(OpMode opMode, String templateRoot,
 			int refreshInterval, Application app) throws IOException {
-		JapidFlags.log("[Japid] verion: " + version);
 		inited = true;
 		JapidRenderer.opMode = opMode;
 		setTemplateRoot(templateRoot);
@@ -838,6 +837,7 @@ public class JapidRenderer {
 		_app = app;
 		
 		initErrorRenderer();
+		JapidFlags.log("[Japid] initialized");
 	}
 
 

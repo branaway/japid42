@@ -4,7 +4,7 @@ Bing Ran (bing.ran@gmail.com)
 
 version 0.5.2
 Status: beta
-
+Compatibility: Play 2.0.4
 
 
 h2. About
@@ -38,23 +38,14 @@ What are different?
 
 - reverse routing: @{} not supported and deprecated by Play2's direct route class call for each route rule. 
 
-h2. Build the module from source
-
-1. Git clone the Japid42 project to your local computer. 
-2. Build it and publish it to your local repository: "play publish-local", where the play is the Play2 binary. 
-
-Note:
-
-- I'm using sbt 0.11.3 locally. Match the sbt version in the "project/build.properties" file to yours . 
-- Also check and match the sbt-plugin version in the "project/plugins.sbt" file to your local version. 
-
 
 h2. Usage
 
 
-h4. For a full application with Japid, see: http://github.com/branaway/computer-japid
 
-Please check out the JapidSample project in the samples directory for an example. 
+h4. For a full sample application with Japid, see: http://github.com/branaway/computer-japid
+
+Please also check out the JapidSample project in the samples directory for an example. 
 
 Basically you'll need to do three things:
 
@@ -64,11 +55,11 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.5.2"
+      "japid42" % "japid42_2.9.1" % "0.5.3"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
-      resolvers += "Local Play Repository" at "/my/path/to/Play20/repository/local"
+      resolvers += Resolver.url("My GitHub Play Repository", url("http://branaway.github.com/releases/"))(Resolver.ivyStylePatterns)
     )
 //...
 </pre>
@@ -87,20 +78,16 @@ public class Global extends GlobalSettings {
 	@Override
 	public void onStart(Application app) {
 		JapidRenderer.init(app);
-// there are more customization you can do to Japid
-//		JapidRenderer.addImportStatic(StringUtils.class);
-//		JapidRenderer.setLogVerbose(true);
 	}
-
 }
 </pre>  
 
 Note:
 
 
-- There are q few things that can be customized. Please see the javadoc of JapidRenderer. 
+- There are a few things that can be customized. Please see the javadoc of JapidRenderer. 
    
-   
+
 2. Extend cn.bran.play.JapidController to create your own controllers and use the renderJapid(...) etc to render the views. 
 
 <pre>
@@ -135,15 +122,18 @@ For detailed Japid grammar please refer to the Japid 1 manual before I write som
 h2. Sample applications
 
 * http://github.com/branaway/computer-japid
-* There is a sample application in the sample/JapidSample. Please update the dependency entry in the project/Build.scala file. 
+* There is also a sample application in the sample/JapidSample. Please update the dependency entry in the project/Build.scala file. 
 
 
 h2. Hack Japid42 in Eclipse
 
-1. In the root directory of japid42: play eclipse 
-2. import the project in Eclipse. 
-3. Fix the missing classes_managed folder as reported. 
+1. Git clone the Japid42 project to your local computer. 
+2. Build it and publish it to your local repository: "play publish-local", where the play is the Play2 binary. 
 
+Note:
+
+- I'm using sbt 0.11.3 locally. Match the sbt version in the "project/build.properties" file to yours . 
+- Also check and match the sbt-plugin version in the "project/plugins.sbt" file to your local version. 
 
 
 h2. History
@@ -182,3 +172,6 @@ h2. History
 # bug fix: error reporting of argument mismatch in calling Japid views from controller. 
 # enhancement: added toString() to JapidResult so it can be used directly in Japid views as the result of directly calling a controller method. For an example, one can include the result of an action call direcly in a script like this:
 	<code>the value is $MyController.action(...).</code>
+	
+2012.11.1. v0.5.3
+# enhancement: since I started using github pages as the repository, the readme file started referencing the resolver to it instead of local.  

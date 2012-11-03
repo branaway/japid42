@@ -5,7 +5,7 @@ import PlayProject._
 object ApplicationBuild extends Build {
 
   val appName         = "japid42"
-  val appVersion      = "0.5.2"
+  val appVersion      = "0.5.3"
 
   val appDependencies = Seq(
     "org.apache.commons" % "commons-email" % "1.2"
@@ -15,11 +15,13 @@ object ApplicationBuild extends Build {
   )
 
   val main = PlayProject(
-    appName, appVersion, appDependencies,
-    mainLang = JAVA
+    appName, appVersion, appDependencies
   )
-  
-  publishTo <<= version { v: String =>
+
+
+  /*
+  publishTo := Some(Resolver.file("file",  new File( "~bran/projects/branaway.github.com/releases" )) )
+  publishTo <<= version { (v: String) =>
 	  val nexus = "https://oss.sonatype.org/"
 	  if (v.trim.endsWith("SNAPSHOT")) 
 	    Some("snapshots" at nexus + "content/repositories/snapshots")
@@ -56,4 +58,5 @@ object ApplicationBuild extends Build {
     </developer>
   </developers>
 	)
+*/
 }
