@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.5.2
+version 0.5.4
 Status: beta
 Compatibility: Play 2.0.4
 
@@ -55,7 +55,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.5.3"
+      "japid42" % "japid42_2.9.1" % "0.5.4"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
@@ -113,11 +113,47 @@ alright: $m!
 
 4. Hit http://localhost:9000/ to see Japid at work!
 
+h2. Use Japid in sub-projects
 
+In Build.scala, you may have a sub-project defined like this:
+
+<pre><code>
+    val appDependencies = Seq(
+      "japid42" % "japid42_2.9.1" % "0.5.4"
+    )
+
+    val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
+
+    val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
+      resolvers += Resolver.url("Japid on Github", url("http://branaway.github.com/releases/"))(Resolver.ivyStylePatterns)
+    ).dependsOn(foo)
+    
+</code></pre>
+
+Obviously you have a sub-project located in modules/foo. For the system to know the Japid scripts in the sub-project, you'll need to tell Japid the location, using the JapidRenderer.setTemplateRoot(String...) method, in the global initialization method:
+
+<pre><code>
+public class Global extends GlobalSettings {
+    @Override
+	public void onStart(Application app) {
+		JapidRenderer.init(app);
+		JapidRenderer.setTemplateRoot("japidroot", "modules/foo/japidroot");
+    }
+}
+</code></pre>
+
+In the above example, the first argument is the location of the Japid scripts in the parent project. The second argument is the root for the Japid scripts in the sub-project. All paths are relative to the root of the master project. 
+
+The @computer-japid@ sample application demos this feature. 
+
+h2. Documentation
+
+The "computer-japid" sample project contains a README file that explains most of the Japid usage. Please refer to it. 
 
 For detailed Japid grammar please refer to the Japid 1 manual before I write something formal： 
 
 － https://github.com/branaway/Japid
+
 
 h2. Sample applications
 
@@ -170,8 +206,11 @@ h2. History
 
 2012.10.23. v0.5.2
 # bug fix: error reporting of argument mismatch in calling Japid views from controller. 
-# enhancement: added toString() to JapidResult so it can be used directly in Japid views as the result of directly calling a controller method. For an example, one can include the result of an action call direcly in a script like this:
+# enhancement: added toString() to JapidResult so it can be used directly in Japid views as the result of directly calling a controller method. For an example, one can include the result of an action call directly in a script like this:
 	<code>the value is $MyController.action(...).</code>
 	
 2012.11.1. v0.5.3
-# enhancement: since I started using github pages as the repository, the readme file started referencing the resolver to it instead of local.  
+# enhancement: since I started using the Github pages as the repository, the readme file started referencing the resolver to it instead of local.  
+
+2012.11.1. v0.5.4
+# new feature: added JapidRenderer.setTemplateRoot(String...) that takes one or more japid roots. With this support, Japid can be used in project/sub-project layout.

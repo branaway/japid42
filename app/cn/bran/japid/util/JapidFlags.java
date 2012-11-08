@@ -9,6 +9,9 @@ public class JapidFlags {
 	 * @param string
 	 */
 	public static void log(String string) {
+		if (!string.startsWith("["))
+			string = "[Japid]" + string;
+			
 		if (verbose)
 			System.out.println(string);
 	}

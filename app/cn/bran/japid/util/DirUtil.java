@@ -78,6 +78,19 @@ public class DirUtil {
 		return files.toArray(ret);
 	}
 	
+	public static String[] getAllTemplateFiles(String... dirs) {
+		List<String> re = new ArrayList<String>();
+		
+		for(String dir : dirs) {
+			List<String> files = new ArrayList<String>();
+			getAllFileNames("", new File(dir), files, TEMPLATE_EXTS);
+			re.addAll(files);
+		}
+		// should filter out bad named files
+		String[] ret = new String[re.size()];
+		return re.toArray(ret);
+	}
+	
 	
 
 	/**

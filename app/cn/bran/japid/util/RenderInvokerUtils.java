@@ -31,7 +31,7 @@ public class RenderInvokerUtils {
 			} catch (IllegalArgumentException e) {
 				String msg = e.getMessage();
 				String paramTypes = flatArgs(m.getParameterTypes());
-				msg = msg + ": the arguments did not match the template " + t.getClass().getName() + 
+				msg = msg + ": the arguments do not match the parameters of the template " + t.getClass().getName() + 
 						paramTypes;
 				String ss= flatArgs(args);
 				throw new RuntimeException(msg + ": " + ss);
@@ -66,7 +66,11 @@ public class RenderInvokerUtils {
 		
 		String sb = "";
 		for (Object o :args) {
-			sb += o + ", ";
+			if (o instanceof Class) {
+				sb += ((Class<?>)o).getName() + ", ";
+			}
+			else
+				sb += o + ", ";
 		}
 		if (sb.endsWith(", ")){
 			sb = sb.substring(0, sb.length() - 2);

@@ -326,7 +326,7 @@ public class RendererCompiler {
                         clazzName.append(compoundName[j]);
                     }
                     byte[] bytes = clazzFile.getBytes();
-                    if (JapidFlags.verbose) System.out.println("[RenderCompiler]bytecode generated for: " + clazzName);
+                    if (JapidFlags.verbose) System.out.println("[RenderCompiler]compiled: " + clazzName);
                     // XXX address anonymous inner class issue!! ....$1...
                     String cname = clazzName.toString();
 					RendererClass rc = classes.get(cname);
