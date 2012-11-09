@@ -81,26 +81,29 @@ public class PlayDirUtil {
 	
 			// create dirs for controllers
 	
+			File rootFile = getAppRootDir(root);
+					
 	//		JapidFlags.log("JapidCommands: check default template packages for controllers.");
-			try {
-				String controllerPath = Play.application().path()  + sep + "app" + sep + "controllers";
-				File controllerPathFile = new File(controllerPath);
-//				JapidFlags.log("PlayDirUtil: controller path: " + controllerPathFile.getAbsolutePath());
-				if (controllerPathFile.exists()) {
-					String[] controllers = DirUtil.getAllJavaFilesInDir(controllerPathFile);
-					for (String f : controllers) {
-						String cp = japidViews + f;
-						File ff = new File(cp);
-						if (!ff.exists()) {
-							boolean mkdirs = ff.mkdirs();
-							assert mkdirs == true;
-							res.add(ff);
-							JapidFlags.log("created: " + cp);
+			if (rootFile != null && rootFile.exists()) {
+				try {
+					File controllerPathFile = new File(rootFile,  "app" + sep + "controllers");
+	//				JapidFlags.log("PlayDirUtil: controller path: " + controllerPathFile.getAbsolutePath());
+					if (controllerPathFile.exists()) {
+						String[] controllers = DirUtil.getAllJavaFilesInDir(controllerPathFile);
+						for (String f : controllers) {
+							String cp = japidViews + f;
+							File ff = new File(cp);
+							if (!ff.exists()) {
+								boolean mkdirs = ff.mkdirs();
+								assert mkdirs == true;
+								res.add(ff);
+								JapidFlags.log("created: " + cp);
+							}
 						}
 					}
+				} catch (Exception e) {
+					JapidFlags.log(e.toString());
 				}
-			} catch (Exception e) {
-				JapidFlags.log(e.toString());
 			}
 	
 	//		JapidFlags.log("JapidCommands:  check default template packages for email notifiers.");
@@ -134,6 +137,35 @@ public class PlayDirUtil {
 				JapidFlags.log(e.toString());
 			}
 			return res;
+		}
+
+		static File getAppRootDir(String root) {
+			File rootFile = new File(root).getAbsoluteFile();
+			while(rootFile != null && !isAppRoot(rootFile)) {
+				rootFile = rootFile.getParentFile();
+			}
+			return rootFile;
+		}
+
+		/**
+		 * @author Bing Ran (bing.ran@hotmail.com)
+		 * @param rootFile
+		 * @return
+		 */
+		private static boolean isAppRoot(File rootFile) {
+			File[] list = rootFile.listFiles();
+			for (File l : list) {
+				if ("app".equals(l.getName())) {
+					if (l.isDirectory()) {
+						File controllerDir = new File(l, "controllers");
+						if (controllerDir.exists() && controllerDir.isDirectory()) {
+							return true;
+						}
+					}
+				}
+			}
+			
+			return false;
 		}
 
 }

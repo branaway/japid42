@@ -5,10 +5,10 @@ import PlayProject._
 object ApplicationBuild extends Build {
 
     val appName         = "JapidSample42"
-    val appVersion      = "0.5.1"
+    val appVersion      = "0.5.5"
 
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.5.3"
+      "japid42" % "japid42_2.9.1" % "0.5.5"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
