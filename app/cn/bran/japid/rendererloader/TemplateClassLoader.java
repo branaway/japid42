@@ -53,7 +53,9 @@ public class TemplateClassLoader extends ClassLoader {
 			
 		// System.out.println("[TemplateClassLoader] loading: " + name);
 		RendererClass rc = JapidRenderer.japidClasses.get(name);
-
+		if (rc == null)
+			throw new ClassNotFoundException("Japid class container does not have: " + name);
+		
 		byte[] bytecode = rc.bytecode;
 
 		if (bytecode == null) {
@@ -62,6 +64,7 @@ public class TemplateClassLoader extends ClassLoader {
 
 		// the defineClass method will load the classes of the dependency
 		// classes.
+		@SuppressWarnings("unchecked")
 		Class<? extends JapidTemplateBaseWithoutPlay> cl =
 					(Class<? extends JapidTemplateBaseWithoutPlay>) defineClass(name, bytecode, 0, bytecode.length);
 		rc.setClz(cl);

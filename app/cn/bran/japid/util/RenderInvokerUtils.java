@@ -107,15 +107,30 @@ public class RenderInvokerUtils {
 		try {
 			// String methodName = "render";
 			Constructor<T> ctor = c.getConstructor(StringBuilder.class);
-			StringBuilder sb = new StringBuilder(8000);
-			T t = ctor.newInstance(sb);
-			RenderResult rr = render(t, args);
+			RenderResult rr = invokeRenderer(ctor, args);
 			// RenderResult rr = (RenderResult) MethodUtils.invokeMethod(t,
 			// methodName, args);
 			return rr;
 		} catch (NoSuchMethodException e) {
 			throw new RuntimeException(
 					"Could not match the arguments with the template args.");
+		} 
+		catch (Exception e) {
+			if (e instanceof RuntimeException)
+				throw (RuntimeException) e;
+			else
+				throw new RuntimeException(
+						"Could not invoke the template object: ", e);
+		}
+	}
+
+	public static <T extends JapidTemplateBaseWithoutPlay> RenderResult invokeRenderer(Constructor<T> ctor,
+			Object... args) {
+		try {
+			StringBuilder sb = new StringBuilder(8000);
+			T t = ctor.newInstance(sb);
+			RenderResult rr = render(t, args);
+			return rr;
 		} catch (InstantiationException e) {
 			// e.printStackTrace();
 			throw new RuntimeException(

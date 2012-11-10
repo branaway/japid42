@@ -215,5 +215,6 @@ h2. History
 2012.11.8. v0.5.4
 # new feature: added JapidRenderer.setTemplateRoot(String...) that takes one or more japid roots. With this support, Japid can be used in project/sub-project layout.
 
-2012.11.9. v0.5.5
+2012.11.10. v0.5.5
 # bug fix: failed to create folders matching controllers in mkdir()
+# critical bug fix: play start did not work. Class was not found. 

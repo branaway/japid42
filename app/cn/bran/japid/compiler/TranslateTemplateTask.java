@@ -118,7 +118,7 @@ public class TranslateTemplateTask {
 			changedFiles = DirUtil.findChangedSrcFiles(include);
 
 		if (changedFiles.size() > 0) {
-			JapidFlags.log("[Japid] Processing " + changedFiles.size() + " template" + (changedFiles.size() == 1 ? "" : "s") + " in directory tree: " + destDir);
+//			JapidFlags.log("[Japid] Processing " + changedFiles.size() + " template" + (changedFiles.size() == 1 ? "" : "s") + " in directory tree: " + destDir);
 
 			JapidTemplateTransformer tran = new JapidTemplateTransformer(packageRoot.getPath(), null);
 			tran.usePlay(this.usePlay);

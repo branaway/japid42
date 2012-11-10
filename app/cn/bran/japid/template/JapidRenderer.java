@@ -5,7 +5,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -86,15 +85,23 @@ public class JapidRenderer {
 	 */
 	public static Class<? extends JapidTemplateBaseWithoutPlay> getClass(
 			String name) {
-
 		refreshClasses();
-
 		return getClassWithoutRefresh(name);
 
 	}
 
+	public static RendererClass getRendererClass(String name) {
+		refreshClasses();
+		return getRendererClassWithoutRefresh(name);
+	}
+
 	private static Class<? extends JapidTemplateBaseWithoutPlay> getClassWithoutRefresh(
 			String name) {
+		RendererClass rc = getRendererClassWithoutRefresh(name);
+		return rc.getClz();
+	}
+
+	private static RendererClass getRendererClassWithoutRefresh(String name) {
 		RendererClass rc = japidClasses.get(name);
 		if (rc == null)
 			throw new RuntimeException("renderer class not found: " + name
@@ -102,37 +109,21 @@ public class JapidRenderer {
 					+ flattern(templateRoots) + SEP
 					+ name.replace('.', File.separatorChar) + ".html");
 		else {
-			if (playClassloaderChanged()) {
-				// fall thru to reload all
-			} else {
+			if (rc.getClz() == null || playClassloaderChanged()) {
+				// always clear the mark to reload all
+//				for (String c : japidClasses.keySet()) {
+//					RendererClass rendererClass = japidClasses.get(c);
+//					rendererClass.setLastUpdated(0);
+//				}
 				try {
-					Class<? extends JapidTemplateBaseWithoutPlay> cls = rc
-							.getClz();
-					if (cls != null) {
-						return cls;
-					}
+					new TemplateClassLoader(parentClassLoader).loadClass(name);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
-				}
+				} 
 			}
 		}
-
-		// always clear the mark to reload all
-		for (String c : japidClasses.keySet()) {
-			RendererClass rendererClass = japidClasses.get(c);
-			rendererClass.setLastUpdated(0);
-		}
-		TemplateClassLoader classReloader = new TemplateClassLoader(
-				parentClassLoader);
-		try {
-			@SuppressWarnings("unchecked")
-			Class<JapidTemplateBaseWithoutPlay> loadClass = (Class<JapidTemplateBaseWithoutPlay>) classReloader
-					.loadClass(name);
-			rc.setClz(loadClass);
-			return loadClass;
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+		
+		return rc;
 	}
 
 	/**
@@ -314,8 +305,7 @@ public class JapidRenderer {
 			removeInnerClasses(c);
 			cleanClassHolder(rc);
 
-			String[] names = { DEV_ERROR };
-			compiler.compile(names);
+			compiler.compile(new String[] { DEV_ERROR });
 		} catch (Exception e) {
 			if (e instanceof JapidTemplateException)
 				throw (JapidTemplateException) e;
@@ -564,8 +554,8 @@ public class JapidRenderer {
 	}
 
 	/**
-	 * create the basic layout: app/japidviews/_layouts app/japidviews/_tags
-	 * 
+	 * not:  create the basic layout: app/japidviews/_layouts app/japidviews/_tags
+	 *  
 	 * then create a dir for each controller. //TODO
 	 * 
 	 * @throws IOException
@@ -643,6 +633,7 @@ public class JapidRenderer {
 			TranslateTemplateTask t = new TranslateTemplateTask();
 			t.addImport("controllers.*");
 			t.addImport("models.*");
+			t.addImport("japidviews.*");
 			t.addImport("play.data.validation.Validation");
 			t.addImport("play.i18n.Lang");
 			t.addImport("play.mvc.Http.Context.Implicit");
@@ -661,10 +652,11 @@ public class JapidRenderer {
 
 			t.setPackageRoot(new File(r));
 			t.setInclude(new File(r + SEP + JAPIDVIEWS + SEP));
-			if (DirUtil.hasLayouts(r))
-				t.addImport("japidviews._layouts.*");
-			if (DirUtil.hasTags(r))
-				t.addImport("japidviews._tags.*");
+// _layouts and _tags are deprecated 
+//			if (DirUtil.hasLayouts(r))
+//				t.addImport("japidviews._layouts.*");
+//			if (DirUtil.hasTags(r))
+//				t.addImport("japidviews._tags.*");
 			t.execute();
 			files.addAll(t.getChangedTargetFiles());
 		}

@@ -15,7 +15,7 @@ public class PlayDirUtil {
 
 
 		/**
-		 * create the basic layout: app/japidviews/_javatags app/japidviews/_layouts
+		 * not any more: create the basic layout: app/japidviews/_javatags app/japidviews/_layouts
 		 * app/japidviews/_tags
 		 * 
 		 * then create a dir for each controller. //TODO
@@ -26,26 +26,29 @@ public class PlayDirUtil {
 		public static List<File> mkdir(String root) throws IOException {
 			String sep = File.separator;
 			String japidViews = root + sep + DirUtil.JAPIDVIEWS_ROOT + sep;
+			new File(japidViews).mkdir();
+			
 //			File javatags = new File(japidViews + DirUtil.JAVATAGS);
 //			if (!javatags.exists()) {
 //				boolean mkdirs = javatags.mkdirs();
 //				assert mkdirs;
 //				JapidFlags.log("created: " + japidViews + DirUtil.JAVATAGS);
 //			}
-	
-			File layouts = new File(japidViews + DirUtil.LAYOUTDIR);
-			if (!layouts.exists()) {
-				boolean mkdirs = layouts.mkdirs();
-				assert mkdirs;
-				JapidFlags.log("created: " + japidViews + DirUtil.LAYOUTDIR);
-			}
-	
-			File tags = new File(japidViews + DirUtil.TAGSDIR);
-			if (!tags.exists()) {
-				boolean mkdirs = tags.mkdirs();
-				assert mkdirs;
-				JapidFlags.log("created: " + japidViews + DirUtil.TAGSDIR);
-			}
+
+			// deprecated
+//			File layouts = new File(japidViews + DirUtil.LAYOUTDIR);
+//			if (!layouts.exists()) {
+//				boolean mkdirs = layouts.mkdirs();
+//				assert mkdirs;
+//				JapidFlags.log("created: " + japidViews + DirUtil.LAYOUTDIR);
+//			}
+//	
+//			File tags = new File(japidViews + DirUtil.TAGSDIR);
+//			if (!tags.exists()) {
+//				boolean mkdirs = tags.mkdirs();
+//				assert mkdirs;
+//				JapidFlags.log("created: " + japidViews + DirUtil.TAGSDIR);
+//			}
 			
 			// email notifiers
 			File notifiers = new File(japidViews + DirUtil.NOTIFIERS);
@@ -74,10 +77,11 @@ public class PlayDirUtil {
 //				bf.close();
 //			}
 			
-			
-			File[] dirs = new File[] { /*javatags,*/ layouts, tags };
 			List<File> res = new ArrayList<File>();
-			res.addAll(Arrays.asList(dirs));
+			
+//			File[] dirs = new File[] { /*javatags,*/ layouts, tags };
+//			res.addAll(Arrays.asList(dirs));
+
 	
 			// create dirs for controllers
 	

@@ -1,6 +1,7 @@
 package cn.bran.japid.rendererloader;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.util.Date;
 
 import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
@@ -15,6 +16,8 @@ public class RendererClass {
 	Class<? extends JapidTemplateBaseWithoutPlay> clz;
 	ClassLoader cl;
 	private File scriptFile; // the original template source file
+	// the constructor cache
+	private Constructor<? extends JapidTemplateBaseWithoutPlay> constructor;
 	
 	public ClassLoader getCl() {
 		return cl;
@@ -27,6 +30,14 @@ public class RendererClass {
 	}
 	public void setClz(Class<? extends JapidTemplateBaseWithoutPlay> clz) {
 		this.clz = clz;
+		if (clz == null)
+			this.setConstructor(null);
+		else 
+			try {
+				this.setConstructor(clz.getConstructor(StringBuilder.class));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 	}
 	public String getClassName() {
 		return className;
@@ -105,4 +116,18 @@ public class RendererClass {
 			return -1;	
 
 	}
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param ctor
+	 */
+	public  void setConstructor(Constructor<? extends JapidTemplateBaseWithoutPlay> ctor) {
+		this.constructor = ctor;
+	}
+	/**
+	 * @return the constructor
+	 */
+	public Constructor<? extends JapidTemplateBaseWithoutPlay> getConstructor() {
+		return constructor;
+	}
+
 }

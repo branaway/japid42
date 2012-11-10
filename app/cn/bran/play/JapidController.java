@@ -143,14 +143,24 @@ public class JapidController extends Controller {
 		String templateClassName = getTemplateClassName(template);
 
 		try {
-			Class<? extends JapidTemplateBaseWithoutPlay> tClass = getTemplateClass(templateClassName);
+			/*
+			 * 			RendererClass rc = JapidRenderer.getRendererClass(templateClassName);
+
+			if (rc == null) {
+				String templateFileName = templateClassName.replace(DOT, '/') + HTML;
+				throw new RuntimeException("Could not find a Japid template with the name: "
+								+ templateFileName);
+			} else {
+				return RenderInvokerUtils.invokeRenderer(rc.getConstructor(), args);
+			}
+*/
+			Class<? extends JapidTemplateBaseWithoutPlay> tClass = JapidRenderer.getClass(templateClassName);
 
 			if (tClass == null) {
-				String templateFileName = templateClassName.replace(DOT, '/')
-						+ HTML;
 				throw new RuntimeException(
 						"Could not find a Japid template with the name: "
-								+ templateFileName);
+								+ (templateClassName.replace(DOT, '/')
+										+ HTML));
 			} else {
 				// render(tClass, args);
 				RenderResult rr = RenderInvokerUtils.invokeRender(tClass, args);

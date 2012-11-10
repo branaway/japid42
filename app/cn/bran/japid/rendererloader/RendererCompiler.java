@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import cn.bran.japid.compiler.JapidCompilationException;
 import cn.bran.japid.exceptions.JapidTemplateException;
 import cn.bran.japid.template.JapidTemplate;
+import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
 import cn.bran.japid.util.DirUtil;
 import cn.bran.japid.util.JapidFlags;
 
@@ -326,7 +327,7 @@ public class RendererCompiler {
                         clazzName.append(compoundName[j]);
                     }
                     byte[] bytes = clazzFile.getBytes();
-                    if (JapidFlags.verbose) System.out.println("[RenderCompiler]compiled: " + clazzName);
+                    JapidFlags.log("[RenderCompiler]compiled: " + clazzName);
                     // XXX address anonymous inner class issue!! ....$1...
                     String cname = clazzName.toString();
 					RendererClass rc = classes.get(cname);
