@@ -218,3 +218,4 @@ h2. History
 2012.11.10. v0.5.5
 # bug fix: failed to create folders matching controllers in mkdir()
 # critical bug fix: play start did not work. Class was not found. 
+# simplification: _layout and _tags were deprecated. Put shared stuff in the japidviews dir or configure import manually.
