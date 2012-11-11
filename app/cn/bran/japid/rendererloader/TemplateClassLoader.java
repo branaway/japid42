@@ -54,7 +54,7 @@ public class TemplateClassLoader extends ClassLoader {
 		// System.out.println("[TemplateClassLoader] loading: " + name);
 		RendererClass rc = JapidRenderer.japidClasses.get(name);
 		if (rc == null)
-			throw new ClassNotFoundException("Japid class container does not have: " + name);
+			throw new ClassNotFoundException("Japid could not resolve class: " + name);
 		
 		byte[] bytecode = rc.bytecode;
 
@@ -69,8 +69,8 @@ public class TemplateClassLoader extends ClassLoader {
 					(Class<? extends JapidTemplateBaseWithoutPlay>) defineClass(name, bytecode, 0, bytecode.length);
 		rc.setClz(cl);
 		localClasses.put(name, cl);
-		rc.lastUpdated = 1;// System.currentTimeMillis();
-//		if (JapidFlags.verbose) System.out.println(oid + " reloaded from bytecode: " + name);
+		rc.setLastDefined(System.currentTimeMillis());
+		JapidFlags.log(oid + " defined: " + name);
 		return cl;
 
 	}

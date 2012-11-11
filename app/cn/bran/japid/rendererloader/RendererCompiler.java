@@ -25,10 +25,7 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
-import cn.bran.japid.compiler.JapidCompilationException;
 import cn.bran.japid.exceptions.JapidTemplateException;
-import cn.bran.japid.template.JapidTemplate;
-import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
 import cn.bran.japid.util.DirUtil;
 import cn.bran.japid.util.JapidFlags;
 
@@ -77,6 +74,211 @@ public class RendererCompiler {
     }
 
     /**
+	 * @author bran
+	 *
+	 */
+	private final class CompilerRequestor implements ICompilerRequestor {
+		@Override
+		public void acceptResult(CompilationResult result) {
+		    // If error
+		    if (result.hasErrors()) {
+		    	// bran: sort the problems and report the first one
+		        CategorizedProblem[] errors = result.getErrors();
+		        Arrays.sort(errors, new Comparator<CategorizedProblem>() {
+					@Override
+					public int compare(CategorizedProblem o1, CategorizedProblem o2) {
+						return o1.getSourceLineNumber() - o2.getSourceLineNumber();
+					}
+		        });
+		        
+		        for (IProblem problem: errors) {
+		            String className = new String(problem.getOriginatingFileName()).replace("/", ".");
+		            className = className.substring(0, className.length() - 5);
+		            String message = problem.getMessage();
+		            int line = problem.getSourceLineNumber();
+		            String srcFile = new String(problem.getOriginatingFileName());
+		            if (problem.getID() == IProblem.CannotImportPackage) {
+		                // Non sense !
+		                message = problem.getArguments()[0] + " cannot be resolved";
+		            }
+		            
+		            RendererClass rc = classes.get(className);
+		            
+		            if (rc.getScriptFile() == null)
+		            	throw new RuntimeException("no source file for compiling " + className);
+		            
+		            if (rc.getOriSourceCode() == null)
+		            	throw new RuntimeException("no original source code for compiling " + className);
+		            
+		            String descr = srcFile + "(" + line  + "): " + message;
+		            
+		            int oriSrcLineNum = DirUtil.mapJavaLineToSrcLine(rc.getSourceCode(), problem.getSourceLineNumber());
+		            String scriptPath = rc.getScriptFile().getPath();
+					if (oriSrcLineNum > 0) {
+						// has a original script marker
+						descr = scriptPath + "(" + oriSrcLineNum + "): " + message;
+						JapidTemplateException te = new JapidTemplateException(
+								"Japid Compilation Error",
+								descr,
+								oriSrcLineNum, 
+								scriptPath,
+								rc.getOriSourceCode());
+						throw te;
+					}
+					else {
+						JapidTemplateException te = new JapidTemplateException(
+								"Japid Compilation Error",
+								descr,
+								line, 
+								srcFile,
+								rc.getSourceCode());
+						throw te;
+						
+					}
+		        }
+		    }
+		    
+		    
+		    // Something has been compiled
+		    ClassFile[] clazzFiles = result.getClassFiles();
+		    for (int i = 0; i < clazzFiles.length; i++) {
+		        final ClassFile clazzFile = clazzFiles[i];
+		        final char[][] compoundName = clazzFile.getCompoundName();
+		        final StringBuffer clazzName = new StringBuffer();
+		        for (int j = 0; j < compoundName.length; j++) {
+		            if (j != 0) {
+		                clazzName.append('.');
+		            }
+		            clazzName.append(compoundName[j]);
+		        }
+		        byte[] bytes = clazzFile.getBytes();
+		        JapidFlags.log("[RenderCompiler]compiled: " + clazzName);
+		        // XXX address anonymous inner class issue!! ....$1...
+		        String cname = clazzName.toString();
+				RendererClass rc = classes.get(cname);
+		        if (rc == null) {
+		        	if (cname.contains("$")) {
+		        		// inner class
+		        		rc = new RendererClass();
+		        		rc.className = cname;
+		        		classes.put(cname, rc);
+		        	}
+		        	else {
+		        		throw new RuntimeException("name not in the classes container: " + cname);
+		        	}
+		        }
+				rc.setBytecode(bytes);
+				rc.setClz(null);
+				rc.setLastCompiled(System.currentTimeMillis());
+		    }
+		}
+	}
+
+	/**
+	 * @author bran
+	 *
+	 */
+	private final class NameEnv implements INameEnvironment {
+		@Override
+		public NameEnvironmentAnswer findType(final char[][] compoundTypeName) {
+		    final StringBuffer result = new StringBuffer();
+		    for (int i = 0; i < compoundTypeName.length; i++) {
+		        if (i != 0) {
+		            result.append('.');
+		        }
+		        result.append(compoundTypeName[i]);
+		    }
+		    return findType(result.toString());
+		}
+
+		@Override
+		public NameEnvironmentAnswer findType(final char[] typeName, final char[][] packageName) {
+		    final StringBuffer result = new StringBuffer();
+		    for (int i = 0; i < packageName.length; i++) {
+		        result.append(packageName[i]);
+		        result.append('.');
+		    }
+		    result.append(typeName);
+		    return findType(result.toString());
+		}
+
+		private NameEnvironmentAnswer findType(final String name) {
+		    try {
+		        if (!name.startsWith("japidviews.")) {
+		        	// let super class loader to load the bytecode
+		            byte[] bytes = crlr.getClassDefinition(name);
+		            if (bytes != null) {
+		                ClassFileReader classFileReader = new ClassFileReader(bytes, name.toCharArray(), true);
+		                return new NameEnvironmentAnswer(classFileReader, null);
+		            }
+		            return null;
+		        }
+
+		        char[] fileName = name.toCharArray();
+		        RendererClass applicationClass = classes.get(name);
+
+		        // ApplicationClass exists
+		        if (applicationClass != null) {
+
+		            byte[] bytecode = applicationClass.getBytecode();
+					if (bytecode != null) {
+		                ClassFileReader classFileReader = new ClassFileReader(bytecode, fileName, true);
+		                return new NameEnvironmentAnswer(classFileReader, null);
+		            }
+		            // Cascade compilation
+		            ICompilationUnit compilationUnit = new CompilationUnit(name);
+		            return new NameEnvironmentAnswer(compilationUnit, null);
+		        }
+
+		        // So it's a standard class
+		        byte[] bytes = crlr.getClassDefinition(name);
+		        if (bytes != null) {
+		            ClassFileReader classFileReader = new ClassFileReader(bytes, fileName, true);
+		            return new NameEnvironmentAnswer(classFileReader, null);
+		        }
+
+		        // So it does not exist
+		        return null;
+		    } catch (ClassFormatException e) {
+		        // Something very very bad
+		        throw new RuntimeException(e);
+		    }
+		}
+
+		@Override
+		public boolean isPackage(char[][] parentPackageName, char[] packageName) {
+		    // Rebuild something usable
+		    StringBuilder sb = new StringBuilder();
+		    if (parentPackageName != null) {
+		        for (char[] p : parentPackageName) {
+		            sb.append(new String(p));
+		            sb.append(".");
+		        }
+		    }
+		    sb.append(new String(packageName));
+		    String name = sb.toString();
+		    if (packagesCache.containsKey(name)) {
+		        return packagesCache.get(name).booleanValue();
+		    }
+//                 Check if there is a .java or .class for this resource
+		    if (crlr.getClassDefinition(name) != null) {
+		        packagesCache.put(name, false);
+		        return false;
+		    }
+		    if (classes.get(name) != null) {
+		        packagesCache.put(name, false);
+		        return false;
+		    }
+		    packagesCache.put(name, true);
+		    return true;
+		}
+
+		@Override
+		public void cleanup() {
+		}
+	}
+
+	/**
      * Something to compile
      */
     final class CompilationUnit implements ICompilationUnit {
@@ -147,205 +349,12 @@ public class RendererCompiler {
         /**
          * To find types ...
          */
-        INameEnvironment nameEnvironment = new INameEnvironment() {
-
-            @Override
-			public NameEnvironmentAnswer findType(final char[][] compoundTypeName) {
-                final StringBuffer result = new StringBuffer();
-                for (int i = 0; i < compoundTypeName.length; i++) {
-                    if (i != 0) {
-                        result.append('.');
-                    }
-                    result.append(compoundTypeName[i]);
-                }
-                return findType(result.toString());
-            }
-
-            @Override
-			public NameEnvironmentAnswer findType(final char[] typeName, final char[][] packageName) {
-                final StringBuffer result = new StringBuffer();
-                for (int i = 0; i < packageName.length; i++) {
-                    result.append(packageName[i]);
-                    result.append('.');
-                }
-                result.append(typeName);
-                return findType(result.toString());
-            }
-
-            private NameEnvironmentAnswer findType(final String name) {
-                try {
-                    if (!name.startsWith("japidviews.")) {
-                    	// let super class loader to load the bytecode
-                        byte[] bytes = crlr.getClassDefinition(name);
-                        if (bytes != null) {
-                            ClassFileReader classFileReader = new ClassFileReader(bytes, name.toCharArray(), true);
-                            return new NameEnvironmentAnswer(classFileReader, null);
-                        }
-                        return null;
-                    }
-
-                    char[] fileName = name.toCharArray();
-                    RendererClass applicationClass = classes.get(name);
-
-                    // ApplicationClass exists
-                    if (applicationClass != null) {
-
-                        byte[] bytecode = applicationClass.getBytecode();
-						if (bytecode != null) {
-                            ClassFileReader classFileReader = new ClassFileReader(bytecode, fileName, true);
-                            return new NameEnvironmentAnswer(classFileReader, null);
-                        }
-                        // Cascade compilation
-                        ICompilationUnit compilationUnit = new CompilationUnit(name);
-                        return new NameEnvironmentAnswer(compilationUnit, null);
-                    }
-
-                    // So it's a standard class
-                    byte[] bytes = crlr.getClassDefinition(name);
-                    if (bytes != null) {
-                        ClassFileReader classFileReader = new ClassFileReader(bytes, fileName, true);
-                        return new NameEnvironmentAnswer(classFileReader, null);
-                    }
-
-                    // So it does not exist
-                    return null;
-                } catch (ClassFormatException e) {
-                    // Something very very bad
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
-			public boolean isPackage(char[][] parentPackageName, char[] packageName) {
-                // Rebuild something usable
-                StringBuilder sb = new StringBuilder();
-                if (parentPackageName != null) {
-                    for (char[] p : parentPackageName) {
-                        sb.append(new String(p));
-                        sb.append(".");
-                    }
-                }
-                sb.append(new String(packageName));
-                String name = sb.toString();
-                if (packagesCache.containsKey(name)) {
-                    return packagesCache.get(name).booleanValue();
-                }
-//                 Check if there is a .java or .class for this resource
-                if (crlr.getClassDefinition(name) != null) {
-                    packagesCache.put(name, false);
-                    return false;
-                }
-                if (classes.get(name) != null) {
-                    packagesCache.put(name, false);
-                    return false;
-                }
-                packagesCache.put(name, true);
-                return true;
-            }
-
-            @Override
-			public void cleanup() {
-            }
-        };
+        INameEnvironment nameEnvironment = new NameEnv();
 
         /**
          * Compilation result
          */
-        ICompilerRequestor compilerRequestor = new ICompilerRequestor() {
-
-            @Override
-			public void acceptResult(CompilationResult result) {
-                // If error
-                if (result.hasErrors()) {
-                	// bran: sort the problems and report the first one
-                    CategorizedProblem[] errors = result.getErrors();
-                    Arrays.sort(errors, new Comparator<CategorizedProblem>() {
-						@Override
-						public int compare(CategorizedProblem o1, CategorizedProblem o2) {
-							return o1.getSourceLineNumber() - o2.getSourceLineNumber();
-						}
-                    });
-                    
-                    for (IProblem problem: errors) {
-                        String className = new String(problem.getOriginatingFileName()).replace("/", ".");
-                        className = className.substring(0, className.length() - 5);
-                        String message = problem.getMessage();
-                        int line = problem.getSourceLineNumber();
-                        String srcFile = new String(problem.getOriginatingFileName());
-                        if (problem.getID() == IProblem.CannotImportPackage) {
-                            // Non sense !
-                            message = problem.getArguments()[0] + " cannot be resolved";
-                        }
-                        
-                        RendererClass rc = classes.get(className);
-                        
-                        if (rc.getScriptFile() == null)
-                        	throw new RuntimeException("no source file for compiling " + className);
-                        
-                        if (rc.getOriSourceCode() == null)
-                        	throw new RuntimeException("no original source code for compiling " + className);
-                        
-                        String descr = srcFile + "(" + line  + "): " + message;
-                        
-                        int oriSrcLineNum = DirUtil.mapJavaLineToSrcLine(rc.getSourceCode(), problem.getSourceLineNumber());
-                        String scriptPath = rc.getScriptFile().getPath();
-						if (oriSrcLineNum > 0) {
-							// has a original script marker
-							descr = scriptPath + "(" + oriSrcLineNum + "): " + message;
-							JapidTemplateException te = new JapidTemplateException(
-									"Japid Compilation Error",
-									descr,
-									oriSrcLineNum, 
-									scriptPath,
-									rc.getOriSourceCode());
-							throw te;
-						}
-						else {
-							JapidTemplateException te = new JapidTemplateException(
-									"Japid Compilation Error",
-									descr,
-									line, 
-									srcFile,
-									rc.getSourceCode());
-							throw te;
-							
-						}
-                    }
-                }
-                
-                
-                // Something has been compiled
-                ClassFile[] clazzFiles = result.getClassFiles();
-                for (int i = 0; i < clazzFiles.length; i++) {
-                    final ClassFile clazzFile = clazzFiles[i];
-                    final char[][] compoundName = clazzFile.getCompoundName();
-                    final StringBuffer clazzName = new StringBuffer();
-                    for (int j = 0; j < compoundName.length; j++) {
-                        if (j != 0) {
-                            clazzName.append('.');
-                        }
-                        clazzName.append(compoundName[j]);
-                    }
-                    byte[] bytes = clazzFile.getBytes();
-                    JapidFlags.log("[RenderCompiler]compiled: " + clazzName);
-                    // XXX address anonymous inner class issue!! ....$1...
-                    String cname = clazzName.toString();
-					RendererClass rc = classes.get(cname);
-                    if (rc == null) {
-                    	if (cname.contains("$")) {
-                    		// inner class
-                    		rc = new RendererClass();
-                    		rc.className = cname;
-                    		classes.put(cname, rc);
-                    	}
-                    	else {
-                    		throw new RuntimeException("name not in the classes container: " + cname);
-                    	}
-                    }
-					rc.setBytecode(bytes);
-                }
-            }
-        };
+        ICompilerRequestor compilerRequestor = new CompilerRequestor();
 
         /**
          * The JDT compiler

@@ -32,7 +32,7 @@ import cn.bran.japid.util.StringUtils;
 import cn.bran.japid.util.WebUtils;
 
 public class JapidRenderer {
-	public static String version = "0.5.1";
+	public static String version = "0.5.5";
 	/**
 	 * 
 	 */
@@ -110,20 +110,34 @@ public class JapidRenderer {
 					+ name.replace('.', File.separatorChar) + ".html");
 		else {
 			if (rc.getClz() == null || playClassloaderChanged()) {
-				// always clear the mark to reload all
-//				for (String c : japidClasses.keySet()) {
-//					RendererClass rendererClass = japidClasses.get(c);
-//					rendererClass.setLastUpdated(0);
-//				}
-				try {
-					new TemplateClassLoader(parentClassLoader).loadClass(name);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				} 
+				compileAndLoad(name, rc);
+//				try {
+//					new TemplateClassLoader(parentClassLoader).loadClass(name);
+//				} catch (java.lang.NoClassDefFoundError e) {
+//					// the class presented when the class was compiled but it could not be found at runtime.
+//					// we need to recompile the class
+//					compileAndLoad(name, rc);
+//				} catch (ClassNotFoundException e) {
+//					compileAndLoad(name, rc);
+//				} catch (Exception e) {
+//					throw new RuntimeException(e);
+//				} 
 			}
 		}
 		
 		return rc;
+	}
+
+	private static void compileAndLoad(String name, RendererClass rc) {
+		long t = System.currentTimeMillis();
+		if (rc.getBytecode() == null || t - rc.getLastCompiled() > 2000)
+			compiler.compile(new String[] { rc.getClassName()});
+		try {
+			if (rc.getClz() == null || t - rc.getLastDefined() > 2000)
+				new TemplateClassLoader(parentClassLoader).loadClass(name);
+		} catch (ClassNotFoundException e1) {
+			throw new RuntimeException(e1);
+		}
 	}
 
 	/**
@@ -257,7 +271,7 @@ public class JapidRenderer {
 				compiler.compile(names);
 				howlong("compile time for " + names.length + " classes", t);
 
-				// clear the global defined class cache
+				// clear the class cache
 				for (String k : japidClasses.keySet()) {
 					RendererClass rc = japidClasses.get(k);
 					rc.setClz(null);

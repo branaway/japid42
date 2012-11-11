@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.5.5
+version 0.6
 Status: beta
 Compatibility: Play 2.0.4
 
@@ -55,7 +55,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.5.5"
+      "japid42" % "japid42_2.9.1" % "0.6"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
@@ -219,3 +219,7 @@ h2. History
 # bug fix: failed to create folders matching controllers in mkdir()
 # critical bug fix: play start did not work. Class was not found. 
 # simplification: _layout and _tags were deprecated. Put shared stuff in the japidviews dir or configure import manually.
+
+2012.11.10. v0.6
+# enhancement: in dev mode, added compile on demand with delay, so that Japid script refactory is more reliable. 
+

@@ -2,7 +2,6 @@ package cn.bran.japid.rendererloader;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
-import java.util.Date;
 
 import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
 
@@ -11,13 +10,15 @@ public class RendererClass {
 	String sourceCode; // the java file
 	String oriSourceCode;
 	
-	long lastUpdated;
+	private long lastUpdated;
 	byte[] bytecode;
 	Class<? extends JapidTemplateBaseWithoutPlay> clz;
 	ClassLoader cl;
 	private File scriptFile; // the original template source file
 	// the constructor cache
 	private Constructor<? extends JapidTemplateBaseWithoutPlay> constructor;
+	private long lastCompiled;
+	private long lastDefined;
 	
 	public ClassLoader getCl() {
 		return cl;
@@ -128,6 +129,32 @@ public class RendererClass {
 	 */
 	public Constructor<? extends JapidTemplateBaseWithoutPlay> getConstructor() {
 		return constructor;
+	}
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param currentTimeMillis
+	 */
+	public void setLastCompiled(long currentTimeMillis) {
+		this.lastCompiled = currentTimeMillis;
+	}
+	/**
+	 * @return the lastCompiled
+	 */
+	public long getLastCompiled() {
+		return lastCompiled;
+	}
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param currentTimeMillis
+	 */
+	public void setLastDefined(long currentTimeMillis) {
+		this.lastDefined = currentTimeMillis;
+	}
+	/**
+	 * @return the lastDefined
+	 */
+	public long getLastDefined() {
+		return lastDefined;
 	}
 
 }
