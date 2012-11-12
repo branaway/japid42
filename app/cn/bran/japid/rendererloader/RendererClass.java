@@ -157,4 +157,9 @@ public class RendererClass {
 		return lastDefined;
 	}
 
+	@Override
+	public String toString() {
+		return "Japid Renderer class wrapper for: " + this.getClassName() + ". Source file: " + this.scriptFile;
+	}
+
 }

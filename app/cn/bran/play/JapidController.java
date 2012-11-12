@@ -472,7 +472,7 @@ public class JapidController extends Controller {
 							String path = applicationClass.getScriptFile().getPath();
 							JapidTemplateException te = new JapidTemplateException(
 									"Japid Error",
-									path + "(" + oriLineNumber + "): " + e.getMessage(),
+									path + "(" + oriLineNumber + "): " + e.getClass().getName() + ": " + e.getMessage(),
 									oriLineNumber,
 									path,
 									applicationClass.getOriSourceCode());
