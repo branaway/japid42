@@ -12,7 +12,9 @@ object ApplicationBuild extends Build {
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
-      resolvers += "Local Play Repository" at "/Users/bran/projects/playscala/repository/local"
+//      resolvers += "Local Play Repository" at "/Users/bran/projects/playscala/repository/local"
+         resolvers += Resolver.url("Japid on Github", url("http://branaway.github.com/releases/"))(Resolver.ivyStylePatterns)
+
     )
 
 }
