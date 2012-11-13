@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.6
+version 0.6.1
 Status: beta
 Compatibility: Play 2.0.4
 
@@ -55,7 +55,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.6"
+      "japid42" % "japid42_2.9.1" % "0.6.1"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
@@ -222,4 +222,9 @@ h2. History
 
 2012.11.10. v0.6
 # enhancement: in dev mode, added compile on demand with delay, so that Japid script refactory is more reliable. 
+
+2012.11.10. v0.6.1
+# bug fix: detected abstract directive and throw exception in apply() in java code
+# bug fix: noplay code contained old t variable
+# bug fix: inner classes rendered false change alarm leading to excessive recompiling in dev mode.  
 

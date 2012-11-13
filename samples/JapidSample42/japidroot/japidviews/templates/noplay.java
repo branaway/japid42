@@ -4,6 +4,7 @@ import java.io.*;
 import cn.bran.japid.tags.Each;
 import japidviews._layouts.*;
 import models.*;
+import japidviews.*;
 import java.util.*;
 import static cn.bran.japid.util.WebUtils.*;
 import japidviews._tags.*;
@@ -40,11 +41,16 @@ public class noplay extends cn.bran.japid.template.JapidTemplateBaseWithoutPlay
 	private String s; // line 2
 	public String render(String s) {
 		this.s = s;
-		long t = -1;
+		long __t = -1;
 		try {super.layout();} catch (RuntimeException e) { super.handleException(e);} // line 2
-		 if (t != -1) System.out.println("[noplay] rendering time: " + t);
+		 if (__t != -1) System.out.println("[noplay] rendering time: " + __t);
 		return getOut().toString();
 	}
+
+	public static String apply(String s) {
+		return new noplay().render(s);
+	}
+
 	@Override protected void doLayout() {
 		beginDoLayout(sourceTemplate);
 //------

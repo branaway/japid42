@@ -309,7 +309,14 @@ public class RendererCompiler {
 
 		@Override
 		public char[] getContents() {
-			return classes.get(clazzName).getSourceCode().toCharArray();
+			try {
+				RendererClass rendererClass = classes.get(clazzName);
+				String sourceCode = rendererClass.getSourceCode();
+				return sourceCode.toCharArray();
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+				throw e;
+			}
 		}
 
 		@Override

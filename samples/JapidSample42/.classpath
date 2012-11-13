@@ -5,7 +5,7 @@
 	<classpathentry kind="src" output=".target" path="test"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.jdt.core-3.8.0.v_C18.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/japid42/samples/JapidSample42/target/scala-2.9.1/classes_managed"/>
-	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/play/play_2.9.1/2.0.4/jars/play_2.9.1.jar" sourcepath="/play2.0.4"/>
+	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/play/play_2.9.1/2.0.4/jars/play_2.9.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/play/templates_2.9.1/2.0.4/jars/templates_2.9.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/com.github.scala-incubator.io/scala-io-file_2.9.1/0.4.0/jars/scala-io-file_2.9.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/com.github.scala-incubator.io/scala-io-core_2.9.1/0.4.0/jars/scala-io-core_2.9.1.jar"/>
@@ -48,11 +48,12 @@
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/tyrex/tyrex/1.0.1/jars/tyrex.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/jaxen/jaxen/1.1.3/jars/jaxen.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/net.sf.ehcache/ehcache-core/2.5.0/jars/ehcache-core.jar"/>
-	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/japid42/japid42_2.9.1/0.5.1/jars/japid42_2.9.1.jar"/>
+	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/cache/japid42/japid42_2.9.1/jars/japid42_2.9.1-0.6.jar" sourcepath="/japid42"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/cache/org.apache.commons/commons-email/jars/commons-email-1.2.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/cache/javax.mail/mail/jars/mail-1.4.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/cache/javax.activation/activation/jars/activation-1.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/commons-lang/commons-lang/2.6/jars/commons-lang.jar"/>
+	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/cache/org.eclipse.tycho/org.eclipse.jdt.core/jars/org.eclipse.jdt.core-3.8.2.v20120814-155456.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/cache/com.google.code.javaparser/javaparser/jars/javaparser-1.0.8.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/play/play-test_2.9.1/2.0.4/jars/play-test_2.9.1.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.0.4/repository/local/org.specs2/specs2_2.9.1/1.9/jars/specs2_2.9.1.jar"/>

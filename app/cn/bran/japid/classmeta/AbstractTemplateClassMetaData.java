@@ -105,7 +105,7 @@ public abstract class AbstractTemplateClassMetaData {
 	public String body;
 	protected List<InnerClassMeta> innersforTagCalls = new ArrayList<InnerClassMeta>();
 	protected List<InnerClassMeta> innersInvokeCalls = new ArrayList<InnerClassMeta>();
-	private boolean isAbstract;
+	protected boolean isAbstract;
 
 	public AbstractTemplateClassMetaData() {
 		super();

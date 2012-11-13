@@ -54,8 +54,10 @@ public class TemplateClassLoader extends ClassLoader {
 			if (rc == null)
 				throw new ClassNotFoundException("Japid could not resolve class: " + name);
 
-			// added just in time compiling
-			JapidRenderer.recompile(rc);
+			if (!rc.getClassName().contains("$")) {
+				// added just in time compiling
+				JapidRenderer.recompile(rc);
+			}
 			
 			byte[] bytecode = rc.bytecode;
 

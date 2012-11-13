@@ -205,7 +205,9 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 		if (args.endsWith(COMMA)) {
 			args = args.substring(0, args.lastIndexOf(COMMA));
 		}
-		String applyMethod = String.format(APPLY_METHOD, resultType, renderArgsWithoutAnnos, this.className, args);
+		String applyMethod = isAbstract? 
+				String.format(APPLY_METHOD_ABSTRACT, resultType, renderArgsWithoutAnnos, this.className, args) : 
+					String.format(APPLY_METHOD, resultType, renderArgsWithoutAnnos, this.className, args);
 		pln("\n" + applyMethod);
 	
 	}
@@ -214,6 +216,11 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 			"	public static %s apply(%s) {\n" + 
 			"		return new %s().render(%s);\n" + 
 			"	}\n" ;
+	
+	static final String APPLY_METHOD_ABSTRACT = 
+			"	public static %s apply(%s) {\n" + 
+					"		throw new RuntimeException(\"Cannot run an Japid template annotated as abstract.\");\n" + 
+					"	}\n" ;
 	
 	
 	private void restOfRenderBody(String resultType) {
@@ -254,7 +261,7 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 					pln("\t\treturn new " + resultType + "(getHeaders(), getOut(), __t);");
 			}
 			else {
-				pln("\t\t if (t != -1) System.out.println(\"[" + super.className + "] rendering time: \" + __t);");
+				pln("\t\t if (__t != -1) System.out.println(\"[" + super.className + "] rendering time: \" + __t);");
 				pln("\t\treturn getOut().toString();");
 			}
 		}

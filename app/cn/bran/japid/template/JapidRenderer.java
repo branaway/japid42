@@ -32,7 +32,7 @@ import cn.bran.japid.util.StringUtils;
 import cn.bran.japid.util.WebUtils;
 
 public class JapidRenderer {
-//	public static String version = "0.5.5";
+	// public static String version = "0.5.5";
 	/**
 	 * 
 	 */
@@ -48,9 +48,9 @@ public class JapidRenderer {
 		imports = new HashSet<String>();
 		addImportStatic(WebUtils.class);
 	}
-	
+
 	// last time that something in the Japid root was changed
-	private static long lastChanged = System.currentTimeMillis(); 
+	private static long lastChanged = System.currentTimeMillis();
 
 	public static JapidTemplateBaseWithoutPlay getRenderer(String name) {
 		Class<? extends JapidTemplateBaseWithoutPlay> c = getClass(name);
@@ -86,8 +86,7 @@ public class JapidRenderer {
 	 * @param name
 	 * @return
 	 */
-	public static Class<? extends JapidTemplateBaseWithoutPlay> getClass(
-			String name) {
+	public static Class<? extends JapidTemplateBaseWithoutPlay> getClass(String name) {
 		refreshClasses();
 		return getClassWithoutRefresh(name);
 
@@ -98,8 +97,7 @@ public class JapidRenderer {
 		return getRendererClassWithoutRefresh(name);
 	}
 
-	private static Class<? extends JapidTemplateBaseWithoutPlay> getClassWithoutRefresh(
-			String name) {
+	private static Class<? extends JapidTemplateBaseWithoutPlay> getClassWithoutRefresh(String name) {
 		RendererClass rc = getRendererClassWithoutRefresh(name);
 		return rc.getClz();
 	}
@@ -108,54 +106,71 @@ public class JapidRenderer {
 		RendererClass rc = japidClasses.get(name);
 		if (rc == null)
 			throw new RuntimeException("renderer class not found: " + name
-					+ ". Consider creating the Japid script file @: "
-					+ flattern(templateRoots) + SEP
+					+ ". Consider creating the Japid script file @: " + flattern(templateRoots) + SEP
 					+ name.replace('.', File.separatorChar) + ".html");
 		else {
 			if (rc.getClz() == null || playClassloaderChanged()) {
 				compileAndLoad(name, rc);
-//				try {
-//					new TemplateClassLoader(parentClassLoader).loadClass(name);
-//				} catch (java.lang.NoClassDefFoundError e) {
-//					// the class presented when the class was compiled but it could not be found at runtime.
-//					// we need to recompile the class
-//					compileAndLoad(name, rc);
-//				} catch (ClassNotFoundException e) {
-//					compileAndLoad(name, rc);
-//				} catch (Exception e) {
-//					throw new RuntimeException(e);
-//				} 
+				// try {
+				// new TemplateClassLoader(parentClassLoader).loadClass(name);
+				// } catch (java.lang.NoClassDefFoundError e) {
+				// // the class presented when the class was compiled but it
+				// could not be found at runtime.
+				// // we need to recompile the class
+				// compileAndLoad(name, rc);
+				// } catch (ClassNotFoundException e) {
+				// compileAndLoad(name, rc);
+				// } catch (Exception e) {
+				// throw new RuntimeException(e);
+				// }
 			}
 		}
-		
+
 		return rc;
 	}
 
 	private static void compileAndLoad(String name, RendererClass rc) {
-//		long t = System.currentTimeMillis();
-//		if (rc.getBytecode() == null || t - rc.getLastCompiled() > 2000)
-//			compiler.compile(new String[] { rc.getClassName()});
-//		try {
-//			if (rc.getClz() == null || t - rc.getLastDefined() > 2000)
-//				new TemplateClassLoader(parentClassLoader).loadClass(name);
-//		} catch (ClassNotFoundException e1) {
-//			throw new RuntimeException(e1);
-//		}
-		// code recompiling is now in class loading so the above code is deprecated
+		// long t = System.currentTimeMillis();
+		// if (rc.getBytecode() == null || t - rc.getLastCompiled() > 2000)
+		// compiler.compile(new String[] { rc.getClassName()});
+		// try {
+		// if (rc.getClz() == null || t - rc.getLastDefined() > 2000)
+		// new TemplateClassLoader(parentClassLoader).loadClass(name);
+		// } catch (ClassNotFoundException e1) {
+		// throw new RuntimeException(e1);
+		// }
+		// code recompiling is now in class loading so the above code is
+		// deprecated
 		try {
-			new TemplateClassLoader(parentClassLoader).loadClass(name);
+			getClassLoader().loadClass(name);
 		} catch (ClassNotFoundException e1) {
 			throw new RuntimeException(e1);
 		}
 
 	}
 
+	// cache the classloader for a delay to buffer consecutive requests
+	// applicable to debug mode only
+	synchronized private static TemplateClassLoader getClassLoader() {
+		long now = System.currentTimeMillis();
+		if (now - newClassLoaderCreated > 2000) {
+			newClassLoaderCreated = now;
+			lastClassLoader = new TemplateClassLoader(parentClassLoader); 
+		}
+		return lastClassLoader;
+	}
+	
+	private static long newClassLoaderCreated = 0;
+	private static TemplateClassLoader lastClassLoader = new TemplateClassLoader(parentClassLoader);
+	
+	
+
 	/**
 	 * @author Bing Ran (bing.ran@hotmail.com)
 	 * @param templateRoots2
 	 * @return
 	 */
-	private static String flattern(String[] templateRoots2) {
+	private static String flattern(Object[] templateRoots2) {
 		String re = "[" + StringUtils.join(templateRoots2, ",") + "]";
 		return re;
 	}
@@ -196,18 +211,36 @@ public class JapidRenderer {
 		}
 		try {
 			// there are two passes of directory scanning. XXX
-			
+
 			String[] allTemps = DirUtil.getAllTemplateFiles(templateRoots);
 			Set<String> currentClassesOnDir = createNameSet(allTemps);
 			Set<String> allScriptNames = new HashSet<String>(currentClassesOnDir);
 
 			Set<String> keySet = japidClasses.keySet();
-			
-			if (!keySet.equals(currentClassesOnDir))
-				touch();
-			
+
+			if (!keySet.equals(currentClassesOnDir)) {
+				Set<String> classNamesRegistered = new HashSet<String>(keySet);
+				Set<String> classNamesDir = new HashSet<String>(currentClassesOnDir);
+				if (classNamesRegistered.containsAll(classNamesDir)) {
+					classNamesRegistered.removeAll(classNamesDir);
+					if (!classNamesRegistered.isEmpty()) {
+						for (String n : classNamesRegistered) {
+							if (!n.contains("$")) {
+								touch();
+								break;
+							}
+						}
+					}
+				} else {
+					touch();
+				}
+			}
+			else {
+				// no name changes
+			}
+
 			allScriptNames.removeAll(keySet); // got new templates
-			removeRemoved(currentClassesOnDir, keySet); 
+			removeRemoved(currentClassesOnDir, keySet);
 
 			for (String c : allScriptNames) {
 				RendererClass rc = newRendererClass(c);
@@ -216,7 +249,7 @@ public class JapidRenderer {
 			// now all the class set size is up to date
 
 			// now update any Java source code
-			// second disk scanning. 
+			// second disk scanning.
 			List<File> gen = gen(templateRoots);
 
 			// this would include both new and updated java
@@ -228,7 +261,8 @@ public class JapidRenderer {
 					RendererClass rendererClass = japidClasses.get(className);
 					if (rendererClass == null) {
 						// this should not happen, since
-						throw new RuntimeException("any new class names should have been in the classes container: " + className);
+						throw new RuntimeException("any new class names should have been in the classes container: "
+								+ className);
 						// rendererClass = newRendererClass(className);
 						// japidClasses.put(className, rendererClass);
 					}
@@ -240,8 +274,7 @@ public class JapidRenderer {
 			}
 
 			// find all render class without bytecode
-			for (Iterator<String> i = japidClasses.keySet().iterator(); i
-					.hasNext();) {
+			for (Iterator<String> i = japidClasses.keySet().iterator(); i.hasNext();) {
 				String k = i.next();
 				RendererClass rc = japidClasses.get(k);
 				if (rc.getSourceCode() == null) {
@@ -277,13 +310,12 @@ public class JapidRenderer {
 					japidClasses.get(k).setClz(null);
 				}
 
-				TemplateClassLoader loader = new TemplateClassLoader(parentClassLoader);
-				for (String cname  : updatedClasses) {
+				TemplateClassLoader loader = getClassLoader();
+				for (String cname : updatedClasses) {
 					loader.loadClass(cname);
 				}
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			if (e instanceof JapidTemplateException)
 				throw (JapidTemplateException) e;
 			throw new RuntimeException(e);
@@ -312,18 +344,15 @@ public class JapidRenderer {
 			RendererClass rc = newRendererClass(c);
 			japidClasses.put(c, rc);
 
-			JapidTemplateTransformer
-					.addImportLine("play.mvc.Http.Context.Implicit");
+			JapidTemplateTransformer.addImportLine("play.mvc.Http.Context.Implicit");
 			JapidTemplateTransformer.addImportLine("play.mvc.Http.Request");
 			JapidTemplateTransformer.addImportLine("play.mvc.Http.Response");
 			JapidTemplateTransformer.addImportLine("play.mvc.Http.Session");
 			JapidTemplateTransformer.addImportLine("play.mvc.Http.Flash");
-			JapidTemplateTransformer
-					.addImportLine("play.data.validation.Validation");
+			JapidTemplateTransformer.addImportLine("play.data.validation.Validation");
 			JapidTemplateTransformer.addImportLine("play.i18n.Lang");
 
-			String javaCode = JapidTemplateTransformer.generateInMemory(
-					scriptSrc, srcFileName, true);
+			String javaCode = JapidTemplateTransformer.generateInMemory(scriptSrc, srcFileName, true);
 
 			rc.setSourceCode(javaCode);
 			rc.setOriSourceCode(scriptSrc);
@@ -341,7 +370,7 @@ public class JapidRenderer {
 
 	private static void setSources(RendererClass rc, String className) {
 		boolean found = false;
-		
+
 		for (String r : templateRoots) {
 			String pathname = r + SEP + className;
 			pathname = pathname.replace(".", SEP);
@@ -382,8 +411,7 @@ public class JapidRenderer {
 	 * @param classSetInMemory
 	 *            original set of class names
 	 */
-	public static void removeRemoved(Set<String> currentClassesOnDir,
-			Set<String> classSetInMemory) {
+	public static void removeRemoved(Set<String> currentClassesOnDir, Set<String> classSetInMemory) {
 		// need to consider inner classes
 		// keySet.retainAll(currentClassesOnDir);
 
@@ -396,7 +424,8 @@ public class JapidRenderer {
 				k = k.substring(0, q);
 			}
 			if (!currentClassesOnDir.contains(k)) {
-				i.remove();// changes to the keyset will result in change in the backing map.
+				i.remove();// changes to the keyset will result in change in the
+							// backing map.
 			}
 		}
 	}
@@ -408,30 +437,28 @@ public class JapidRenderer {
 
 	// <classname RendererClass>
 	public final static Map<String, RendererClass> japidClasses = new ConcurrentHashMap<String, RendererClass>();
-	public static TemplateClassLoader crlr = new TemplateClassLoader(
-			parentClassLoader);
+	public static TemplateClassLoader crlr = new TemplateClassLoader(parentClassLoader);
 
 	public static TemplateClassLoader getCrlr() {
 		return crlr;
 	}
 
-	public static RendererCompiler compiler = new RendererCompiler(
-			japidClasses, crlr);
+	public static RendererCompiler compiler = new RendererCompiler(japidClasses, crlr);
 	public static String[] templateRoots = { "plainjapid" };
 	public static final String JAPIDVIEWS = "japidviews";
 	public static final String SEP = File.separator;
-//	public static String[] japidviews;
-//	static {
-//		initJapidViews();
-//	}
-//
-//	private static void initJapidViews() {
-//		japidviews = new String[templateRoot.length];
-//		int i = 0;
-//		for (String r : templateRoot) {
-//			japidviews[i++] = r + SEP + JAPIDVIEWS + SEP;
-//		}
-//	}
+	// public static String[] japidviews;
+	// static {
+	// initJapidViews();
+	// }
+	//
+	// private static void initJapidViews() {
+	// japidviews = new String[templateRoot.length];
+	// int i = 0;
+	// for (String r : templateRoot) {
+	// japidviews[i++] = r + SEP + JAPIDVIEWS + SEP;
+	// }
+	// }
 
 	// such as java.utils.*
 	// public static List<String> importlines = new ArrayList<String>();
@@ -452,8 +479,7 @@ public class JapidRenderer {
 
 	static void howlong(String string, long t) {
 		if (JapidFlags.verbose)
-			System.out.println(string + ":" + (System.currentTimeMillis() - t)
-					+ "ms");
+			System.out.println(string + ":" + (System.currentTimeMillis() - t) + "ms");
 	}
 
 	/**
@@ -475,13 +501,14 @@ public class JapidRenderer {
 		}
 		return names;
 	}
-//
-//	static String getSourceCode(String k) {
-//		String pathname = templateRoots + SEP + k;
-//		pathname = pathname.replace(".", SEP);
-//		File f = new File(pathname + ".java");
-//		return readSource(f);
-//	}
+
+	//
+	// static String getSourceCode(String k) {
+	// String pathname = templateRoots + SEP + k;
+	// pathname = pathname.replace(".", SEP);
+	// File f = new File(pathname + ".java");
+	// return readSource(f);
+	// }
 
 	/**
 	 * @param c
@@ -499,8 +526,7 @@ public class JapidRenderer {
 	static String readSource(File f) throws IOException {
 		FileInputStream fis = new FileInputStream(f);
 		BufferedInputStream bis = new BufferedInputStream(fis);
-		BufferedReader br = new BufferedReader(new InputStreamReader(bis,
-				"UTF-8"));
+		BufferedReader br = new BufferedReader(new InputStreamReader(bis, "UTF-8"));
 		StringBuilder b = new StringBuilder();
 		String line = null;
 		while ((line = br.readLine()) != null) {
@@ -555,19 +581,17 @@ public class JapidRenderer {
 			} else if ("regen".equals(arg0)) {
 				regen(templateRoots);
 			} else if ("clean".equals(arg0)) {
-				for (String r: templateRoots)
+				for (String r : templateRoots)
 					delAllGeneratedJava(getJapidviewsDir(r));
 			} else if ("mkdir".equals(arg0)) {
 				mkdir(templateRoots);
-//			} else if ("changed".equals(arg0)) {
-//				changed(japidviews);
+				// } else if ("changed".equals(arg0)) {
+				// changed(japidviews);
 			} else {
-				System.err
-						.println("help:  optionas are: gen, regen, mkdir and clean");
+				System.err.println("help:  optionas are: gen, regen, mkdir and clean");
 			}
 		} else {
-			System.err
-					.println("help:  optionas are: gen, regen, mkdir and clean");
+			System.err.println("help:  optionas are: gen, regen, mkdir and clean");
 		}
 	}
 
@@ -580,8 +604,9 @@ public class JapidRenderer {
 	}
 
 	/**
-	 * not:  create the basic layout: app/japidviews/_layouts app/japidviews/_tags
-	 *  
+	 * not: create the basic layout: app/japidviews/_layouts
+	 * app/japidviews/_tags
+	 * 
 	 * then create a dir for each controller. //TODO
 	 * 
 	 * @throws IOException
@@ -608,20 +633,18 @@ public class JapidRenderer {
 	}
 
 	public static void regen(String... roots) throws IOException {
-		for (String root:roots) {
+		for (String root : roots) {
 			delAllGeneratedJava(getJapidviewsDir(root));
 		}
 		gen(roots);
 	}
 
 	static void delAllGeneratedJava(String pathname) {
-		String[] javas = DirUtil.getAllFileNames(new File(pathname),
-				new String[] { "java" });
+		String[] javas = DirUtil.getAllFileNames(new File(pathname), new String[] { "java" });
 
 		for (String j : javas) {
 			log("removed: " + pathname + j);
-			boolean delete = new File(pathname + File.separatorChar + j)
-					.delete();
+			boolean delete = new File(pathname + File.separatorChar + j).delete();
 			if (!delete)
 				throw new RuntimeException("file was not deleted: " + j);
 		}
@@ -636,7 +659,7 @@ public class JapidRenderer {
 	 */
 	static List<File> gen(String... packageRoots) throws IOException {
 		List<File> changedFiles = reloadChanged(packageRoots);
-		for (String p: packageRoots) {
+		for (String p : packageRoots) {
 			rmOrphanJava(p);
 		}
 		return changedFiles;
@@ -674,15 +697,14 @@ public class JapidRenderer {
 				t.addImport(imp);
 			}
 			t.setUsePlay(true);
-	
 
 			t.setPackageRoot(new File(r));
 			t.setInclude(new File(r + SEP + JAPIDVIEWS + SEP));
-// _layouts and _tags are deprecated 
-//			if (DirUtil.hasLayouts(r))
-//				t.addImport("japidviews._layouts.*");
-//			if (DirUtil.hasTags(r))
-//				t.addImport("japidviews._tags.*");
+			// _layouts and _tags are deprecated
+			// if (DirUtil.hasLayouts(r))
+			// t.addImport("japidviews._layouts.*");
+			// if (DirUtil.hasTags(r))
+			// t.addImport("japidviews._tags.*");
 			t.execute();
 			files.addAll(t.getChangedTargetFiles());
 		}
@@ -696,8 +718,7 @@ public class JapidRenderer {
 	 */
 	static File[] getAllJavaFilesInDir(String root) {
 		// from source files only
-		String[] allFiles = DirUtil.getAllFileNames(new File(root),
-				new String[] { ".java" });
+		String[] allFiles = DirUtil.getAllFileNames(new File(root), new String[] { ".java" });
 		File[] fs = new File[allFiles.length];
 		int i = 0;
 		for (String f : allFiles) {
@@ -757,8 +778,7 @@ public class JapidRenderer {
 
 	public static void gen() {
 		if (templateRoots == null) {
-			throw new RuntimeException(
-					"the template root directory must be set");
+			throw new RuntimeException("the template root directory must be set");
 		} else {
 			try {
 				gen(templateRoots);
@@ -834,8 +854,8 @@ public class JapidRenderer {
 	 *            the Play application instance
 	 * @throws IOException
 	 */
-	public static void init(OpMode opMode, String templateRoot,
-			int refreshInterval, Application app) throws IOException {
+	public static void init(OpMode opMode, String templateRoot, int refreshInterval, Application app)
+			throws IOException {
 		inited = true;
 		JapidRenderer.opMode = opMode;
 		setTemplateRoot(templateRoot);
@@ -854,7 +874,7 @@ public class JapidRenderer {
 		JapidTemplateBaseWithoutPlay.globalTraceFileJson = new Boolean(property);
 
 		parentClassLoader = app.classloader();
-		crlr = new TemplateClassLoader(parentClassLoader);
+		crlr = getClassLoader();
 		compiler = new RendererCompiler(japidClasses, crlr);
 
 		_app = app;
@@ -900,8 +920,11 @@ public class JapidRenderer {
 
 	@SuppressWarnings("unchecked")
 	public static void initErrorRenderer() throws IOException {
-		InputStream devErr = PlayDirUtil.class
-				.getResourceAsStream(DEV_ERROR_FILE); // file in the conf folder
+		InputStream devErr = PlayDirUtil.class.getResourceAsStream(DEV_ERROR_FILE); // file
+																					// in
+																					// the
+																					// conf
+																					// folder
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream(8000);
 		DirUtil.copyStreamClose(devErr, out);
@@ -910,8 +933,7 @@ public class JapidRenderer {
 		compileDevErroView(DEV_ERROR_FILE, devErrorSrc);
 
 		try {
-			devErrorClass = (Class<JapidTemplateBaseWithoutPlay>) new TemplateClassLoader(
-					parentClassLoader)
+			devErrorClass = (Class<JapidTemplateBaseWithoutPlay>) getClassLoader()
 					.loadClass(DEV_ERROR);
 			// japidClasses.get(DEV_ERROR).setClz(loadClass);
 			japidClasses.remove(DEV_ERROR);
@@ -930,15 +952,15 @@ public class JapidRenderer {
 	static Class<JapidTemplateBaseWithoutPlay> devErrorClass;
 
 	/**
-	 * compile/recompile the class if disk change detected. 
-	 * Should later do the compiling based on dependency graph. 
+	 * compile/recompile the class if disk change detected. Should later do the
+	 * compiling based on dependency graph.
 	 * 
 	 * @author Bing Ran (bing.ran@hotmail.com)
 	 * @param rc
 	 */
 	public static void recompile(RendererClass rc) {
 		if (rc.getBytecode() == null || rc.getLastCompiled() < getLastChanged()) {
-			compiler.compile(new String[]{rc.getClassName()});
+			compiler.compile(new String[] { rc.getClassName() });
 		}
 	}
 }

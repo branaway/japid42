@@ -9,6 +9,7 @@ import play.i18n.Lang;
 import play.data.Form;
 import play.data.Form.Field;
 import play.mvc.Http.Request;
+import japidviews.*;
 import play.mvc.Http.Response;
 import play.mvc.Http.Session;
 import play.mvc.Http.Flash;
@@ -30,12 +31,13 @@ public class perf extends perfmain
 	}
 
 // - add implicit fields with Play
+boolean hasHttpContext = play.mvc.Http.Context.current.get() != null ? true : false;
 
-	final Request request = Implicit.request(); 
-	final Response response = Implicit.response(); 
-	final Session session = Implicit.session();
-	final Flash flash = Implicit.flash();
-	final Lang lang = Implicit.lang();
+	final Request request = hasHttpContext? Implicit.request() : null;
+	final Response response = hasHttpContext ? Implicit.response() : null;
+	final Session session = hasHttpContext ? Implicit.session() : null;
+	final Flash flash = hasHttpContext ? Implicit.flash() : null;
+	final Lang lang = hasHttpContext ? Implicit.lang() : null;
 	final play.Play _play = new play.Play(); 
 
 // - end of implicit fields with Play 
@@ -70,10 +72,15 @@ public class perf extends perfmain
 		this.title = title;
 		this.user = user;
 		this.entries = entries;
-		long t = -1;
+		long __t = -1;
 		try {super.layout(user);} catch (RuntimeException e) { super.handleException(e);} // line 1
-		return new cn.bran.japid.template.RenderResultPartial(getHeaders(), getOut(), t, actionRunners, sourceTemplate);
+		return new cn.bran.japid.template.RenderResultPartial(getHeaders(), getOut(), __t, actionRunners, sourceTemplate);
 	}
+
+	public static cn.bran.japid.template.RenderResult apply(String title,DataModel.User user,ArrayList<DataModel.Entry> entries) {
+		return new perf().render(title, user, entries);
+	}
+
 	@Override protected void doLayout() {
 		beginDoLayout(sourceTemplate);
 //------

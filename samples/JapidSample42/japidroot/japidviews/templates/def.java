@@ -9,6 +9,7 @@ import play.i18n.Lang;
 import play.data.Form;
 import play.data.Form.Field;
 import play.mvc.Http.Request;
+import japidviews.*;
 import play.mvc.Http.Response;
 import play.mvc.Http.Session;
 import play.mvc.Http.Flash;
@@ -30,12 +31,13 @@ public class def extends defLayout
 	}
 
 // - add implicit fields with Play
+boolean hasHttpContext = play.mvc.Http.Context.current.get() != null ? true : false;
 
-	final Request request = Implicit.request(); 
-	final Response response = Implicit.response(); 
-	final Session session = Implicit.session();
-	final Flash flash = Implicit.flash();
-	final Lang lang = Implicit.lang();
+	final Request request = hasHttpContext? Implicit.request() : null;
+	final Response response = hasHttpContext ? Implicit.response() : null;
+	final Session session = hasHttpContext ? Implicit.session() : null;
+	final Flash flash = hasHttpContext ? Implicit.flash() : null;
+	final Lang lang = hasHttpContext ? Implicit.lang() : null;
 	final play.Play _play = new play.Play(); 
 
 // - end of implicit fields with Play 
@@ -64,10 +66,15 @@ public class def extends defLayout
 ////// end of named args stuff
 
 	public cn.bran.japid.template.RenderResult render() {
-		long t = -1;
+		long __t = -1;
 		try {super.layout();} catch (RuntimeException e) { super.handleException(e);} 
-		return new cn.bran.japid.template.RenderResultPartial(getHeaders(), getOut(), t, actionRunners, sourceTemplate);
+		return new cn.bran.japid.template.RenderResultPartial(getHeaders(), getOut(), __t, actionRunners, sourceTemplate);
 	}
+
+	public static cn.bran.japid.template.RenderResult apply() {
+		return new def().render();
+	}
+
 	@Override protected void doLayout() {
 		beginDoLayout(sourceTemplate);
 //------
@@ -99,6 +106,7 @@ public class def extends defLayout
 "\n" + 
 "<p>check 6</p>\n" + 
 "\n");// line 34
+		//japid compiler: artificial line to avoid being treated as a terminating line// line 38
 		    String a = "";// line 39
 		    a += "bssdfsdf";// line 40
 		p("\n");// line 41

@@ -151,7 +151,7 @@ public class StringUtils {
         return toReturn.toString();
     }
 
-    public static String join(String[] values, String separator) {
+    public static String join(Object[] values, String separator) {
         return (values == null) ? "" : join(Arrays.asList(values), separator);
     }
 

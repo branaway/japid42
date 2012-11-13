@@ -9,6 +9,7 @@ import play.i18n.Lang;
 import play.data.Form;
 import play.data.Form.Field;
 import play.mvc.Http.Request;
+import japidviews.*;
 import play.mvc.Http.Response;
 import play.mvc.Http.Session;
 import play.mvc.Http.Flash;
@@ -30,12 +31,13 @@ public class callPicka extends cn.bran.play.JapidTemplateBase
 	}
 
 // - add implicit fields with Play
+boolean hasHttpContext = play.mvc.Http.Context.current.get() != null ? true : false;
 
-	final Request request = Implicit.request(); 
-	final Response response = Implicit.response(); 
-	final Session session = Implicit.session();
-	final Flash flash = Implicit.flash();
-	final Lang lang = Implicit.lang();
+	final Request request = hasHttpContext? Implicit.request() : null;
+	final Response response = hasHttpContext ? Implicit.response() : null;
+	final Session session = hasHttpContext ? Implicit.session() : null;
+	final Flash flash = hasHttpContext ? Implicit.flash() : null;
+	final Lang lang = hasHttpContext ? Implicit.lang() : null;
 	final play.Play _play = new play.Play(); 
 
 // - end of implicit fields with Play 
@@ -64,16 +66,21 @@ public class callPicka extends cn.bran.play.JapidTemplateBase
 ////// end of named args stuff
 
 	public cn.bran.japid.template.RenderResult render() {
-		long t = -1;
-		 t = System.nanoTime();
+		long __t = -1;
+		 __t = System.nanoTime();
 		try {super.layout();} catch (RuntimeException e) { super.handleException(e);} 
-     	String l = "" + (System.nanoTime() - t) / 100000;
-		int len = l.length();
-		l = l.substring(0, len - 1) + "." +  l.substring(len - 1);
+     	String __l = "" + (System.nanoTime() - __t) / 100000;
+		int __len = __l.length();
+		__l = __l.substring(0, __len - 1) + "." +  __l.substring(__len - 1);
 
-		System.out.println("[callPicka] rendering time(ms): " + l);
-		return new cn.bran.japid.template.RenderResultPartial(getHeaders(), getOut(), t, actionRunners, sourceTemplate);
+		System.out.println("[callPicka] rendering time(ms): " + __l);
+		return new cn.bran.japid.template.RenderResultPartial(getHeaders(), getOut(), __t, actionRunners, sourceTemplate);
 	}
+
+	public static cn.bran.japid.template.RenderResult apply() {
+		return new callPicka().render();
+	}
+
 	@Override protected void doLayout() {
 		beginDoLayout(sourceTemplate);
 //------

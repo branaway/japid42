@@ -35,7 +35,8 @@ public class RendererClass {
 			this.setConstructor(null);
 		else 
 			try {
-				this.setConstructor(clz.getConstructor(StringBuilder.class));
+				if (!clz.getName().contains("$"))
+					this.setConstructor(clz.getConstructor(StringBuilder.class));
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

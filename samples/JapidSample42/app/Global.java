@@ -8,7 +8,9 @@ public class Global extends GlobalSettings {
 	public void onStart(Application app) {
 		JapidRenderer.init(app);
 // there are more customization you can do to Japid
-//		JapidRenderer.addImportStatic(StringUtils.class);
+		JapidRenderer.addImport("japidviews._layouts.*");
+		JapidRenderer.addImport("japidviews._tags.*");
+
 //		JapidRenderer.setLogVerbose(true);
 	}
 
