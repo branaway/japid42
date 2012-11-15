@@ -79,6 +79,11 @@ public class Global extends GlobalSettings {
 	public void onStart(Application app) {
 		JapidRenderer.init(app);
 	}
+	@Override
+	public void onStop(Application app) {
+		JapidRenderer.onStop(app);
+		super.onStop(app);
+	}
 }
 </pre>  
 
@@ -119,7 +124,7 @@ In Build.scala, you may have a sub-project defined like this:
 
 <pre><code>
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.5.4"
+      "japid42" % "japid42_2.9.1" % "0.6.1"
     )
 
     val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
