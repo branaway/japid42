@@ -1,13 +1,18 @@
 package cn.bran.japid.template;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,6 +42,9 @@ public class JapidRenderer {
 	 * 
 	 */
 	private static final String DEV_ERROR = "japidviews.devError";
+
+	private static final String JAPID_CLASSES_CACHE = ".japidClasses.cache";
+
 	/**
 	 * 
 	 */
@@ -155,15 +163,13 @@ public class JapidRenderer {
 		long now = System.currentTimeMillis();
 		if (now - newClassLoaderCreated > 2000) {
 			newClassLoaderCreated = now;
-			lastClassLoader = new TemplateClassLoader(parentClassLoader); 
+			lastClassLoader = new TemplateClassLoader(parentClassLoader);
 		}
 		return lastClassLoader;
 	}
-	
+
 	private static long newClassLoaderCreated = 0;
-	private static TemplateClassLoader lastClassLoader = new TemplateClassLoader(parentClassLoader);
-	
-	
+	private static TemplateClassLoader lastClassLoader;
 
 	/**
 	 * @author Bing Ran (bing.ran@hotmail.com)
@@ -234,8 +240,7 @@ public class JapidRenderer {
 				} else {
 					touch();
 				}
-			}
-			else {
+			} else {
 				// no name changes
 			}
 
@@ -436,14 +441,14 @@ public class JapidRenderer {
 	}
 
 	// <classname RendererClass>
-	public final static Map<String, RendererClass> japidClasses = new ConcurrentHashMap<String, RendererClass>();
-	public static TemplateClassLoader crlr = new TemplateClassLoader(parentClassLoader);
+	public static Map<String, RendererClass> japidClasses = new ConcurrentHashMap<String, RendererClass>();
+	public static TemplateClassLoader crlr;
 
 	public static TemplateClassLoader getCrlr() {
 		return crlr;
 	}
 
-	public static RendererCompiler compiler = new RendererCompiler(japidClasses, crlr);
+	public static RendererCompiler compiler;
 	public static String[] templateRoots = { "plainjapid" };
 	public static final String JAPIDVIEWS = "japidviews";
 	public static final String SEP = File.separator;
@@ -874,6 +879,7 @@ public class JapidRenderer {
 		JapidTemplateBaseWithoutPlay.globalTraceFileJson = new Boolean(property);
 
 		parentClassLoader = app.classloader();
+		lastClassLoader = new TemplateClassLoader(parentClassLoader);
 		crlr = getClassLoader();
 		compiler = new RendererCompiler(japidClasses, crlr);
 
@@ -882,6 +888,39 @@ public class JapidRenderer {
 		initErrorRenderer();
 		touch();
 		JapidFlags.log("[Japid] initialized");
+		if (app.isDev())
+			recoverClasses();
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 */
+	@SuppressWarnings("unchecked")
+	private static void recoverClasses() {
+		String templateRoot = getTemplateRoot()[0];
+		FileInputStream fos;
+		try {
+			File file = new File(new File(templateRoot), JAPID_CLASSES_CACHE);
+			if (file.exists()) {
+				fos = new FileInputStream(file);
+				BufferedInputStream bos = new BufferedInputStream(fos);
+				ObjectInputStream ois = new ObjectInputStream(bos);
+				JapidRenderer.japidClasses = (Map<String, RendererClass>) ois.readObject();
+				ois.close();
+				file.delete();
+				JapidFlags.log("recovered Japid classes from cache");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			File file = new File(new File(templateRoot), JAPID_CLASSES_CACHE);
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+
 	}
 
 	public static String findTemplate() {
@@ -920,12 +959,7 @@ public class JapidRenderer {
 
 	@SuppressWarnings("unchecked")
 	public static void initErrorRenderer() throws IOException {
-		InputStream devErr = PlayDirUtil.class.getResourceAsStream(DEV_ERROR_FILE); // file
-																					// in
-																					// the
-																					// conf
-																					// folder
-
+		InputStream devErr = PlayDirUtil.class.getResourceAsStream(DEV_ERROR_FILE); 
 		ByteArrayOutputStream out = new ByteArrayOutputStream(8000);
 		DirUtil.copyStreamClose(devErr, out);
 		String devErrorSrc = out.toString("UTF-8");
@@ -933,8 +967,7 @@ public class JapidRenderer {
 		compileDevErroView(DEV_ERROR_FILE, devErrorSrc);
 
 		try {
-			devErrorClass = (Class<JapidTemplateBaseWithoutPlay>) getClassLoader()
-					.loadClass(DEV_ERROR);
+			devErrorClass = (Class<JapidTemplateBaseWithoutPlay>) getClassLoader().loadClass(DEV_ERROR);
 			// japidClasses.get(DEV_ERROR).setClz(loadClass);
 			japidClasses.remove(DEV_ERROR);
 		} catch (ClassNotFoundException e) {
@@ -962,5 +995,45 @@ public class JapidRenderer {
 		if (rc.getBytecode() == null || rc.getLastCompiled() < getLastChanged()) {
 			compiler.compile(new String[] { rc.getClassName() });
 		}
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @return
+	 */
+	public static String[] getTemplateRoot() {
+		return templateRoots;
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param app
+	 */
+	public static void onStop(Application app) {
+		if (app.isDev())
+			try {
+				// save for future reloading
+				String templateRoot = JapidRenderer.getTemplateRoot()[0];
+				FileOutputStream fos = new FileOutputStream(new File(new File(templateRoot), JAPID_CLASSES_CACHE));
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+				ObjectOutputStream oos = null;
+				try {
+					oos = new ObjectOutputStream(bos);
+					oos.writeObject(JapidRenderer.japidClasses);
+				} catch (Exception e) {
+					System.out.println(e);
+					if (oos != null) {
+						try {
+							oos.close();
+						} catch (Exception ex) {
+						}
+					}
+				}
+				oos.close();
+			} catch (IOException e) {
+				System.out.println(e);
+			} finally {
+
+			}
 	}
 }

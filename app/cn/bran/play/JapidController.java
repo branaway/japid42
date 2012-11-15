@@ -162,7 +162,6 @@ public class JapidController extends Controller {
 								+ (templateClassName.replace(DOT, '/')
 										+ HTML));
 			} else {
-				// render(tClass, args);
 				RenderResult rr = RenderInvokerUtils.invokeRender(tClass, args);
 				return rr;
 			}

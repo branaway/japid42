@@ -1,31 +1,33 @@
 package cn.bran.japid.rendererloader;
 
 import java.io.File;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 
 import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
 
-public class RendererClass {
+public class RendererClass implements Serializable{
+	private static final long serialVersionUID = -2039838560731729110L;
 	String className;
 	String sourceCode; // the java file
 	String oriSourceCode;
 	
 	private long lastUpdated;
 	byte[] bytecode;
-	Class<? extends JapidTemplateBaseWithoutPlay> clz;
-	ClassLoader cl;
+	transient Class<? extends JapidTemplateBaseWithoutPlay> clz;
+//	ClassLoader cl;
 	private File scriptFile; // the original template source file
 	// the constructor cache
-	private Constructor<? extends JapidTemplateBaseWithoutPlay> constructor;
+	transient private Constructor<? extends JapidTemplateBaseWithoutPlay> constructor;
 	private long lastCompiled;
 	private long lastDefined;
 	
-	public ClassLoader getCl() {
-		return cl;
-	}
-	public void setCl(ClassLoader cl) {
-		this.cl = cl;
-	}
+//	public ClassLoader getCl() {
+//		return cl;
+//	}
+//	public void setCl(ClassLoader cl) {
+//		this.cl = cl;
+//	}
 	public Class<? extends JapidTemplateBaseWithoutPlay> getClz() {
 		return clz;
 	}

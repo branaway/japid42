@@ -88,7 +88,7 @@ public class TemplateClassLoader extends ClassLoader {
 			return null;
 		}
 		try {
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			ByteArrayOutputStream os = new ByteArrayOutputStream(8192);
 			byte[] buffer = new byte[8192];
 			int count;
 			while ((count = is.read(buffer, 0, buffer.length)) > 0) {
