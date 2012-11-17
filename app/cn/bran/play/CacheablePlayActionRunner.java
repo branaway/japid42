@@ -3,6 +3,8 @@ package cn.bran.play;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import play.cache.Cached;
+import cn.bran.japid.template.JapidRenderer;
 import cn.bran.japid.template.RenderResult;
 
 /**
@@ -17,7 +19,7 @@ import cn.bran.japid.template.RenderResult;
 public abstract class CacheablePlayActionRunner extends CacheableRunner {
 //	String controllerActionString;
 //	private CacheFor cacheFor;
-	private boolean gotFromCacheForCache;
+//	private boolean gotFromCacheForCache;
 //	private String cacheForVal;
 	private Class<? extends JapidController> controllerClass;
 	private String actionName;
@@ -39,11 +41,14 @@ public abstract class CacheablePlayActionRunner extends CacheableRunner {
 	public CacheablePlayActionRunner(String ttl, Class<? extends JapidController> controllerClass, String actionName, Object... args) {
 		this.controllerClass = controllerClass;
 		this.actionName = actionName;
-		Object[] fullArgs = new Object[args.length + 2];
-		System.arraycopy(args, 0, fullArgs, 0, args.length);
-		fullArgs[args.length] = controllerClass.getName();
-		fullArgs[args.length + 1] = actionName;
+		Object[] fullArgs = buildCacheKeyParts(controllerClass, actionName, args);
 		super.init(ttl, fullArgs);
+		
+		//		Object[] fullArgs = new Object[args.length + 2];
+//		System.arraycopy(args, 0, fullArgs, 0, args.length);
+//		fullArgs[args.length] = controllerClass.getName();
+//		fullArgs[args.length + 1] = actionName;
+//		super.init(ttl, fullArgs);
 	}
 	
 
@@ -70,7 +75,7 @@ public abstract class CacheablePlayActionRunner extends CacheableRunner {
 	 * @return
 	 */
 	protected boolean shouldCache() {
-//		fillCacheFor(controllerClass, actionName);
+		fillCacheFor(controllerClass, actionName);
 		return super.shouldCache();
 	}
 
@@ -123,41 +128,39 @@ public abstract class CacheablePlayActionRunner extends CacheableRunner {
 //		}				
 //	}
 
-//	/**
-//	 * @param class1
-//	 * @param actionName
-//	 */
-//	private void fillCacheFor(Class<? extends JapidController> class1, String actionName) {
-//		String className = class1.getName();
-//		String cacheForKey = className + "_" + actionName;
-//		String cacheForVal = (String) JapidPlugin.getCache().get(cacheForKey);
-//		if (cacheForVal == null) {
-//			// the cache has not been filled up yet.
-//			Method[] mths = class1.getDeclaredMethods();
-//			for (Method m : mths) {
-//				if (m.getName().equalsIgnoreCase(actionName) && Modifier.isPublic(m.getModifiers())) {
-//					if (!m.isAnnotationPresent(Before.class) && !m.isAnnotationPresent(After.class) && !m.isAnnotationPresent(Finally.class)) {
-//						CacheFor cacheFor = m.getAnnotation(CacheFor.class);
-//						if (cacheFor == null) {
-//							// well no annotation level cache spec
-//							cacheForVal = "";
-//						}
-//						else {
-//							cacheForVal = cacheFor.value();
-//						}
-//						JapidPlugin.getCache().put(cacheForKey, cacheForVal);
-//					}
-//				}
-//			}
-//		}
-//		
-//		if (cacheForVal.length() > 0){
-//			super.noCache = false;
-//			// only override ttlAbs if it's not specified.
-//			if (super.ttlAbs == null || super.ttlAbs.length() == 0)
-//				super.ttlAbs = cacheForVal;
-//			
-//		}
-//	}
+	/**
+	 * @param class1
+	 * @param actionName
+	 */
+	private void fillCacheFor(Class<? extends JapidController> class1, String actionName) {
+		String className = class1.getName();
+		String cacheForKey = className + "_" + actionName;
+		Integer cacheForVal = (Integer) JapidRenderer.getCache().get(cacheForKey);
+		if (cacheForVal == null) {
+			// the cache has not been filled up yet.
+			Method[] mths = class1.getDeclaredMethods();
+			for (Method m : mths) {
+				if (m.getName().equalsIgnoreCase(actionName) && Modifier.isPublic(m.getModifiers())) {
+						Cached cacheFor = m.getAnnotation(Cached.class);
+						if (cacheFor == null) {
+							// well no annotation level cache spec
+							cacheForVal = 0;
+						}
+						else {
+							cacheForVal = cacheFor.duration();
+						}
+						JapidRenderer.getCache().put(cacheForKey, cacheForVal);
+				}
+			}
+		}
+		
+		if (cacheForVal > 0){
+			super.noCache = false;
+			// only override ttlAbs if it's not specified.
+			if (super.ttlAbs == null || super.ttlAbs.length() == 0)
+				super.ttlAbs = cacheForVal + "s";
+			
+		}
+	}
 
 }

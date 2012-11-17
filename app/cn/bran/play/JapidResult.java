@@ -49,9 +49,9 @@ public class JapidResult implements Result,  Externalizable, Content {
 
 	private RenderResult renderResult;
 	private Map<String, String> headers = new HashMap<String, String>();
-	private boolean eager = false;
+//	private boolean eager = false;
 
-	String resultContent = "";
+//	String resultContent = "";
 
 	// public JapidResult(String contentType) {
 	// super();
@@ -73,14 +73,14 @@ public class JapidResult implements Result,  Externalizable, Content {
 	}
 
 
-	/**
-	 * extract content now and once. Eager evaluation of RenderResult
-	 */
-	public JapidResult eval() {
-		this.eager = true;
-		this.resultContent = extractContent();
-		return this;
-	}
+//	/**
+//	 * extract content now and once. Eager evaluation of RenderResult
+//	 */
+//	public JapidResult eval() {
+//		this.eager = true;
+//		this.resultContent = extractContent();
+//		return this;
+//	}
 
 	/**
 	 * @param r
@@ -101,31 +101,30 @@ public class JapidResult implements Result,  Externalizable, Content {
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(renderResult);
 		out.writeObject(getHeaders());
-		out.writeBoolean(eager);
-		out.writeUTF(resultContent);
+//		out.writeBoolean(eager);
+//		out.writeUTF(resultContent);
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		renderResult = (RenderResult) in.readObject();
 		setHeaders((Map<String, String>) in.readObject());
-		eager = in.readBoolean();
-		resultContent = in.readUTF();
+//		eager = in.readBoolean();
+//		resultContent = in.readUTF();
 	}
 
-    final private play.api.mvc.Result wrappedResult = null;
+	private Status status;
 
 
     public play.api.mvc.Result getWrappedResult() {
-		String content = resultContent;
-		if (!eager)
-			// late evaluation
-			content = extractContent();
-    	play.api.mvc.Results.Status sta = play.core.j.JavaResults.Status(200);
-    	Seq<Tuple2<String, String>> seq = JavaConversions.mapAsScalaMap(renderResult.getHeaders()).toSeq();
-    	sta.withHeaders(seq);
-		Status re = new play.mvc.Results.Status(sta, content,  play.api.mvc.Codec.javaSupported("utf-8"));
-        return re.getWrappedResult();
+//    	if (status == null) {
+			String content = extractContent();
+	    	play.api.mvc.Results.Status sta = play.core.j.JavaResults.Status(200);
+	    	Seq<Tuple2<String, String>> seq = JavaConversions.mapAsScalaMap(renderResult.getHeaders()).toSeq();
+	    	sta.withHeaders(seq);
+			status = new play.mvc.Results.Status(sta, content,  play.api.mvc.Codec.javaSupported("utf-8"));
+//    	}
+        return status.getWrappedResult();
     }
 
 	/**
@@ -144,7 +143,8 @@ public class JapidResult implements Result,  Externalizable, Content {
 
 	@Override
 	public String body() {
-		return this.resultContent;
+		String content = extractContent();
+		return content;
 	}
 
 	@Override
@@ -154,6 +154,6 @@ public class JapidResult implements Result,  Externalizable, Content {
 
 	@Override
 	public String toString() {
-		return resultContent;
+		return body();
 	}
 }

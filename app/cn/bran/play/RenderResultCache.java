@@ -2,6 +2,7 @@ package cn.bran.play;
 
 import play.cache.Cache;
 import play.libs.Time;
+import play.mvc.Result;
 import cn.bran.japid.template.RenderResult;
 
 /**
@@ -164,8 +165,4 @@ public class RenderResultCache {
 			Cache.set(key, null); // is this acceptable
 		}
 	}
-
-	// public static boolean isRefreshing(String key1) {
-	// return cacheTacker.get(key1).isRefreshing();
-	// }
 }

@@ -1,8 +1,14 @@
 package cn.bran.play;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.Serializable;
+
+import play.mvc.Controller;
+import play.mvc.Http.Context.Implicit;
+import play.mvc.Http.Request;
 
 import cn.bran.japid.template.ActionRunner;
 import cn.bran.japid.template.RenderResult;
@@ -17,9 +23,8 @@ import cn.bran.japid.template.RenderResult;
  * 
  */
 public abstract class CacheableRunner extends ActionRunner /*implements Externalizable*/{
-//	private Object[] key = null;
 	protected String ttlAbs = null;
-	public String keyString;
+	private String keyString;
 	protected boolean noCache = true;
 	private boolean readThru;
 
@@ -58,7 +63,7 @@ public abstract class CacheableRunner extends ActionRunner /*implements External
 			}
 		}
 
-		this.keyString = buildKey(args);
+		this.setKeyString(buildKey(args));
 	}
 	
 	/**
@@ -66,7 +71,7 @@ public abstract class CacheableRunner extends ActionRunner /*implements External
 	 * @param ttl
 	 */
 	public CacheableRunner(String ttl) {
-		this(ttl, JapidController.genCacheKey());
+		this(ttl, genCacheKey());
 	}
 	
 	/**
@@ -81,7 +86,7 @@ public abstract class CacheableRunner extends ActionRunner /*implements External
 			RenderResult rr = null;
 			if (!readThru) {
 				try {
-					rr = RenderResultCache.get(keyString);
+					rr = RenderResultCache.get(getKeyString());
 					if (rr != null)
 						return rr;
 				} catch (ShouldRefreshException e) {
@@ -90,6 +95,7 @@ public abstract class CacheableRunner extends ActionRunner /*implements External
 			}
 
 			rr = render();
+			
 			cacheResult(rr);
 			return (rr);
 		}
@@ -109,7 +115,7 @@ public abstract class CacheableRunner extends ActionRunner /*implements External
 	 */
 	protected void cacheResult(RenderResult rr1) {
 //		System.out.println("CacheableRunner: put in cache");
-		RenderResultCache.set(keyString, rr1, ttlAbs);
+		RenderResultCache.set(getKeyString(), rr1, ttlAbs);
 	}
 
 	/**
@@ -134,13 +140,41 @@ public abstract class CacheableRunner extends ActionRunner /*implements External
 	 * @return
 	 */
 	protected abstract RenderResult render();
+	
 	public static void deleteCache(Object...objects) {
 		RenderResultCache.delete(buildKey(objects));
 	}
+
+	/**
+	 * remove a cached Japid RenderResult from cache indexed by a Japid invoke directive. The key is synthesized from 
+	 * the controller name, action name and the arguments. 
+	 * 
+	 * Keep in mind that the result cache from a regular action annotated with CacheFor by Play is keyed with URL and query string
+	 * thus different from what we have here. 
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param controllerClass
+	 * @param actionName
+	 * @param args the arguments to the action
+	 */
+	public static <C extends Controller> void deleteCache(Class<C> controllerClass, String actionName, Object... args) {
+		Object[] fullArgs = buildCacheKeyParts(controllerClass, actionName, args);
+		deleteCache(fullArgs);
+	}
 	
+	public static Object[] buildCacheKeyParts(Class<? extends Controller> controllerClass, String actionName,
+			Object... args) {
+		// shall we support the id attribute of id of CacheFor?
+				Object[] fullArgs = new Object[args.length + 2];
+				System.arraycopy(args, 0, fullArgs, 0, args.length);
+				fullArgs[args.length] = controllerClass.getName();
+				fullArgs[args.length + 1] = actionName;
+				return fullArgs;
+			}
+
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeUTF(ttlAbs);
-		out.writeUTF(keyString);
+		out.writeUTF(getKeyString());
 		out.writeBoolean(noCache);
 		out.writeBoolean(readThru);
 	}
@@ -148,10 +182,34 @@ public abstract class CacheableRunner extends ActionRunner /*implements External
 
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		ttlAbs = in.readUTF();
-		keyString = in.readUTF();
+		setKeyString(in.readUTF());
 		noCache = in.readBoolean();
 		readThru = in.readBoolean();
 		
+	}
+
+	/**
+	 * @return the keyString
+	 */
+	public String getKeyString() {
+		return keyString;
+	}
+
+	/**
+	 * @param keyString the keyString to set
+	 */
+	public void setKeyString(String keyString) {
+		this.keyString = keyString;
+	}
+
+	/**
+	 * can be used to generate a key based on the query
+	 * 
+	 * @return
+	 */
+	public static String genCacheKey() {
+		Request request = Implicit.request();
+		return "japidcache:" + request.uri(); // play2 is this unique enough?
 	}
 	
 	

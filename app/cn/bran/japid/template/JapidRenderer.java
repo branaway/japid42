@@ -6,13 +6,13 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,8 +20,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import play.Application;
+import play.GlobalSettings;
+import play.api.mvc.Handler;
+import play.cache.Cache;
+import play.cache.Cached;
+import play.mvc.Action;
+import play.mvc.Http.Context;
+import play.mvc.Http.Request;
+import play.mvc.Http.RequestHeader;
+import play.mvc.Result;
+import scala.actors.threadpool.Arrays;
 import cn.bran.japid.compiler.JapidTemplateTransformer;
 import cn.bran.japid.compiler.OpMode;
 import cn.bran.japid.compiler.TranslateTemplateTask;
@@ -35,12 +46,16 @@ import cn.bran.japid.util.PlayDirUtil;
 import cn.bran.japid.util.StackTraceUtils;
 import cn.bran.japid.util.StringUtils;
 import cn.bran.japid.util.WebUtils;
+import cn.bran.play.JapidResult;
+import cn.bran.play.RenderResultCache;
 
-public class JapidRenderer {
-	// public static String version = "0.5.5";
-	/**
-	 * 
-	 */
+public class JapidRenderer extends GlobalSettings {
+	private static final String RENDER_JAPID_WITH = "/renderJapidWith";
+	private static final String NO_CACHE = "no-cache";
+	private static AtomicLong lastTimeChecked = new AtomicLong(0);
+	// can be used to cache a plugin scoped valules
+	private static Map<String, Object> japidCache = new ConcurrentHashMap<String, Object>();
+
 	private static final String DEV_ERROR = "japidviews.devError";
 
 	private static final String JAPID_CLASSES_CACHE = ".japidClasses.cache";
@@ -861,6 +876,7 @@ public class JapidRenderer {
 	 */
 	public static void init(OpMode opMode, String templateRoot, int refreshInterval, Application app)
 			throws IOException {
+		_app = app;
 		inited = true;
 		JapidRenderer.opMode = opMode;
 		setTemplateRoot(templateRoot);
@@ -878,12 +894,12 @@ public class JapidRenderer {
 			property = "true";
 		JapidTemplateBaseWithoutPlay.globalTraceFileJson = new Boolean(property);
 
+		getDumpRequest();
+
 		parentClassLoader = app.classloader();
 		lastClassLoader = new TemplateClassLoader(parentClassLoader);
 		crlr = getClassLoader();
 		compiler = new RendererCompiler(japidClasses, crlr);
-
-		_app = app;
 
 		initErrorRenderer();
 		touch();
@@ -944,22 +960,11 @@ public class JapidRenderer {
 	 */
 	public static Class<? extends JapidTemplateBaseWithoutPlay> getErrorRendererClass() {
 		return devErrorClass;
-		// RendererClass rc = japidClasses.get(DEV_ERROR);
-		// if (rc == null)
-		// throw new
-		// RuntimeException("dev error renderer class wrapper not found");
-		// else {
-		// Class<? extends JapidTemplateBaseWithoutPlay> clz = rc.getClz();
-		// if (clz == null)
-		// throw new RuntimeException("dev error renderer class not found.");
-		// else
-		// return clz;
-		// }
 	}
 
 	@SuppressWarnings("unchecked")
 	public static void initErrorRenderer() throws IOException {
-		InputStream devErr = PlayDirUtil.class.getResourceAsStream(DEV_ERROR_FILE); 
+		InputStream devErr = PlayDirUtil.class.getResourceAsStream(DEV_ERROR_FILE);
 		ByteArrayOutputStream out = new ByteArrayOutputStream(8000);
 		DirUtil.copyStreamClose(devErr, out);
 		String devErrorSrc = out.toString("UTF-8");
@@ -983,6 +988,7 @@ public class JapidRenderer {
 	}
 
 	static Class<JapidTemplateBaseWithoutPlay> devErrorClass;
+	private static String dumpRequest;
 
 	/**
 	 * compile/recompile the class if disk change detected. Should later do the
@@ -1009,7 +1015,8 @@ public class JapidRenderer {
 	 * @author Bing Ran (bing.ran@hotmail.com)
 	 * @param app
 	 */
-	public static void onStop(Application app) {
+	@Override
+	public void onStop(Application app) {
 		if (app.isDev())
 			try {
 				// save for future reloading
@@ -1035,5 +1042,202 @@ public class JapidRenderer {
 			} finally {
 
 			}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see play.GlobalSettings#onStart(play.Application)
+	 */
+	@Override
+	public void onStart(Application app) {
+		JapidRenderer.init(app);
+		super.onStart(app);
+		onStartJapid();
+	}
+
+	/**
+	 * sub classes do more customization of Japid here
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 */
+	public void onStartJapid() {
+	};
+
+	public static Map<String, Object> getCache() {
+		return japidCache;
+	}
+
+	static private void getDumpRequest() {
+		String property = _app.configuration().getString("japid.dump.request");
+		dumpRequest = property;
+	}
+
+	public static void beforeActionInvocation(Context ctx, Method actionMethod) {
+		Request request = ctx.request();
+		play.mvc.Http.Flash flash = ctx.flash();
+		Map<String, String[]> headers = request.headers();
+
+		String property = dumpRequest;
+		if (property != null && property.length() > 0) {
+			if (!"false".equals(property) && !"no".equals(property)) {
+				if ("yes".equals(property) || "true".equals(property)) {
+					System.out.println("--- action ->: " + actionMethod.toString());
+				} else {
+					if (request.uri().matches(property)) {
+						System.out.println("--- action ->: " + actionMethod.toString());
+					}
+				}
+			}
+		}
+
+		String string = flash.get(RenderResultCache.READ_THRU_FLASH);
+		if (string != null) {
+			RenderResultCache.setIgnoreCache(true);
+		} else {
+			// cache-control in lower case, lowercase for some reason
+			String[] header = headers.get("cache-control");
+			if (header != null) {
+				@SuppressWarnings("unchecked")
+				List<String> list = Arrays.asList(header);
+				if (list.contains(NO_CACHE)) {
+					RenderResultCache.setIgnoreCache(true);
+				}
+			} else {
+				header = headers.get("pragma");
+				if (header != null) {
+					@SuppressWarnings("unchecked")
+					List<String> list = Arrays.asList(header);
+					if (list.contains(NO_CACHE)) {
+						RenderResultCache.setIgnoreCache(true);
+					}
+				} else {
+					// just in case
+					RenderResultCache.setIgnoreCacheInCurrentAndNextReq(false);
+				}
+			}
+		}
+	}
+
+	@Override
+	public Action<?> onRequest(Request request, final Method actionMethod) {
+		return new Action<Cached>() {
+			public Result call(Context ctx) {
+				try {
+					beforeActionInvocation(ctx, actionMethod);
+					Result result = null;
+					Request req = ctx.request();
+					String method = req.method();
+					int duration = 0;
+					String key = null;
+					Cached cachAnno = actionMethod.getAnnotation(Cached.class);
+					// Check the cache (only for GET or HEAD)
+					if ((method.equals("GET") || method.equals("HEAD")) && cachAnno != null) {
+						key = cachAnno.key();
+						if ("".equals(key) || key == null) {
+							key = "urlcache:" + req.uri() + ":" + req.queryString();
+						}
+						duration = cachAnno.duration();
+						result = (Result) Cache.get(key);
+					}
+					if (result == null) {
+						result = delegate.call(ctx);
+						if (!StringUtils.isEmpty(key) && duration > 0) {
+							Cache.set(key, result, duration);
+						}
+					}
+					onActionInvocationResult(ctx);
+					return result;
+				} catch (RuntimeException e) {
+					throw e;
+				} catch (Throwable t) {
+					throw new RuntimeException(t);
+				}
+			}
+
+		};
+
+		// return new Action.Simple() {
+		// public Result call(Context ctx) throws Throwable {
+		// beforeActionInvocation(ctx, actionMethod);
+		// dumpIt(ctx.request(), actionMethod);
+		// Result call = delegate.call(ctx);
+		// onActionInvocationResult(ctx);
+		// return call;
+		// }
+		// };
+	}
+
+	public void onActionInvocationResult(Context ctx) {
+		play.mvc.Http.Flash fl = ctx.flash();
+		if (RenderResultCache.shouldIgnoreCacheInCurrentAndNextReq()) {
+			fl.put(RenderResultCache.READ_THRU_FLASH, "yes");
+		} else {
+			fl.remove(RenderResultCache.READ_THRU_FLASH);
+		}
+
+		// always reset the flag since the thread may be reused for another
+		// request processing
+		RenderResultCache.setIgnoreCacheInCurrentAndNextReq(false);
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param request
+	 * @param actionMethod
+	 */
+	private void dumpIt(Request req, Method actionMethod) {
+		// if (dumpRequest != null && dumpRequest.length() > 0) {
+		// if ("yes".equals(dumpRequest) || "true".equals(dumpRequest)) {
+		// System.out.println("---->>" + req.method + " : " + req.url + " [" +
+		// req.action + "]");
+		// // System.out.println("request.controller:" +
+		// // current.controller);
+		// } else if ("false".equals(dumpRequest) || "no".equals(dumpRequest)) {
+		// // do nothing
+		// } else if (req.uri().matches(dumpRequest)) {
+		// String querystring = req.uri();
+		// if (querystring != null && querystring.length() > 0)
+		// querystring = "?" + querystring;
+		// else
+		// querystring = "";
+		// System.out.println("---->>" + actionMethod + " : " + req.uri());
+		// String contentType = req.accepts(mediaType)contentType;
+		// if (contentType == null || contentType.length() == 0) {
+		// contentType = "";
+		// }
+		//
+		// for (String k : req.headers.keySet()) {
+		// Header h = req.headers.get(k);
+		// System.out.println("... " + h.name + ":" +
+		// URLDecoder.decode(h.value(), "utf-8"));
+		// }
+		// cookie is already in the headers
+		// for (String ck : req.cookies.keySet()) {
+		// Cookie c = req.cookies.get(ck);
+		// System.out.println("... cookie --> " + c.name + ":" +
+		// c.value);
+		// }
+		// if ("POST".equals(req.method)) {
+		// if (contentType.contains("application/x-www-form-urlencoded")) {
+		// dumpReqBody(req, true);
+		// } else if (contentType.startsWith("text")) {
+		// dumpReqBody(req, false);
+		// } else if (contentType.contains("multipart/form-data")) {
+		// // cannot dump it, since it may contain binary
+		// } else if (contentType.contains("xml")) {
+		// dumpReqBody(req, false);
+		// } else if (contentType.contains("javascript")) {
+		// dumpReqBody(req, false);
+		// }
+		// }
+		// }
+		//
+		// }
+	}
+
+	@Override
+	public Handler onRouteRequest(RequestHeader request) {
+		return super.onRouteRequest(request);
 	}
 }
