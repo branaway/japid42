@@ -16,7 +16,7 @@ Japid42 is a native Java based template engine for Java programmers using Play2.
 # Excellent runtime performance. 
 # Java-based, thus very friendly to Java programmers.
 # The core Japid has been used in production for a long time and is very robust.  
-# Japid views compile lazy and compile on demand. 
+# Japid views compile lazy and compile on demand, unnoticed.
 
 h2. Features
 
@@ -27,16 +27,12 @@ h2. Features
 - implicit objects available in views: request, response, session, flash, lang
 - all sorts of directives
 - support Play2 forms, fields, data binding and form validations. 
-
-
-What are missing?
-
-- cache with action invocation, i.e., the @`a@ command does not support cache yet.
-- session.authentityToken not supported
+- cache with action invocation, wither using the Cached annotation or timeout spec in `a directive 
+- session.authentityToken to protect app from forged form submission attach. 
 
 What are different?
 
-- reverse routing: @{} not supported and deprecated by Play2's direct route class call for each route rule. 
+- reverse routing: @{} is deprecated by Play2's direct route class call for each route rule. 
 
 
 h2. Usage
@@ -55,7 +51,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.6.1"
+      "japid42" % "japid42_2.9.1" % "0.7"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
@@ -69,29 +65,17 @@ Note: adjust the version number accordingly.
 1. Initialize Japid in Global.java in the app directory:
 
 <pre>
-
-import play.Application;
-import play.GlobalSettings;
 import cn.bran.japid.template.JapidRenderer;
 
-public class Global extends GlobalSettings {
-	@Override
-	public void onStart(Application app) {
-		JapidRenderer.init(app);
-	}
-	@Override
-	public void onStop(Application app) {
-		JapidRenderer.onStop(app);
-		super.onStop(app);
-	}
+public class Global extends JapidRenderer {
 }
 </pre>  
 
 Note:
 
-
 - There are a few things that can be customized. Please see the javadoc of JapidRenderer. 
    
+Please see the @computer-japid@ example for a real-world Global class definition.
 
 2. Extend cn.bran.play.JapidController to create your own controllers and use the renderJapid(...) etc to render the views. 
 
@@ -124,7 +108,7 @@ In Build.scala, you may have a sub-project defined like this:
 
 <pre><code>
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.6.1"
+      "japid42" % "japid42_2.9.1" % "0.7"
     )
 
     val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
@@ -138,12 +122,11 @@ In Build.scala, you may have a sub-project defined like this:
 Obviously you have a sub-project located in modules/foo. For the system to know the Japid scripts in the sub-project, you'll need to tell Japid the location, using the JapidRenderer.setTemplateRoot(String...) method, in the global initialization method:
 
 <pre><code>
-public class Global extends GlobalSettings {
-    @Override
-	public void onStart(Application app) {
-		JapidRenderer.init(app);
-		JapidRenderer.setTemplateRoot("japidroot", "modules/foo/japidroot");
-    }
+public class Global extends JapidRenderer {
+	@Override
+	public void onStartJapid() {
+		setTemplateRoot("japidroot", "modules/foo/japidroot");
+	}
 }
 </code></pre>
 
