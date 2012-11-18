@@ -22,8 +22,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import authtoken.validator.AuthenticityToken;
+
 import play.Application;
 import play.GlobalSettings;
+import play.api.libs.Crypto;
 import play.api.mvc.Handler;
 import play.cache.Cache;
 import play.cache.Cached;
@@ -31,6 +34,7 @@ import play.mvc.Action;
 import play.mvc.Http.Context;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestHeader;
+import play.mvc.Http.Session;
 import play.mvc.Result;
 import scala.actors.threadpool.Arrays;
 import cn.bran.japid.compiler.JapidTemplateTransformer;
@@ -1117,6 +1121,25 @@ public class JapidRenderer extends GlobalSettings {
 				}
 			}
 		}
+		
+		// check for authenticity token
+		// I cannot tell if I really need to check this 
+		// not a good idea doing it here
+//		Session session = ctx.session();
+//		String atoken = session.get(AuthenticityToken.AUTH_TOKEN);
+//		session.remove(AuthenticityToken.AUTH_TOKEN);
+//		
+//		String method = request.method();
+//		if (atoken != null
+//		if (method.equals("GET")) {
+//			
+//		}
+//		
+//		if (atoken == null || uuid == null)
+//			return false;
+//
+//		String sign = Crypto.sign(uuid.toString());
+//		return atoken.equals(sign);
 	}
 
 	@Override
@@ -1125,6 +1148,7 @@ public class JapidRenderer extends GlobalSettings {
 			public Result call(Context ctx) {
 				try {
 					beforeActionInvocation(ctx, actionMethod);
+					
 					Result result = null;
 					Request req = ctx.request();
 					String method = req.method();

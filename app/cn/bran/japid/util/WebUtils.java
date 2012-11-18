@@ -17,6 +17,9 @@ import java.util.TimeZone;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import authtoken.validator.AuthenticityToken;
+
+import play.api.libs.Crypto;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Context;
@@ -417,4 +420,11 @@ public class WebUtils {
         return sb.toString();
     }
 	
+    public static String authenticityToken() {
+		String uuid=java.util.UUID.randomUUID().toString();
+		String sign=Crypto.sign(uuid);
+		Context.current().session().put(AuthenticityToken.AUTH_TOKEN, sign);
+    	return "<input type=\"hidden\" name=\"authtoken\" value=\"" + uuid + "\" />";
+
+    }
 }

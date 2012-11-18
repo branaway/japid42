@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.6.1
+version 0.7
 Status: beta
 Compatibility: Play 2.0.4
 
@@ -232,4 +232,8 @@ h2. History
 # bug fix: detected abstract directive and throw exception in apply() in java code
 # bug fix: noplay code contained old t variable
 # bug fix: inner classes rendered false change alarm leading to excessive recompiling in dev mode.  
+
+2012.11.18. v0.7. See the JapidSample42 for examples for the new features. 
+# new feature: cached action invocation supported. One must create a Global class that inherits from JapidRender instead of directly from GlobalSettings. The annotation of Cached was activated. With JapidSample42, see: http://localhost:9000/more.Portlets/index
+# new feature: security token now supported. With JapidSample42, see: http://localhost:9000/application/dumpPost/a/bb/ccc 
 
