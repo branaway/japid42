@@ -22,11 +22,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import authtoken.validator.AuthenticityToken;
-
 import play.Application;
 import play.GlobalSettings;
-import play.api.libs.Crypto;
 import play.api.mvc.Handler;
 import play.cache.Cache;
 import play.cache.Cached;
@@ -34,7 +31,6 @@ import play.mvc.Action;
 import play.mvc.Http.Context;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestHeader;
-import play.mvc.Http.Session;
 import play.mvc.Result;
 import scala.actors.threadpool.Arrays;
 import cn.bran.japid.compiler.JapidTemplateTransformer;
@@ -50,7 +46,6 @@ import cn.bran.japid.util.PlayDirUtil;
 import cn.bran.japid.util.StackTraceUtils;
 import cn.bran.japid.util.StringUtils;
 import cn.bran.japid.util.WebUtils;
-import cn.bran.play.JapidResult;
 import cn.bran.play.RenderResultCache;
 
 public class JapidRenderer extends GlobalSettings {

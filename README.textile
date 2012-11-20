@@ -220,3 +220,8 @@ h2. History
 # new feature: cached action invocation supported. One must create a Global class that inherits from JapidRender instead of directly from GlobalSettings. The annotation of Cached was activated. With JapidSample42, see: http://localhost:9000/more.Portlets/index
 # new feature: security token now supported. With JapidSample42, see: http://localhost:9000/application/dumpPost/a/bb/ccc 
 
+2012.11.20. v0.7.1  
+# enhancement: the @authenticity token@ mechanism was remodeled and simplified. Two steps to combat cross-site forged form attach:
+	- Annotate the form class with @cn.bran.play.AuthenticForm@
+	- embed $authenticityToken() in the proper position of an html form in your Japid templates. The method would generate a hidden field in the form. 
+

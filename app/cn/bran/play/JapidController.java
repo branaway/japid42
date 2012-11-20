@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import play.cache.Cache;
+import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Http.Context;
 import play.mvc.Result;
@@ -59,8 +60,8 @@ public class JapidController extends Controller {
 	}
 
 	private static JapidResult postProcess(JapidResult japidResult) {
-
 		// XXX play2 does not guarantee the response
+		
 		if (Context.current.get() != null) {
 			// apply headers
 			try {
@@ -471,5 +472,20 @@ public class JapidController extends Controller {
 		}
 		throw new RuntimeException(e);
 	}
+	
+    /**
+     * Instantiates a new authenticity checking form that wraps the specified class.
+     */
+    public static <T> Form<T> form(Class<T> clazz) {
+        return new AuthenticForm<T>(clazz);
+    }
+    
+    /**
+     * Instantiates a new form that wraps the specified class.
+     */
+    public static <T> Form<T> form(String name, Class<T> clazz) {
+        return new AuthenticForm<T>(name, clazz);
+    }
+    
 
 }
