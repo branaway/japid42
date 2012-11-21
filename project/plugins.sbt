@@ -9,8 +9,8 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 //)
 
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("play" % "sbt-plugin" % "2.0.4")
-//addSbtPlugin("play" % "sbt-plugin" % "2.1-SNAPSHOT")
+//addSbtPlugin("play" % "sbt-plugin" % "2.0.4")
+addSbtPlugin("play" % "sbt-plugin" % "2.1-SNAPSHOT")
 
 //Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases")) (Resolver.ivyStylePatterns)
   

@@ -1,0 +1,2 @@
+#dummy needed to work around a Play 2.1 snapshot bug
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
