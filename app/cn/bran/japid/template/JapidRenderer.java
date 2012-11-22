@@ -14,6 +14,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,7 +33,6 @@ import play.mvc.Http.Context;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
-import scala.actors.threadpool.Arrays;
 import cn.bran.japid.compiler.JapidTemplateTransformer;
 import cn.bran.japid.compiler.OpMode;
 import cn.bran.japid.compiler.TranslateTemplateTask;
@@ -1097,7 +1097,6 @@ public class JapidRenderer extends GlobalSettings {
 			// cache-control in lower case, lowercase for some reason
 			String[] header = headers.get("cache-control");
 			if (header != null) {
-				@SuppressWarnings("unchecked")
 				List<String> list = Arrays.asList(header);
 				if (list.contains(NO_CACHE)) {
 					RenderResultCache.setIgnoreCache(true);
@@ -1105,7 +1104,6 @@ public class JapidRenderer extends GlobalSettings {
 			} else {
 				header = headers.get("pragma");
 				if (header != null) {
-					@SuppressWarnings("unchecked")
 					List<String> list = Arrays.asList(header);
 					if (list.contains(NO_CACHE)) {
 						RenderResultCache.setIgnoreCache(true);
