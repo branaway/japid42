@@ -4,11 +4,13 @@ import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
@@ -70,7 +72,7 @@ public class DirUtil {
 		return files.toArray(ret);
 	}
 	
-	public static String[] getAllTemplateFiles(File dir) {
+	public static String[] getAllTemplateFileNames(File dir) {
 		List<String> files = new ArrayList<String>();
 		getAllFileNames("", dir, files, TEMPLATE_EXTS);
 		// should filter out bad named files
@@ -78,7 +80,7 @@ public class DirUtil {
 		return files.toArray(ret);
 	}
 	
-	public static String[] getAllTemplateFiles(String... dirs) {
+	public static String[] getAllTemplateFileNames(String... dirs) {
 		List<String> re = new ArrayList<String>();
 		
 		for(String dir : dirs) {
@@ -123,6 +125,32 @@ public class DirUtil {
 		}
 		return fs;
 	}
+	
+	
+	/**
+	 * retrieve all the files with specified extensions recursively in a directory and its sub-directory 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param dir
+	 * @param exts
+	 * @return
+	 */
+	public static Set<File> scanFiles(File dir, String[] exts) {
+		Set<File> files = new HashSet<File>();
+		for (File f : dir.listFiles()) {
+			if (f.isDirectory())
+				files.addAll(scanFiles(f, exts));
+			else {
+				if (match(f, exts))
+					files.add(f);
+			}
+		}
+		return files;
+	}
+	
+	public static Set<File> getAllTemplateFiles(File root) {
+		return scanFiles(new File(root, "japidviews"), TEMPLATE_EXTS);
+	}
+	
 	
 	private static void getAllFileNames(String leadingPath, File dir, List<String> files, String[] exts) {
 		if (!dir.exists())
@@ -434,16 +462,16 @@ public class DirUtil {
 		return srcRelative;
 	}
 
-	// this method is entirely safe ???
 	public static String readFileAsString(String filePath) throws Exception {
-		// let're remove dependency on commons IO
-		byte[] buffer = new byte[(int) new File(filePath).length()];
-		BufferedInputStream f = new BufferedInputStream(new FileInputStream(filePath));
-		// not sure if this is always safe assume it'll read all bytes in
+		return readFileAsString(new File(filePath));
+	}
+
+	public static String readFileAsString(File file) throws FileNotFoundException, IOException, UnsupportedEncodingException {
+		byte[] buffer = new byte[(int) file.length()];
+		BufferedInputStream f = new BufferedInputStream(new FileInputStream(file));
 		f.read(buffer);
 		f.close();
 		return new String(buffer, "UTF-8");
-	
 	}
 	
 	public static void copyStream(InputStream in, OutputStream out) throws IOException {  
@@ -477,6 +505,19 @@ public class DirUtil {
 			japidScriptFileName = japidScriptFileName.substring(0, japidScriptFileName.length() - 5);
 		} 
 		return japidScriptFileName;
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param templateRoots
+	 * @return
+	 */
+	public static Set<File> getAllTemplateFiles(String[] templateRoots) {
+		Set<File> re = new HashSet<File>();
+		for (String r: templateRoots) {
+			re.addAll(getAllTemplateFiles(new File(r)));	
+		}
+		return re;
 	}  
 
 }

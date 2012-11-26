@@ -117,7 +117,7 @@ public class RendererCompiler {
 					String scriptPath = rc.getScriptFile().getPath();
 					if (oriSrcLineNum > 0) {
 						// has a original script marker
-						descr = scriptPath + "(" + oriSrcLineNum + "): " + message;
+						descr = scriptPath + "(line " + oriSrcLineNum + "): " + message;
 						JapidTemplateException te = new JapidTemplateException("Japid Compilation Error", descr,
 								oriSrcLineNum, scriptPath, rc.getOriSourceCode());
 						throw te;

@@ -21,6 +21,7 @@ public class RendererClass implements Serializable{
 	transient private Constructor<? extends JapidTemplateBaseWithoutPlay> constructor;
 	private long lastCompiled;
 	private long lastDefined;
+	private long scripTimestamp;
 	
 //	public ClassLoader getCl() {
 //		return cl;
@@ -55,9 +56,7 @@ public class RendererClass implements Serializable{
 	public void setSourceCode(String sourceCode) {
 		this.sourceCode = sourceCode;
 	}
-	public long getLastUpdates() {
-		return lastUpdated;
-	}
+
 	public void setLastUpdated(long lastUpdates) {
 		this.lastUpdated = lastUpdates;
 	}
@@ -76,7 +75,12 @@ public class RendererClass implements Serializable{
 	 * @param srcFile
 	 */
 	public void setScriptFile(File srcFile) {
-		this.scriptFile = srcFile;
+		if (srcFile.exists()) {
+			this.scriptFile = srcFile;
+			this.scripTimestamp = srcFile.lastModified();
+		}
+		else
+			throw new RuntimeException("japid script does not exist: " + srcFile.getAbsolutePath());
 	}
 	/**
 	 * @return the srcFile
@@ -163,6 +167,18 @@ public class RendererClass implements Serializable{
 	@Override
 	public String toString() {
 		return "Japid Renderer class wrapper for: " + this.getClassName() + ". Source file: " + this.scriptFile;
+	}
+	/**
+	 * @return the scripTimestamp
+	 */
+	public long getScripTimestamp() {
+		return scripTimestamp;
+	}
+	/**
+	 * @param scripTimestamp the scripTimestamp to set
+	 */
+	public void setScripTimestamp(long scripTimestamp) {
+		this.scripTimestamp = scripTimestamp;
 	}
 
 }

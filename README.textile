@@ -224,4 +224,9 @@ h2. History
 # enhancement: the @authenticity token@ mechanism was remodeled and simplified. Two steps to combat cross-site forged form attach:
 	- Annotate the form class with @cn.bran.play.AuthenticForm@
 	- embed $authenticityToken() in the proper position of an html form in your Japid templates. The method would generate a hidden field in the form. 
+	
+	
+2012.11.26. v0.7.2  
+# new feature: JapidRenderer.setKeepJavaFiles(boolean) enabled users to hide all the Java files during the process of Japid script compilation. Default is true to keep the compatibility with old version. When set to false, this configuration is faster in scanning changed files.  
+	
 

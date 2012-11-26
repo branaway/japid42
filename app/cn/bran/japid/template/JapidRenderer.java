@@ -184,6 +184,7 @@ public class JapidRenderer extends GlobalSettings {
 
 	private static long newClassLoaderCreated = 0;
 	private static TemplateClassLoader lastClassLoader;
+	private static boolean keepJavaFiles = true;
 
 	/**
 	 * @author Bing Ran (bing.ran@hotmail.com)
@@ -193,6 +194,16 @@ public class JapidRenderer extends GlobalSettings {
 	private static String flattern(Object[] templateRoots2) {
 		String re = "[" + StringUtils.join(templateRoots2, ",") + "]";
 		return re;
+	}
+
+	/**
+	 * indicate if to save the intermediate Java artifacts. The default is true.
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param keep
+	 */
+	public static void setKeepJavaFiles(boolean keep) {
+		keepJavaFiles = keep;
 	}
 
 	/**
@@ -229,11 +240,17 @@ public class JapidRenderer extends GlobalSettings {
 			if (!timeToRefresh())
 				return;
 		}
+
+		if (!JapidRenderer.keepJavaFiles) {
+			refreshClassesInMemory();
+			return;
+		}
+
 		try {
 			// there are two passes of directory scanning. XXX
 
-			String[] allTemps = DirUtil.getAllTemplateFiles(templateRoots);
-			Set<String> currentClassesOnDir = createNameSet(allTemps);
+			String[] allTemps = DirUtil.getAllTemplateFileNames(templateRoots);
+			Set<String> currentClassesOnDir = createClassNameSet(allTemps);
 			Set<String> allScriptNames = new HashSet<String>(currentClassesOnDir);
 
 			Set<String> keySet = japidClasses.keySet();
@@ -342,6 +359,163 @@ public class JapidRenderer extends GlobalSettings {
 	}
 
 	/**
+	 * all artifacts in memory
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 */
+	static synchronized void refreshClassesInMemory() {
+		try {
+			Set<File> allTemplates = DirUtil.getAllTemplateFiles(templateRoots);
+
+			Set<File> toBeUpdated = new HashSet<File>();
+
+			// find out all the clases that need to be updated
+			for (File tf : allTemplates) {
+				String cname = getClassName(tf);
+				RendererClass rc = japidClasses.get(cname);
+				if (rc == null) {
+					toBeUpdated.add(tf);
+				} else if (rc.getScripTimestamp() < tf.lastModified()) {
+					toBeUpdated.add(tf);
+				} else if (rc.getSourceCode() == null || rc.getSourceCode().length() == 0) {
+					toBeUpdated.add(tf);
+				}
+			}
+
+			Set<String> currentClassesOnDir = createClassNameSet(allTemplates);
+
+			Set<String> currentClassNames = japidClasses.keySet();
+
+			if (!currentClassNames.equals(currentClassesOnDir)) {
+				Set<String> classNamesRegistered = new HashSet<String>(currentClassNames);
+				Set<String> classNamesDir = new HashSet<String>(currentClassesOnDir);
+				if (classNamesRegistered.containsAll(classNamesDir)) {
+					classNamesRegistered.removeAll(classNamesDir);
+					if (!classNamesRegistered.isEmpty()) {
+						for (String n : classNamesRegistered) {
+							if (!n.contains("$")) {
+								touch();
+								break;
+							}
+						}
+					}
+				} else {
+					touch();
+				}
+			} else {
+				// no name changes
+			}
+
+			// allClassNamesOnDir.removeAll(currentClassNames); // got new
+			// templates
+			removeRemoved(currentClassesOnDir, currentClassNames);
+
+			for (File tb : toBeUpdated) {
+				setupImports();
+				String scriptSrc = DirUtil.readFileAsString(tb);
+
+				String javaCode = JapidTemplateTransformer.generateInMemory(scriptSrc, cleanPath(tb), true);
+				JapidFlags.log("converted: " + tb.getPath());
+				String className = getClassName(tb);
+				RendererClass rc = newRendererClass(className);
+				rc.setScriptFile(tb);
+				rc.setOriSourceCode(scriptSrc);
+				rc.setSourceCode(javaCode);
+				removeInnerClasses(className);
+				cleanClassHolder(rc);
+
+				japidClasses.put(className, rc);
+			}
+
+			// find all render class without bytecode
+			for (Iterator<String> i = japidClasses.keySet().iterator(); i.hasNext();) {
+				String k = i.next();
+				RendererClass rc = japidClasses.get(k);
+				if (rc.getSourceCode() == null) {
+					if (!rc.getClassName().contains("$")) {
+						setSources(rc, k);
+						cleanClassHolder(rc);
+						toBeUpdated.add(rc.getScriptFile());
+					} else {
+						rc.setLastUpdated(0);
+					}
+				} else {
+					if (rc.getBytecode() == null) {
+						cleanClassHolder(rc);
+						toBeUpdated.add(rc.getScriptFile());
+					}
+				}
+			}
+
+			// compile all
+			if (toBeUpdated.size() > 0) {
+				String[] names = new String[toBeUpdated.size()];
+				int i = 0;
+				for (File s : toBeUpdated) {
+					names[i++] = getClassName(s);
+				}
+				long t = System.currentTimeMillis();
+
+				// newly compiled class bytecode bodies are set in the global
+				// classes set ready for defining
+				compiler.compile(names);
+				howlong("compile time for " + names.length + " classes", t);
+
+				for (String k : japidClasses.keySet()) {
+					japidClasses.get(k).setClz(null);
+				}
+
+				TemplateClassLoader loader = getClassLoader();
+				for (String cname : names) {
+					loader.loadClass(cname);
+				}
+			}
+		} catch (Exception e) {
+			if (e instanceof JapidTemplateException)
+				throw (JapidTemplateException) e;
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static void setupImports() {
+		JapidTemplateTransformer.addImportLine("controllers.*");
+		JapidTemplateTransformer.addImportLine("models.*");
+		JapidTemplateTransformer.addImportLine("japidviews.*");
+		JapidTemplateTransformer.addImportLine("play.mvc.Http.Context.Implicit");
+		JapidTemplateTransformer.addImportLine("play.mvc.Http.Request");
+		JapidTemplateTransformer.addImportLine("play.mvc.Http.Response");
+		JapidTemplateTransformer.addImportLine("play.mvc.Http.Session");
+		JapidTemplateTransformer.addImportLine("play.mvc.Http.Flash");
+		JapidTemplateTransformer.addImportLine("play.data.validation.Validation");
+		JapidTemplateTransformer.addImportLine("play.i18n.Lang");
+		JapidTemplateTransformer.addImportLine(play.data.Form.class.getName());
+		JapidTemplateTransformer.addImportLine(play.data.Form.Field.class.getName().replace('$', '.'));
+		JapidTemplateTransformer.addImportLine("java.util.*");
+		for (String imp : imports) {
+			JapidTemplateTransformer.addImportLine(imp);
+		}
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param allTemplates
+	 * @return
+	 */
+	private static Set<String> createClassNameSet(Set<File> allTemplates) {
+		String[] names = new String[allTemplates.size()];
+		int i = 0;
+		for (File f : allTemplates) {
+			names[i++] = cleanPath(f);
+		}
+		return createClassNameSet(names);
+	}
+
+	private static String cleanPath(File f) {
+		String path = f.getPath();
+		return path.substring(path.indexOf(JAPIDVIEWS));
+	}
+
+	/**
 	 * @author Bing Ran (bing.ran@hotmail.com)
 	 */
 	private static void touch() {
@@ -375,7 +549,6 @@ public class JapidRenderer extends GlobalSettings {
 
 			rc.setSourceCode(javaCode);
 			rc.setOriSourceCode(scriptSrc);
-			rc.setScriptFile(new File(srcFileName));
 			removeInnerClasses(c);
 			cleanClassHolder(rc);
 
@@ -510,7 +683,7 @@ public class JapidRenderer extends GlobalSettings {
 		rendererClass.setLastUpdated(0);
 	}
 
-	static Set<String> createNameSet(String[] allHtml) {
+	static Set<String> createClassNameSet(String[] allHtml) {
 		// the names start with template root
 		Set<String> names = new HashSet<String>();
 		for (String f : allHtml) {
@@ -556,8 +729,7 @@ public class JapidRenderer extends GlobalSettings {
 	}
 
 	static String getClassName(File f) {
-		String path = f.getPath();
-		String substring = path.substring(path.indexOf(JAPIDVIEWS));
+		String substring = cleanPath(f);
 		return DirUtil.deriveClassName(substring);
 	}
 
@@ -633,6 +805,9 @@ public class JapidRenderer extends GlobalSettings {
 	 */
 	static List<File> mkdir(String... root) throws IOException {
 		List<File> files = new ArrayList<File>();
+		if (getOpMode() == OpMode.prod)
+			return files;
+
 		for (String r : root) {
 			files.addAll(PlayDirUtil.mkdir(r));
 		}
@@ -1114,25 +1289,25 @@ public class JapidRenderer extends GlobalSettings {
 				}
 			}
 		}
-		
+
 		// check for authenticity token
-		// I cannot tell if I really need to check this 
+		// I cannot tell if I really need to check this
 		// not a good idea doing it here
-//		Session session = ctx.session();
-//		String atoken = session.get(AuthenticityToken.AUTH_TOKEN);
-//		session.remove(AuthenticityToken.AUTH_TOKEN);
-//		
-//		String method = request.method();
-//		if (atoken != null
-//		if (method.equals("GET")) {
-//			
-//		}
-//		
-//		if (atoken == null || uuid == null)
-//			return false;
-//
-//		String sign = Crypto.sign(uuid.toString());
-//		return atoken.equals(sign);
+		// Session session = ctx.session();
+		// String atoken = session.get(AuthenticityToken.AUTH_TOKEN);
+		// session.remove(AuthenticityToken.AUTH_TOKEN);
+		//
+		// String method = request.method();
+		// if (atoken != null
+		// if (method.equals("GET")) {
+		//
+		// }
+		//
+		// if (atoken == null || uuid == null)
+		// return false;
+		//
+		// String sign = Crypto.sign(uuid.toString());
+		// return atoken.equals(sign);
 	}
 
 	@Override
@@ -1141,7 +1316,7 @@ public class JapidRenderer extends GlobalSettings {
 			public Result call(Context ctx) {
 				try {
 					beforeActionInvocation(ctx, actionMethod);
-					
+
 					Result result = null;
 					Request req = ctx.request();
 					String method = req.method();
