@@ -111,6 +111,15 @@ public class JapidController extends Controller {
 		return renderJapidWith(action, namedArgs);
 	}
 
+	/**
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param template the script name or a fully qualified class name under which the renderer class
+	 * is registered.
+	 * 
+	 * @param args
+	 * @return
+	 */
 	public static JapidResult renderJapidWith(String template, Object... args) {
 		template = getFullViewName(template);
 		JapidResult japidResult = new JapidResult(getRenderResultWith(template, args));

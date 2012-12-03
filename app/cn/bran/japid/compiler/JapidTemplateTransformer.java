@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 import java.util.regex.Pattern;
 
 import cn.bran.japid.classmeta.AbstractTemplateClassMetaData;
+import cn.bran.japid.classmeta.MimeTypeEnum;
 import cn.bran.japid.template.JapidTemplate;
 import cn.bran.japid.util.DirUtil;
 
@@ -159,6 +160,10 @@ public class JapidTemplateTransformer {
 	 */
 	public static String generateInMemory(String scriptSrc,  String srcFileName, boolean usePlay) {
 		JapidTemplate temp = new JapidTemplate(srcFileName, scriptSrc);
+		return compileJapid(scriptSrc, usePlay, temp);
+	}
+
+	private static String compileJapid(String scriptSrc, boolean usePlay, JapidTemplate temp) {
 		JapidAbstractCompiler c = null;
 		if (looksLikeLayout(scriptSrc)) {
 			c = new JapidLayoutCompiler();
@@ -170,6 +175,20 @@ public class JapidTemplateTransformer {
 		c.compile(temp);
 		String jsrc = temp.javaSource;
 		return jsrc;
+	}
+
+	/**
+	 * compile a script with the designated class name and MIME type
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param scriptSrc
+	 * @param fqName
+	 * @param mime
+	 * @return
+	 */
+	public static String generateInMemory(String scriptSrc,  String fqName, MimeTypeEnum mime) {
+		JapidTemplate temp = new JapidTemplate(fqName, mime, scriptSrc);
+		return compileJapid(scriptSrc, true, temp);
 	}
 
 	/**

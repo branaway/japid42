@@ -16,6 +16,7 @@ package cn.bran.japid.compiler;
 import cn.bran.japid.template.JapidTemplate;
 
 public class JapidCompilationException extends RuntimeException {
+	private static final long serialVersionUID = -872264757349264853L;
 	JapidTemplate template;
 	int startLine;
 	

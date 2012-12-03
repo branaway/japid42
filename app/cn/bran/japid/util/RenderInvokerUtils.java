@@ -26,9 +26,9 @@ public class RenderInvokerUtils {
 
 		Method m = t.renderMethodInstance;
 		if (m == null) {
-			throw new RuntimeException("The render method cache is not initialized for: " + t.getClass().getName()
-					+ ". Please run 'play japid:regen' to fresh the generated Java files.");
+			throw new RuntimeException("The render method cache is not initialized for: " + t.getClass().getName());
 		}
+		
 		Object invoke;
 		try {
 			invoke = m.invoke(t, args);

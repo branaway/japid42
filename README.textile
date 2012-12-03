@@ -2,8 +2,8 @@ h1. japid42 - Japid for Play 2
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.7
-Status: beta
+version 0.7.4
+Status: RC
 Compatibility: Play 2.0.4
 
 
@@ -51,7 +51,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.9.1" % "0.7"
+      "japid42" % "japid42_2.9.1" % "0.7.4"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
@@ -67,13 +67,12 @@ Note: adjust the version number accordingly.
 <pre>
 import cn.bran.japid.template.JapidRenderer;
 
-public class Global extends JapidRenderer {
-}
+public class Global extends JapidRenderer {}
 </pre>  
 
 Note:
 
-- There are a few things that can be customized. Please see the javadoc of JapidRenderer. 
+- There are a few things that can be customized here. Please see the javadoc of JapidRenderer. 
    
 Please see the @computer-japid@ example for a real-world Global class definition.
 
@@ -228,5 +227,10 @@ h2. History
 	
 2012.11.26. v0.7.2  
 # new feature: JapidRenderer.setKeepJavaFiles(boolean) enabled users to hide all the Java files during the process of Japid script compilation. Default is true to keep the compatibility with old version. When set to false, this configuration is faster in scanning changed files.  
-	
 
+2012.11.27. v0.7.3  
+# removed: no logging in the templateclassloader any more. Solid enough to turn it off. 
+
+2012.12.2. v0.7.4  
+# added JapidRenderer.registerTemplate(...): it's intended for use at runtime to dynamically add new Japid script to the engine.
+# enhancement: reduced file system access while refreshing Japid template classes.   

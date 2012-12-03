@@ -33,6 +33,7 @@ import play.mvc.Http.Context;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
+import cn.bran.japid.classmeta.MimeTypeEnum;
 import cn.bran.japid.compiler.JapidTemplateTransformer;
 import cn.bran.japid.compiler.OpMode;
 import cn.bran.japid.compiler.TranslateTemplateTask;
@@ -46,6 +47,7 @@ import cn.bran.japid.util.PlayDirUtil;
 import cn.bran.japid.util.StackTraceUtils;
 import cn.bran.japid.util.StringUtils;
 import cn.bran.japid.util.WebUtils;
+import cn.bran.play.JapidTemplateBase;
 import cn.bran.play.RenderResultCache;
 
 public class JapidRenderer extends GlobalSettings {
@@ -305,7 +307,7 @@ public class JapidRenderer extends GlobalSettings {
 
 					setSources(rendererClass, f);
 					removeInnerClasses(className);
-					cleanClassHolder(rendererClass);
+					cleanByteCode(rendererClass);
 				}
 			}
 
@@ -316,14 +318,14 @@ public class JapidRenderer extends GlobalSettings {
 				if (rc.getSourceCode() == null) {
 					if (!rc.getClassName().contains("$")) {
 						setSources(rc, k);
-						cleanClassHolder(rc);
+						cleanByteCode(rc);
 						updatedClasses.add(k);
 					} else {
 						rc.setLastUpdated(0);
 					}
 				} else {
 					if (rc.getBytecode() == null) {
-						cleanClassHolder(rc);
+						cleanByteCode(rc);
 						updatedClasses.add(k);
 					}
 				}
@@ -369,7 +371,7 @@ public class JapidRenderer extends GlobalSettings {
 
 			Set<File> toBeUpdated = new HashSet<File>();
 
-			// find out all the clases that need to be updated
+			// find out all the classes that need to be updated
 			for (File tf : allTemplates) {
 				String cname = getClassName(tf);
 				RendererClass rc = japidClasses.get(cname);
@@ -378,6 +380,8 @@ public class JapidRenderer extends GlobalSettings {
 				} else if (rc.getScripTimestamp() < tf.lastModified()) {
 					toBeUpdated.add(tf);
 				} else if (rc.getSourceCode() == null || rc.getSourceCode().length() == 0) {
+					toBeUpdated.add(tf);
+				} else if (rc.getBytecode() == null || rc.getBytecode().length == 0) {
 					toBeUpdated.add(tf);
 				}
 			}
@@ -422,48 +426,18 @@ public class JapidRenderer extends GlobalSettings {
 				rc.setOriSourceCode(scriptSrc);
 				rc.setSourceCode(javaCode);
 				removeInnerClasses(className);
-				cleanClassHolder(rc);
+				cleanByteCode(rc);
 
 				japidClasses.put(className, rc);
 			}
 
-			// find all render class without bytecode
-			for (Iterator<String> i = japidClasses.keySet().iterator(); i.hasNext();) {
-				String k = i.next();
-				RendererClass rc = japidClasses.get(k);
-				if (rc.getSourceCode() == null) {
-					if (!rc.getClassName().contains("$")) {
-						setSources(rc, k);
-						cleanClassHolder(rc);
-						toBeUpdated.add(rc.getScriptFile());
-					} else {
-						rc.setLastUpdated(0);
-					}
-				} else {
-					if (rc.getBytecode() == null) {
-						cleanClassHolder(rc);
-						toBeUpdated.add(rc.getScriptFile());
-					}
-				}
-			}
-
 			// compile all
 			if (toBeUpdated.size() > 0) {
-				String[] names = new String[toBeUpdated.size()];
-				int i = 0;
-				for (File s : toBeUpdated) {
-					names[i++] = getClassName(s);
-				}
+				Set<String> names = createClassNameSet(toBeUpdated);
+
 				long t = System.currentTimeMillis();
-
-				// newly compiled class bytecode bodies are set in the global
-				// classes set ready for defining
-				compiler.compile(names);
-				howlong("compile time for " + names.length + " classes", t);
-
-				for (String k : japidClasses.keySet()) {
-					japidClasses.get(k).setClz(null);
-				}
+				compiler.compile(names.toArray(new String[] {}));
+				howlong("compile time for " + names.size() + " classes", t);
 
 				TemplateClassLoader loader = getClassLoader();
 				for (String cname : names) {
@@ -502,12 +476,11 @@ public class JapidRenderer extends GlobalSettings {
 	 * @return
 	 */
 	private static Set<String> createClassNameSet(Set<File> allTemplates) {
-		String[] names = new String[allTemplates.size()];
-		int i = 0;
+		Set<String> names = new HashSet<String>();
 		for (File f : allTemplates) {
-			names[i++] = cleanPath(f);
+			names.add(getClassName(f));
 		}
-		return createClassNameSet(names);
+		return names;
 	}
 
 	private static String cleanPath(File f) {
@@ -550,7 +523,7 @@ public class JapidRenderer extends GlobalSettings {
 			rc.setSourceCode(javaCode);
 			rc.setOriSourceCode(scriptSrc);
 			removeInnerClasses(c);
-			cleanClassHolder(rc);
+			cleanByteCode(rc);
 
 			compiler.compile(new String[] { DEV_ERROR });
 		} catch (Exception e) {
@@ -677,7 +650,7 @@ public class JapidRenderer extends GlobalSettings {
 	/**
 	 * @param rendererClass
 	 */
-	static void cleanClassHolder(RendererClass rendererClass) {
+	static void cleanByteCode(RendererClass rendererClass) {
 		rendererClass.setBytecode(null);
 		rendererClass.setClz(null);
 		rendererClass.setLastUpdated(0);
@@ -1373,63 +1346,47 @@ public class JapidRenderer extends GlobalSettings {
 		RenderResultCache.setIgnoreCacheInCurrentAndNextReq(false);
 	}
 
-	/**
-	 * @author Bing Ran (bing.ran@hotmail.com)
-	 * @param request
-	 * @param actionMethod
-	 */
-	private void dumpIt(Request req, Method actionMethod) {
-		// if (dumpRequest != null && dumpRequest.length() > 0) {
-		// if ("yes".equals(dumpRequest) || "true".equals(dumpRequest)) {
-		// System.out.println("---->>" + req.method + " : " + req.url + " [" +
-		// req.action + "]");
-		// // System.out.println("request.controller:" +
-		// // current.controller);
-		// } else if ("false".equals(dumpRequest) || "no".equals(dumpRequest)) {
-		// // do nothing
-		// } else if (req.uri().matches(dumpRequest)) {
-		// String querystring = req.uri();
-		// if (querystring != null && querystring.length() > 0)
-		// querystring = "?" + querystring;
-		// else
-		// querystring = "";
-		// System.out.println("---->>" + actionMethod + " : " + req.uri());
-		// String contentType = req.accepts(mediaType)contentType;
-		// if (contentType == null || contentType.length() == 0) {
-		// contentType = "";
-		// }
-		//
-		// for (String k : req.headers.keySet()) {
-		// Header h = req.headers.get(k);
-		// System.out.println("... " + h.name + ":" +
-		// URLDecoder.decode(h.value(), "utf-8"));
-		// }
-		// cookie is already in the headers
-		// for (String ck : req.cookies.keySet()) {
-		// Cookie c = req.cookies.get(ck);
-		// System.out.println("... cookie --> " + c.name + ":" +
-		// c.value);
-		// }
-		// if ("POST".equals(req.method)) {
-		// if (contentType.contains("application/x-www-form-urlencoded")) {
-		// dumpReqBody(req, true);
-		// } else if (contentType.startsWith("text")) {
-		// dumpReqBody(req, false);
-		// } else if (contentType.contains("multipart/form-data")) {
-		// // cannot dump it, since it may contain binary
-		// } else if (contentType.contains("xml")) {
-		// dumpReqBody(req, false);
-		// } else if (contentType.contains("javascript")) {
-		// dumpReqBody(req, false);
-		// }
-		// }
-		// }
-		//
-		// }
-	}
-
 	@Override
 	public Handler onRouteRequest(RequestHeader request) {
 		return super.onRouteRequest(request);
+	}
+
+	/**
+	 * To register a template in the Japid engine. Once a template is
+	 * registered, the template class can be retrieved with the name by invoking
+	 * {@link #getClass(String)} or {@link #getRendererClass(String)}.
+	 * 
+	 * This method can be used at runtime to compile a Japid script and later use it to render data by 
+	 * invoking JapidController.renderJapidWith(className, args...);
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param fqName
+	 *            the fully qualified name of the registered template class. It
+	 *            must start with "japidviews.".
+	 * @param mimeType
+	 *            the MIME type of content generated by this template.
+	 * @param source
+	 *            the script source of the Japid template
+	 */
+	@SuppressWarnings("unchecked")
+	public Class<? extends JapidTemplateBase> registerTemplate(String fqName, MimeTypeEnum mimeType, String source) {
+		try {
+			String javaCode = JapidTemplateTransformer.generateInMemory(source, fqName, mimeType);
+			JapidFlags.log("converted: " + fqName);
+			RendererClass rc = newRendererClass(fqName);
+			rc.setScriptFile(null);
+			rc.setOriSourceCode(source);
+			rc.setSourceCode(javaCode);
+			removeInnerClasses(fqName);
+			cleanByteCode(rc);
+			japidClasses.put(fqName, rc);
+			compiler.compile(new String[] { fqName });
+			TemplateClassLoader loader = getClassLoader();
+			return (Class<? extends JapidTemplateBase>) loader.loadClass(fqName);
+		} catch (Exception e) {
+			if (e instanceof JapidTemplateException)
+				throw (JapidTemplateException) e;
+			throw new RuntimeException(e);
+		}
 	}
 }

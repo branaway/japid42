@@ -331,9 +331,6 @@ public class RendererCompiler {
 		}
 	}
 
-	/**
-	 * Please compile this className and set the bytecode to the class holder
-	 */
 	@SuppressWarnings("deprecation")
 	public void compile(String[] classNames) {
 

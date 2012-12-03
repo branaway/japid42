@@ -46,7 +46,7 @@ public class TemplateClassLoader extends ClassLoader {
 
 			Class<?> cla = localClasses.get(name);
 			if (cla != null) {
-				JapidFlags.log(oid + " loaded from local cache : " + name);
+//				JapidFlags.log(oid + " loaded from local cache : " + name);
 				return cla;
 			}
 
@@ -73,7 +73,7 @@ public class TemplateClassLoader extends ClassLoader {
 			rc.setClz(cl);
 			localClasses.put(name, cl);
 			rc.setLastDefined(System.currentTimeMillis());
-			JapidFlags.log(oid + " defined: " + name);
+//			JapidFlags.log(oid + " defined: " + name);
 			return cl;
 		}
 	}

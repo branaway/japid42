@@ -39,6 +39,22 @@ public class JapidTemplate {
         parseFullyQualifiedName();
     }
 
+    public JapidTemplate(String fqName, MimeTypeEnum mimeType, String source) {
+    	if (!fqName.startsWith("japidviews."))
+    		throw new RuntimeException("Japid script was not registered with a fully qualified class name starting with \"japidviews.\":  " + fqName);
+    	this.name = fqName;
+    	this.source = source;
+    	int lastDot = fqName.lastIndexOf('.');
+    	if (lastDot >= 0) {
+			packageName = fqName.substring(0, lastDot);
+			className = fqName.substring(lastDot + 1);
+    	}
+    	else {
+    		packageName = "";
+    		className = fqName;
+    	}
+    }
+
     /**
 	 * @author Bing Ran (bing.ran@hotmail.com)
 	 */
