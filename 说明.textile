@@ -2,9 +2,9 @@ h1. japid42 - Japid for Play 2
 
 冉兵 (bing.ran@gmail.com)
 
-版本 0.7.4
-状态: RC
-适用版本: Play 2.0.4
+版本： 0.7.4
+状态： RC
+适用版本： Play 2.0.4
 
 
 h2. 概述
@@ -39,7 +39,7 @@ h2. 使用说明
 
 
 
-h4. 如果想了解完整的Japid示例, 请看: http://github.com/branaway/computer-japid
+h4. 如果想了解完整的Japid示例, 请看： http://github.com/branaway/computer-japid
 
 请将Japid示例工程检出到samples文件夹。 
 
@@ -92,7 +92,7 @@ public class Application extends JapidController {
 }
 </pre>
 
-3. 创建Japid view的脚本 "japidroot/japidviews/Application/index.html":
+3. 创建Japid view的脚本 "japidroot/japidviews/Application/index.html"：
 
 <pre>
 @(String m)
