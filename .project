@@ -2,15 +2,10 @@
   <name>japid42</name>
   <buildSpec>
     <buildCommand>
-      <name>
-        <name>org.eclipse.jdt.core.javabuilder</name>
-      </name>
+      <name>org.eclipse.jdt.core.javabuilder</name>
     </buildCommand>
   </buildSpec>
   <natures>
-    <nature>
-      <name></name>
-    </nature>
     <nature>org.eclipse.jdt.core.javanature</nature>
   </natures>
 </projectDescription>

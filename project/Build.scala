@@ -1,20 +1,21 @@
 import sbt._
 import Keys._
-import PlayProject._
+import play.Project._
 
 object ApplicationBuild extends Build {
 
   val appName         = "japid42"
-  val appVersion      = "0.7.4"
+  val appVersion      = "0.8"
 
   val appDependencies = Seq(
-    "org.apache.commons" % "commons-email" % "1.2"
+    javaCore
+    ,"org.apache.commons" % "commons-email" % "1.2"
     ,"commons-lang" % "commons-lang" % "2.6"
     ,"org.eclipse.tycho" % "org.eclipse.jdt.core" % "3.8.2.v20120814-155456"
     ,"com.google.code.javaparser" % "javaparser" % "1.0.8"
   )
 
-  val main = PlayProject(
+  val main = play.Project(
     appName, appVersion, appDependencies
   )
 

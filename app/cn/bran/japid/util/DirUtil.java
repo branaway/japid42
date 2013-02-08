@@ -22,13 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class DirUtil {
-	/**
-	 * 
-	 */
 	private static final String[] ALL_EXTS = new String[] { ".java", ".html", ".js", ".txt", ".css", ".json", ".xml" };
-	/**
-	 * 
-	 */
 	private static final String[] TEMPLATE_EXTS = new String[]{".html", ".js", ".txt", ".css", ".xml", ".json"};
 	
 	public static Set<File> findOrphanJava(File src, File target) {
