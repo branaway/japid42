@@ -1,0 +1,236 @@
+h1. japid42 - Japid for Play 2
+
+冉兵 (bing.ran@gmail.com)
+
+版本： 0.7.4
+状态： RC
+适用版本： Play 2.0.4
+
+
+h2. 概述
+
+Japid42是一个完全基于Java的Play2模板引擎。 
+
+# 当修改view时，你只需要刷新浏览器便能在喝一口咖啡的工夫看到修改后的页面。Japid管理它的view编译和类加载。Japid view的修改与Play的重载机制是隔离的。 
+# 功能全面。拥有的功能不少于Play2内置的Scala模板引擎拥有的功能。 
+# 高性能。
+# 基于Java，对Java程序员非常有利。
+# Japid内核用于生产已有很长一段时间。  
+# Japid视图能延迟编译和按需编译，并且自动编译，不需要人为操作。
+
+h2. 特点
+
+- 自由地集成Java代码。
+- 布局的继承
+- 标签和代码片段
+- 可以在view中调用controller的action
+- View中内置对象：request、response、session、flash、lang
+- 丰富的指令
+- 支持Play2的表单、字段、数据绑定、表单验证。 
+- 通过缓存注释或者超时指令`a，缓存对action的调用。
+- 使用session.authentityToken保护应用免遭伪造的表单提交的攻击。 
+
+不同之处?
+
+- 反向路由：@{}被Play2自带的反向路由替代。
+
+
+h2. 使用说明
+
+
+
+h4. 如果想了解完整的Japid示例, 请看： http://github.com/branaway/computer-japid
+
+请将Japid示例工程检出到samples文件夹。 
+
+您需要做三件事情：
+
+0. 获取依赖的模块
+
+- 在project/Build.scala中声明Japid并添加库地址：
+<pre>
+//...
+    val appDependencies = Seq(
+      "japid42" % "japid42_2.9.1" % "0.7.4"
+    )
+
+    val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
+      resolvers += Resolver.url("My GitHub Play Repository", url("http://branaway.github.com/releases/"))(Resolver.ivyStylePatterns)
+    )
+//...
+</pre>
+
+注意：根据实际情况调整版本号。 
+
+1. 在位于app文件夹的Global.java文件里初始化Japid：
+
+<pre>
+import cn.bran.japid.template.JapidRenderer;
+
+public class Global extends JapidRenderer {}
+</pre>  
+
+注意：
+
+- 有些配置可以在这里定制。请看JapidRenderer的api文档。 
+   
+想了解真实的Global类的内容，请查看 @computer-japid@ 示例 。
+
+2. 通过继承 cn.bran.play.JapidController创建您自己的controllers并使用 renderJapid(...)等方法修饰views. 
+
+<pre>
+package controllers;
+
+import play.mvc.Result;
+import cn.bran.play.JapidController;
+
+public class Application extends JapidController {
+  
+  public static Result index() {
+	  return renderJapid("cool");
+  }
+}
+</pre>
+
+3. 创建Japid view的脚本 "japidroot/japidviews/Application/index.html"：
+
+<pre>
+@(String m)
+alright: $m!
+</pre>
+
+4. 点击 http://localhost:9000/ 查看运行效果！
+
+h2. 在自项目中使用Japid
+
+在Build.scala文件中，可以这样定义一个子项目：
+
+<pre><code>
+    val appDependencies = Seq(
+      "japid42" % "japid42_2.9.1" % "0.7"
+    )
+
+    val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
+
+    val main = PlayProject(appName, appVersion, appDependencies, mainLang = JAVA).settings(
+      resolvers += Resolver.url("Japid on Github", url("http://branaway.github.com/releases/"))(Resolver.ivyStylePatterns)
+    ).dependsOn(foo)
+    
+</code></pre>
+
+如果您有一个子项目位于 modules/foo，您需要在Global类的初始化方法中使用JapidRenderer.setTemplateRoot(String...)这个方法让系统知道Jpaid脚本在子项目的位置：
+
+<pre><code>
+public class Global extends JapidRenderer {
+	@Override
+	public void onStartJapid() {
+		setTemplateRoot("japidroot", "modules/foo/japidroot");
+	}
+}
+</code></pre>
+
+在上面的例子中，第一个参数是父项目的Japid脚本所在的位置。第二个参数是子项目的Japid脚本所在的位置。路径都是相对于父项目的。 
+
+@computer-japid@(http://github.com/branaway/computer-japid) 示例演示了这一特点。 
+
+h2. 文档
+
+请参考"computer-japid"示例项目所包含的README文件，它基本上全面的阐释了Japid的使用。 
+
+如果想更多的了解Japid语法，请参考Japid 1手册。我也会在将来写一份正式的说明文档。
+
+－ https://github.com/branaway/Japid
+
+
+h2. 应用示例
+
+* http://github.com/branaway/computer-japid
+* 在sample/JapidSample文件夹中也有一个示例。请在project/Build.scala文件中更新依赖项。 
+
+
+h2. 在Eclipse中使用Japid42
+
+1. 使用Git把Japid42项目clone到您的电脑。 
+2. 通过"play publish-local"命令创建并发布到play2的本地库中。 
+
+注意：
+
+- 我使用的是 sbt 0.11.3. "project/build.properties"文件中的sbt版本信息需要与你本机的一致。 
+- 同时也要确保"project/plugins.sbt"文件中的sbt-plugin的版本信息与你本机的一致。 
+
+
+h2. History
+
+2012.3.24: v0.1
+# initial commit. 
+
+2012.3.27: v0.2
+# lots of fix and the JapidSample mostly works now.  
+
+2012.4.4: v0.2.1
+# added JapidRenderer.setLogVerbose() to control logging verbosity of Japid activities.
+
+2012.7.28: v0.2.2
+# updated the README and fixed the initialization part. 
+
+2012.7.28: v0.3
+# bug fix: import of empty _tags or _layouts caused compiler error. Now imports those packages only if there are any templates in the folders.
+# enhancement: updated build files to work with play-2.0.3 release.
+
+2012.10.12. v0.4, beta
+# made it play 2.0.4 compatible
+# major bug fix: class reloading on the controller side or the model side caused type mismatched problem. 
+
+2012.10.17. v0.5
+# major feature: added nice error reporting.  
+# bug fix: htmlentities.properties file moved to conf
+
+2012.10.23. v0.5.1
+# enhancement: hide the template for dev error reporting from users. The side effect is users cannot customize the error reporting at dev time. 
+# removed: removed _javatags, _errors special directories in japidviews folder. 
+# added: ported some util methods from Play 1's JavaExtensions to WebUtils. 
+# enhancement: merged Yuvi Masory's JDT compiler dependency change
+
+2012.10.23. v0.5.2
+# bug fix: error reporting of argument mismatch in calling Japid views from controller. 
+# enhancement: added toString() to JapidResult so it can be used directly in Japid views as the result of directly calling a controller method. For an example, one can include the result of an action call directly in a script like this:
+	<code>the value is $MyController.action(...).</code>
+	
+2012.11.1. v0.5.3
+# enhancement: since I started using the Github pages as the repository, the readme file started referencing the resolver to it instead of local.  
+
+2012.11.8. v0.5.4
+# new feature: added JapidRenderer.setTemplateRoot(String...) that takes one or more japid roots. With this support, Japid can be used in project/sub-project layout.
+
+2012.11.10. v0.5.5
+# bug fix: failed to create folders matching controllers in mkdir()
+# critical bug fix: play start did not work. Class was not found. 
+# simplification: _layout and _tags were deprecated. Put shared stuff in the japidviews dir or configure import manually.
+
+2012.11.10. v0.6
+# enhancement: in dev mode, added compile on demand with delay, so that Japid script refactory is more reliable. 
+
+2012.11.10. v0.6.1
+# bug fix: detected abstract directive and throw exception in apply() in java code
+# bug fix: noplay code contained old t variable
+# bug fix: inner classes rendered false change alarm leading to excessive recompiling in dev mode.  
+
+2012.11.18. v0.7. See the JapidSample42 for examples for the new features. 
+# new feature: cached action invocation supported. One must create a Global class that inherits from JapidRender instead of directly from GlobalSettings. The annotation of Cached was activated. With JapidSample42, see: http://localhost:9000/more.Portlets/index
+# new feature: security token now supported. With JapidSample42, see: http://localhost:9000/application/dumpPost/a/bb/ccc 
+
+2012.11.20. v0.7.1  
+# enhancement: the @authenticity token@ mechanism was remodeled and simplified. Two steps to combat cross-site forged form attach:
+	- Annotate the form class with @cn.bran.play.AuthenticForm@
+	- embed $authenticityToken() in the proper position of an html form in your Japid templates. The method would generate a hidden field in the form. 
+	
+	
+2012.11.26. v0.7.2  
+# new feature: JapidRenderer.setKeepJavaFiles(boolean) enabled users to hide all the Java files during the process of Japid script compilation. Default is true to keep the compatibility with old version. When set to false, this configuration is faster in scanning changed files.  
+
+2012.11.27. v0.7.3  
+# removed: no logging in the templateclassloader any more. Solid enough to turn it off. 
+
+2012.12.2. v0.7.4  
+# added JapidRenderer.registerTemplate(...): it's intended for use at runtime to dynamically add new Japid script to the engine.
+# enhancement: reduced file system access while refreshing Japid template classes.   
