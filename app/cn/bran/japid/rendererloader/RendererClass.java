@@ -9,8 +9,8 @@ import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
 public class RendererClass implements Serializable{
 	private static final long serialVersionUID = -2039838560731729110L;
 	String className;
-	String sourceCode; // the java file
-	String oriSourceCode;
+	String javaSourceCode; // the java file
+	String japidSourceCode; // japid code
 	
 	private long lastUpdated;
 	byte[] bytecode;
@@ -50,11 +50,11 @@ public class RendererClass implements Serializable{
 	public void setClassName(String className) {
 		this.className = className;
 	}
-	public String getSourceCode() {
-		return sourceCode;
+	public String getJavaSourceCode() {
+		return javaSourceCode;
 	}
-	public void setSourceCode(String sourceCode) {
-		this.sourceCode = sourceCode;
+	public void setJavaSourceCode(String sourceCode) {
+		this.javaSourceCode = sourceCode;
 	}
 
 	public void setLastUpdated(long lastUpdates) {
@@ -85,20 +85,20 @@ public class RendererClass implements Serializable{
 	/**
 	 * @return the srcFile
 	 */
-	public File getScriptFile() {
+	private File getScriptFile() {
 		return scriptFile;
 	}
 	/**
 	 * @return the javaSourceCode
 	 */
-	public String getOriSourceCode() {
-		return oriSourceCode;
+	public String getJapidSourceCode() {
+		return japidSourceCode;
 	}
 	/**
 	 * @param javaSourceCode the javaSourceCode to set
 	 */
-	public void setOriSourceCode(String oriSourceCode) {
-		this.oriSourceCode = oriSourceCode;
+	public void setJapidSourceCode(String oriSourceCode) {
+		this.japidSourceCode = oriSourceCode;
 	}
 	/**
 	 * @return the lastUpdated
@@ -113,7 +113,7 @@ public class RendererClass implements Serializable{
 	 * @return
 	 */
 	public int mapJavaLineToJapidScriptLine(int lineNumber) {
-		String jsrc = getSourceCode();
+		String jsrc = getJavaSourceCode();
 		String[] splitSrc = jsrc.split("\n");
 		String line = splitSrc[lineNumber - 1];
 		// can we have a line marker?
@@ -179,6 +179,19 @@ public class RendererClass implements Serializable{
 	 */
 	public void setScripTimestamp(long scripTimestamp) {
 		this.scripTimestamp = scripTimestamp;
+	}
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @return
+	 */
+	public String getScriptPath() {
+		File scriptFile = getScriptFile();
+		if (scriptFile != null && scriptFile.exists()) {
+			return scriptFile.getPath();
+		}
+		else {
+			return className;
+		}
 	}
 
 }

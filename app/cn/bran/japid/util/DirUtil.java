@@ -22,6 +22,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class DirUtil {
+	/**
+	 * 
+	 */
+	static final String DOT_SUB = "_d_";
 	private static final String[] ALL_EXTS = new String[] { ".java", ".html", ".js", ".txt", ".css", ".json", ".xml" };
 	private static final String[] TEMPLATE_EXTS = new String[]{".html", ".js", ".txt", ".css", ".xml", ".json"};
 	
@@ -142,7 +146,10 @@ public class DirUtil {
 	}
 	
 	public static Set<File> getAllTemplateFiles(File root) {
-		return scanFiles(new File(root, "japidviews"), TEMPLATE_EXTS);
+		File dir = new File(root, "japidviews"); // is this requirement really necessary?
+		if (!dir.exists())
+			throw new RuntimeException(dir.getPath() + " does not exist." );
+		return scanFiles(dir, TEMPLATE_EXTS);
 	}
 	
 	

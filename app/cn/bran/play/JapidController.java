@@ -9,6 +9,7 @@ import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Http.Context;
 import play.mvc.Result;
+import cn.bran.japid.classmeta.MimeTypeEnum;
 import cn.bran.japid.compiler.JapidCompilationException;
 import cn.bran.japid.compiler.NamedArgRuntime;
 import cn.bran.japid.exceptions.JapidTemplateException;
@@ -114,19 +115,38 @@ public class JapidController extends Controller {
 	/**
 	 * 
 	 * @author Bing Ran (bing.ran@hotmail.com)
-	 * @param template the script name or a fully qualified class name under which the renderer class
+	 * @param templateName the script name or a fully qualified class name under which the renderer class
 	 * is registered.
 	 * 
 	 * @param args
 	 * @return
 	 */
-	public static JapidResult renderJapidWith(String template, Object... args) {
-		template = getFullViewName(template);
-		JapidResult japidResult = new JapidResult(getRenderResultWith(template, args));
+	public static JapidResult renderJapidWith(String templateName, Object... args) {
+		templateName = getFullViewName(templateName);
+		JapidResult japidResult = new JapidResult(getRenderResultWith(templateName, args));
 		postProcess(japidResult);
 		return japidResult;
 	}
 
+	/**
+	 * render data to a template string, which is parsed and compiled to Java bytecode before use.
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param template the content of the template
+	 * @param args the arguments
+	 * @return
+	 */
+	public static JapidResult renderDynamic(String template, Object... args) {
+		try {
+			Class<? extends JapidTemplateBaseWithoutPlay> clz = JapidRenderer.registerTemplate(MimeTypeEnum.html, template);
+			RenderResult rr = RenderInvokerUtils.invokeRender(clz, args);
+			return new JapidResult(rr);
+		} catch (Throwable e) {
+			return new JapidResult(handleException(e));
+		}
+	}
+	
+	
 	private static String getFullViewName(String template) {
 		if (template.startsWith("@")) {
 			template = template.substring(1);
@@ -463,10 +483,10 @@ public class JapidController extends Controller {
 					int oriLineNumber = applicationClass.mapJavaLineToJapidScriptLine(lineNumber);
 					if (oriLineNumber > 0) {
 						if (rendererClass != null) {
-							String path = applicationClass.getScriptFile().getPath();
+							String path = applicationClass.getScriptPath();
 							JapidTemplateException te = new JapidTemplateException("Japid Error", path + "("
 									+ oriLineNumber + "): " + e.getClass().getName() + ": " + e.getMessage(),
-									oriLineNumber, path, applicationClass.getOriSourceCode());
+									oriLineNumber, path, applicationClass.getJapidSourceCode());
 							RenderResult rr = RenderInvokerUtils.invokeRender(rendererClass, te);
 							return (rr);
 						}

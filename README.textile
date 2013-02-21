@@ -2,8 +2,7 @@ h1. japid42 - Japid for Play 2.1
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.8.0
-Status: RC
+version 0.8.1
 Compatibility: Play 2.1.0
 
 Note: version 0.7.4 and older is compatible with 2.0.4.
@@ -30,10 +29,7 @@ h2. Features
 - support Play2 forms, fields, data binding and form validations. 
 - cache with action invocation, wither using the Cached annotation or timeout spec in `a directive 
 - session.authentityToken to protect app from forged form submission attach. 
-
-What are different?
-
-- reverse routing: @{} is deprecated by Play2's direct route class call for each route rule. 
+- render data to dynamic templates in memory
 
 
 h2. Usage
@@ -52,7 +48,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.8"
+      "japid42" % "japid42_2.10" % "0.8.1"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies).settings(
@@ -106,7 +102,7 @@ In Build.scala, you may have a sub-project defined like this:
 
 <pre><code>
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.8"
+      "japid42" % "japid42_2.10" % "0.8.1"
     )
 
     val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
@@ -154,7 +150,7 @@ h2. Hacking Japid42 in Eclipse
 
 Note:
 
-- I'm using sbt 0.11.3 locally. Match the sbt version in the "project/build.properties" file to yours . 
+- I'm using sbt 0.12.2 locally. Match the sbt version in the "project/build.properties" file to yours . 
 - Also check and match the sbt-plugin version in the "project/plugins.sbt" file to your local version. 
 
 
@@ -236,3 +232,11 @@ h2. History
 
 2013.2.8. v0.8 
 # changed for Play 2.1.0 compatibility
+
+2013.2.8. v0.8.1 
+# new feature: using dynamic template in memory. Now one can render data to a template in the form of Java String in memory. The template can be retrieved from a database storage for example:
+    // an action in a controller
+	public static Result dynamic() {
+		String template = "`(String s, int i)\nhi ${s}, are you ${i} years old?";
+		return ok(renderDynamic(template, "Johnny", 13));
+	}

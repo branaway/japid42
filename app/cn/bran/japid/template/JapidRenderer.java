@@ -44,9 +44,11 @@ import cn.bran.japid.rendererloader.TemplateClassLoader;
 import cn.bran.japid.util.DirUtil;
 import cn.bran.japid.util.JapidFlags;
 import cn.bran.japid.util.PlayDirUtil;
+import cn.bran.japid.util.RenderInvokerUtils;
 import cn.bran.japid.util.StackTraceUtils;
 import cn.bran.japid.util.StringUtils;
 import cn.bran.japid.util.WebUtils;
+import cn.bran.play.JapidResult;
 import cn.bran.play.JapidTemplateBase;
 import cn.bran.play.RenderResultCache;
 
@@ -73,6 +75,8 @@ public class JapidRenderer extends GlobalSettings {
 		addImportStatic(WebUtils.class);
 	}
 
+	public static ConcurrentHashMap<Integer, RendererClass> dynamicClasses = new ConcurrentHashMap<Integer, RendererClass>(); 
+	
 	// last time that something in the Japid root was changed
 	private static long lastChanged = System.currentTimeMillis();
 
@@ -315,7 +319,7 @@ public class JapidRenderer extends GlobalSettings {
 			for (Iterator<String> i = japidClasses.keySet().iterator(); i.hasNext();) {
 				String k = i.next();
 				RendererClass rc = japidClasses.get(k);
-				if (rc.getSourceCode() == null) {
+				if (rc.getJavaSourceCode() == null) {
 					if (!rc.getClassName().contains("$")) {
 						setSources(rc, k);
 						cleanByteCode(rc);
@@ -379,7 +383,7 @@ public class JapidRenderer extends GlobalSettings {
 					toBeUpdated.add(tf);
 				} else if (rc.getScripTimestamp() < tf.lastModified()) {
 					toBeUpdated.add(tf);
-				} else if (rc.getSourceCode() == null || rc.getSourceCode().length() == 0) {
+				} else if (rc.getJavaSourceCode() == null || rc.getJavaSourceCode().length() == 0) {
 					toBeUpdated.add(tf);
 				} else if (rc.getBytecode() == null || rc.getBytecode().length == 0) {
 					toBeUpdated.add(tf);
@@ -423,8 +427,8 @@ public class JapidRenderer extends GlobalSettings {
 				String className = getClassName(tb);
 				RendererClass rc = newRendererClass(className);
 				rc.setScriptFile(tb);
-				rc.setOriSourceCode(scriptSrc);
-				rc.setSourceCode(javaCode);
+				rc.setJapidSourceCode(scriptSrc);
+				rc.setJavaSourceCode(javaCode);
 				removeInnerClasses(className);
 				cleanByteCode(rc);
 
@@ -520,8 +524,8 @@ public class JapidRenderer extends GlobalSettings {
 
 			String javaCode = JapidTemplateTransformer.generateInMemory(scriptSrc, srcFileName, true);
 
-			rc.setSourceCode(javaCode);
-			rc.setOriSourceCode(scriptSrc);
+			rc.setJavaSourceCode(javaCode);
+			rc.setJapidSourceCode(scriptSrc);
 			removeInnerClasses(c);
 			cleanByteCode(rc);
 
@@ -554,9 +558,9 @@ public class JapidRenderer extends GlobalSettings {
 	}
 
 	private static File setSources(RendererClass rc, File f) throws IOException {
-		rc.setSourceCode(readSource(f));
+		rc.setJavaSourceCode(readSource(f));
 		File srcFile = DirUtil.mapJavatoSrc(f);
-		rc.setOriSourceCode(readSource(srcFile));
+		rc.setJapidSourceCode(readSource(srcFile));
 		rc.setScriptFile(srcFile);
 		return srcFile;
 	}
@@ -1053,6 +1057,7 @@ public class JapidRenderer extends GlobalSettings {
 		JapidFlags.log("[Japid] initialized");
 		if (app.isDev())
 			recoverClasses();
+		dynamicClasses.clear();
 	}
 
 	/**
@@ -1369,24 +1374,40 @@ public class JapidRenderer extends GlobalSettings {
 	 *            the script source of the Japid template
 	 */
 	@SuppressWarnings("unchecked")
-	public Class<? extends JapidTemplateBase> registerTemplate(String fqName, MimeTypeEnum mimeType, String source) {
-		try {
-			String javaCode = JapidTemplateTransformer.generateInMemory(source, fqName, mimeType);
-			JapidFlags.log("converted: " + fqName);
-			RendererClass rc = newRendererClass(fqName);
-			rc.setScriptFile(null);
-			rc.setOriSourceCode(source);
-			rc.setSourceCode(javaCode);
-			removeInnerClasses(fqName);
-			cleanByteCode(rc);
-			japidClasses.put(fqName, rc);
-			compiler.compile(new String[] { fqName });
-			TemplateClassLoader loader = getClassLoader();
-			return (Class<? extends JapidTemplateBase>) loader.loadClass(fqName);
-		} catch (Exception e) {
-			if (e instanceof JapidTemplateException)
-				throw (JapidTemplateException) e;
-			throw new RuntimeException(e);
+	public static Class<? extends JapidTemplateBaseWithoutPlay> registerTemplate(MimeTypeEnum mimeType, String source) {
+		int hashCode = source.hashCode();
+		RendererClass cl = dynamicClasses.get(hashCode);
+		if (cl == null) {
+			try {
+				String fqName = (JAPIDVIEWS + "._dynamic_" + hashCode + "").replace('-', '_');
+				String javaCode = JapidTemplateTransformer.generateInMemory(source, fqName, mimeType);
+				JapidFlags.log("converted: " + fqName);
+				RendererClass rc = newRendererClass(fqName);
+				// rc.setScriptFile(null);
+				rc.setJapidSourceCode(source);
+				rc.setJavaSourceCode(javaCode);
+				removeInnerClasses(fqName);
+				cleanByteCode(rc);
+				japidClasses.put(fqName, rc);
+				compiler.compile(new String[] { fqName });
+				dynamicClasses.put(hashCode, rc);
+				TemplateClassLoader loader = getClassLoader();
+				return (Class<? extends JapidTemplateBaseWithoutPlay>) loader.loadClass(fqName);
+			} catch (Exception e) {
+				if (e instanceof JapidTemplateException)
+					throw (JapidTemplateException) e;
+				throw new RuntimeException(e);
+			}
+		} else {
+			// make sure it's the same thing
+			String japidSourceCode = cl.getJapidSourceCode();
+			if (source.equals(japidSourceCode)) {
+				Class<? extends JapidTemplateBaseWithoutPlay> clz = cl.getClz();
+				return clz;
+			}
+			else {
+				throw new RuntimeException("found hashcode conflict in dynamic template storage. Consider adding minor change to the Japid script.");
+			}
 		}
 	}
 }

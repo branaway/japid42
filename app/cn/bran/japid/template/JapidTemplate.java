@@ -53,6 +53,9 @@ public class JapidTemplate {
     		packageName = "";
     		className = fqName;
     	}
+    	if (mimeType != null) {
+    		contentTypeHeader = mimeType.header;
+    	}
     }
 
     /**

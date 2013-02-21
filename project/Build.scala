@@ -5,7 +5,7 @@ import play.Project._
 object ApplicationBuild extends Build {
 
   val appName         = "japid42"
-  val appVersion      = "0.8"
+  val appVersion      = "0.8.1"
 
   val appDependencies = Seq(
     javaCore

@@ -105,25 +105,25 @@ public class RendererCompiler {
 
 					RendererClass rc = JapidRenderer.japidClasses.get(className);
 
-					if (rc.getScriptFile() == null)
-						throw new RuntimeException("no source file for compiling " + className);
+//					if (rc.getScriptFile() == null)
+//						throw new RuntimeException("no source file for compiling " + className);
 
-					if (rc.getOriSourceCode() == null)
+					if (rc.getJapidSourceCode() == null)
 						throw new RuntimeException("no original source code for compiling " + className);
 
 					String descr = srcFile + "(" + line + "): " + message;
 
-					int oriSrcLineNum = DirUtil.mapJavaLineToSrcLine(rc.getSourceCode(), problem.getSourceLineNumber());
-					String scriptPath = rc.getScriptFile().getPath();
+					int oriSrcLineNum = DirUtil.mapJavaLineToSrcLine(rc.getJavaSourceCode(), problem.getSourceLineNumber());
+					String scriptPath = rc.getScriptPath();
 					if (oriSrcLineNum > 0) {
 						// has a original script marker
 						descr = scriptPath + "(line " + oriSrcLineNum + "): " + message;
 						JapidTemplateException te = new JapidTemplateException("Japid Compilation Error", descr,
-								oriSrcLineNum, scriptPath, rc.getOriSourceCode());
+								oriSrcLineNum, scriptPath, rc.getJapidSourceCode());
 						throw te;
 					} else {
 						JapidTemplateException te = new JapidTemplateException("Japid Compilation Error", descr, line,
-								srcFile, rc.getSourceCode());
+								srcFile, rc.getJavaSourceCode());
 						throw te;
 
 					}
@@ -312,7 +312,9 @@ public class RendererCompiler {
 		public char[] getContents() {
 			try {
 				RendererClass rendererClass = JapidRenderer.japidClasses.get(clazzName);
-				String sourceCode = rendererClass.getSourceCode();
+				if (rendererClass == null)
+					throw new RuntimeException("Japid RendererCompiler: the renderer class is null for: " + clazzName);
+				String sourceCode = rendererClass.getJavaSourceCode();
 				return sourceCode.toCharArray();
 			} catch (NullPointerException e) {
 				e.printStackTrace();

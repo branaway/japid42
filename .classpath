@@ -1,7 +1,7 @@
 <classpath>
   <classpathentry output=".target" path="app" kind="src"></classpathentry>
   <classpathentry output=".target" path="test" kind="src"></classpathentry>
-  <classpathentry path="/Users/bran/projects/tmp/JapidSample42/modules/japid42/target/scala-2.10/classes_managed" kind="lib"></classpathentry>
+  <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.1.0/repository/local/play/play_2.10/2.1.0/jars/play_2.10.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.1.0/repository/local/play/sbt-link/2.1.0/jars/sbt-link.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.1.0/repository/local/org.javassist/javassist/3.16.1-GA/jars/javassist.jar" kind="lib"></classpathentry>
