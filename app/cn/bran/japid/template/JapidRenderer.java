@@ -337,6 +337,7 @@ public class JapidRenderer extends GlobalSettings {
 
 			// compile all
 			if (updatedClasses.size() > 0) {
+				dynamicClasses.clear();
 				String[] names = new String[updatedClasses.size()];
 				int i = 0;
 				for (String s : updatedClasses) {
@@ -437,6 +438,7 @@ public class JapidRenderer extends GlobalSettings {
 
 			// compile all
 			if (toBeUpdated.size() > 0) {
+				dynamicClasses.clear();
 				Set<String> names = createClassNameSet(toBeUpdated);
 
 				long t = System.currentTimeMillis();
@@ -1375,6 +1377,7 @@ public class JapidRenderer extends GlobalSettings {
 	 */
 	@SuppressWarnings("unchecked")
 	public static Class<? extends JapidTemplateBaseWithoutPlay> registerTemplate(MimeTypeEnum mimeType, String source) {
+		refreshClasses();
 		int hashCode = source.hashCode();
 		RendererClass cl = dynamicClasses.get(hashCode);
 		if (cl == null) {
