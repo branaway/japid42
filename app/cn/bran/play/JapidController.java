@@ -1,6 +1,5 @@
 package cn.bran.play;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +8,6 @@ import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Http.Context;
 import play.mvc.Result;
-import cn.bran.japid.classmeta.MimeTypeEnum;
 import cn.bran.japid.compiler.JapidCompilationException;
 import cn.bran.japid.compiler.NamedArgRuntime;
 import cn.bran.japid.exceptions.JapidTemplateException;
@@ -32,13 +30,7 @@ public class JapidController extends Controller {
 	 * 
 	 */
 	private static final String CONTROLLERS = "controllers.";
-	/**
-	 * 
-	 */
-	private static final String JAPIDVIEWS_ROOT = "japidviews";
-	private static final char DOT = '.';
-	private static final String HTML = ".html";
-
+	public static final char DOT = '.';
 	/**
 	 * render an array of objects to a template defined by a Template class.
 	 * 
@@ -123,7 +115,7 @@ public class JapidController extends Controller {
 	 */
 	public static JapidResult renderJapidWith(String templateName, Object... args) {
 		templateName = getFullViewName(templateName);
-		JapidResult japidResult = new JapidResult(getRenderResultWith(templateName, args));
+		JapidResult japidResult = new JapidResult(JapidRenderer.renderWith(templateName, args));
 		postProcess(japidResult);
 		return japidResult;
 	}
@@ -138,8 +130,16 @@ public class JapidController extends Controller {
 	 */
 	public static JapidResult renderDynamic(String template, Object... args) {
 		try {
-			Class<? extends JapidTemplateBaseWithoutPlay> clz = JapidRenderer.registerTemplate(MimeTypeEnum.html, template);
-			RenderResult rr = RenderInvokerUtils.invokeRender(clz, args);
+			RenderResult rr = JapidRenderer.renderDynamic(template, args);
+			return new JapidResult(rr);
+		} catch (Throwable e) {
+			return new JapidResult(handleException(e));
+		}
+	}
+	
+	public static JapidResult renderDynamicByKey(String key, Object... args) {
+		try {
+			RenderResult rr = JapidRenderer.renderDynamicByKey(key, args);
 			return new JapidResult(rr);
 		} catch (Throwable e) {
 			return new JapidResult(handleException(e));
@@ -158,72 +158,13 @@ public class JapidController extends Controller {
 		return template;
 	}
 
-	/**
-	 * @author Bing Ran (bing.ran@hotmail.com)
-	 * @param template
-	 * @param args
-	 * @return
-	 */
-	private static RenderResult getRenderResultWith(String template, Object[] args) {
-
-		if (template == null || template.length() == 0) {
-			template = template("getRenderResultWith");
-		}
-
-		if (template.endsWith(HTML)) {
-			template = template.substring(0, template.length() - HTML.length());
-		}
-
-		String templateClassName = getTemplateClassName(template);
-
-		try {
-			/*
-			 * RendererClass rc =
-			 * JapidRenderer.getRendererClass(templateClassName);
-			 * 
-			 * if (rc == null) { String templateFileName =
-			 * templateClassName.replace(DOT, '/') + HTML; throw new
-			 * RuntimeException
-			 * ("Could not find a Japid template with the name: " +
-			 * templateFileName); } else { return
-			 * RenderInvokerUtils.invokeRenderer(rc.getConstructor(), args); }
-			 */
-			Class<? extends JapidTemplateBaseWithoutPlay> tClass = JapidRenderer.getClass(templateClassName);
-
-			if (tClass == null) {
-				throw new RuntimeException("Could not find a Japid template with the name: "
-						+ (templateClassName.replace(DOT, '/') + HTML));
-			} else {
-				RenderResult rr = RenderInvokerUtils.invokeRender(tClass, args);
-				return rr;
-			}
-		} catch (Throwable e) {
-			return handleException(e);
-		}
-	}
-
-	private static Class<? extends JapidTemplateBaseWithoutPlay> getTemplateClass(String templateClassName) {
-		Class<? extends JapidTemplateBaseWithoutPlay> tClass = null;
-
-		tClass = JapidRenderer.getClass(templateClassName);
-		return tClass;
-	}
-
-	private static String getTemplateClassName(String template) {
-		String templateClassName = template.startsWith(JAPIDVIEWS_ROOT) ? template : JAPIDVIEWS_ROOT + File.separator
-				+ template;
-
-		templateClassName = templateClassName.replace('/', DOT).replace('\\', DOT);
-		return templateClassName;
-	}
-
 	public static JapidResult renderJapidWith(String template, NamedArgRuntime[] namedArgs) {
 		template = getFullViewName(template);
-		JapidResult japidResult = new JapidResult(getRenderResultWith(template, namedArgs));
+		JapidResult japidResult = new JapidResult(JapidRenderer.getRenderResultWith(template, namedArgs));
 		return postProcess(japidResult);
 	}
 
-	protected static String template(String method) {
+	public static String template(String method) {
 		// return StackTraceUtils.getJapidRenderInvoker();
 		String japidControllerInvoker = StackTraceUtils.getJapidControllerInvoker(method);
 		if (japidControllerInvoker.startsWith(CONTROLLERS))
@@ -239,7 +180,7 @@ public class JapidController extends Controller {
 		} else {
 			String expr_format = expr + "_" + format;
 			try {
-				Class<?> appClass = getTemplateClass(getTemplateClassName(expr_format));
+				Class<?> appClass = JapidRenderer.getClass(JapidRenderer.getTemplateClassName(expr_format));
 				if (appClass != null)
 					return expr_format;
 				else {
@@ -282,27 +223,6 @@ public class JapidController extends Controller {
 			format = "html";
 		}
 		return format;
-	}
-
-	public static RenderResult getRenderResultWith(String template, NamedArgRuntime[] args) {
-
-		String templateClassName = getTemplateClassName(template);
-		try {
-			Class<? extends JapidTemplateBaseWithoutPlay> tClass = getTemplateClass(templateClassName);
-
-			if (tClass == null) {
-				String templateFileName = templateClassName.replace(DOT, '/') + HTML;
-				throw new RuntimeException("Could not find a Japid template with the name of: " + templateFileName);
-			} else {
-				RenderResult rr;
-				// render(tClass, args);
-				rr = RenderInvokerUtils.invokeNamedArgsRender(tClass, args);
-				return (rr);
-			}
-		} catch (Exception e) {
-			return handleException(e);
-		}
-
 	}
 
 	/**
@@ -443,7 +363,7 @@ public class JapidController extends Controller {
 	// StringBuilder(s), -1));
 	// }
 
-	static RenderResult handleException(Throwable e) throws RuntimeException {
+	public static RenderResult handleException(Throwable e) throws RuntimeException {
 		// if (Play.mode == Mode.PROD)
 		// throw new RuntimeException(e);
 		//

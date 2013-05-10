@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+//import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
@@ -29,6 +30,7 @@ import cn.bran.japid.exceptions.JapidTemplateException;
 import cn.bran.japid.template.JapidRenderer;
 import cn.bran.japid.util.DirUtil;
 import cn.bran.japid.util.JapidFlags;
+import cn.bran.japid.util.StringUtils;
 
 /**
  * Java compiler (uses eclipse JDT)
@@ -143,7 +145,7 @@ public class RendererCompiler {
 					clazzName.append(compoundName[j]);
 				}
 				byte[] bytes = clazzFile.getBytes();
-				JapidFlags.log("[RenderCompiler]compiled: " + clazzName);
+				JapidFlags.log("compiled: " + clazzName);
 				// XXX address anonymous inner class issue!! ....$1...
 				String cname = clazzName.toString();
 				RendererClass rc = JapidRenderer.japidClasses.get(cname);
@@ -171,39 +173,28 @@ public class RendererCompiler {
 	private final class NameEnv implements INameEnvironment {
 		@Override
 		public NameEnvironmentAnswer findType(final char[][] compoundTypeName) {
-			final StringBuffer result = new StringBuffer();
-			for (int i = 0; i < compoundTypeName.length; i++) {
-				if (i != 0) {
-					result.append('.');
-				}
-				result.append(compoundTypeName[i]);
-			}
-			return findType(result.toString());
+			return findType(StringUtils.join(compoundTypeName, "."));
 		}
 
 		@Override
 		public NameEnvironmentAnswer findType(final char[] typeName, final char[][] packageName) {
-			final StringBuffer result = new StringBuffer();
-			for (int i = 0; i < packageName.length; i++) {
-				result.append(packageName[i]);
-				result.append('.');
-			}
-			result.append(typeName);
-			return findType(result.toString());
+			return findType(StringUtils.join(packageName, ".") + "." + new String(typeName));
 		}
 
 		private NameEnvironmentAnswer findType(final String name) {
+			char[] fileName = name.toCharArray();
 			try {
 				if (!name.startsWith("japidviews.")) {
 					// let super class loader to load the bytecode
 					byte[] bytes = crlr.getClassDefinition(name);
 					if (bytes != null) {
-						ClassFileReader classFileReader = new ClassFileReader(bytes, name.toCharArray(), true);
-						return new NameEnvironmentAnswer(classFileReader, null);
+//						System.out.println("japid: byecode found: " + name);
+						return new NameEnvironmentAnswer(new ClassFileReader(bytes, fileName, true), null);
 					}
-					return null;
+					else {
+//						System.out.println("japid: bytes not found: " + name);
+					}
 				} else { // japidviews
-					char[] fileName = name.toCharArray();
 					RendererClass applicationClass = JapidRenderer.japidClasses.get(name);
 
 					// ApplicationClass exists
@@ -211,43 +202,22 @@ public class RendererCompiler {
 
 						byte[] bytecode = applicationClass.getBytecode();
 						if (bytecode != null) {
-							ClassFileReader classFileReader = new ClassFileReader(bytecode, fileName, true);
-							return new NameEnvironmentAnswer(classFileReader, null);
+							return new NameEnvironmentAnswer(new ClassFileReader(bytecode, fileName, true), null);
 						}
-						// Cascade compilation
-						ICompilationUnit compilationUnit = new CompilationUnit(name);
-						return new NameEnvironmentAnswer(compilationUnit, null);
+						else
+							// Cascade compilation
+							return new NameEnvironmentAnswer(new CompilationUnit(name), null);
 					}
-
-					// So it's a standard class??
-					// should it ever come here?
-					byte[] bytes = crlr.getClassDefinition(name);
-					if (bytes != null) {
-						ClassFileReader classFileReader = new ClassFileReader(bytes, fileName, true);
-						return new NameEnvironmentAnswer(classFileReader, null);
-					}
-
-					// So it does not exist
-					return null;
 				}
+				return null;
 			} catch (ClassFormatException e) {
-				// Something very very bad
 				throw new RuntimeException(e);
 			}
 		}
 
 		@Override
 		public boolean isPackage(char[][] parentPackageName, char[] packageName) {
-			// Rebuild something usable
-			StringBuilder sb = new StringBuilder();
-			if (parentPackageName != null) {
-				for (char[] p : parentPackageName) {
-					sb.append(new String(p));
-					sb.append(".");
-				}
-			}
-			sb.append(new String(packageName));
-			String name = sb.toString();
+			String name = StringUtils.join(parentPackageName, ".") + "." + new String(packageName);
 			if (packagesCache.containsKey(name)) {
 				return packagesCache.get(name).booleanValue();
 			}
@@ -310,16 +280,7 @@ public class RendererCompiler {
 
 		@Override
 		public char[] getContents() {
-			try {
-				RendererClass rendererClass = JapidRenderer.japidClasses.get(clazzName);
-				if (rendererClass == null)
-					throw new RuntimeException("Japid RendererCompiler: the renderer class is null for: " + clazzName);
-				String sourceCode = rendererClass.getJavaSourceCode();
-				return sourceCode.toCharArray();
-			} catch (NullPointerException e) {
-				e.printStackTrace();
-				throw e;
-			}
+				return JapidRenderer.japidClasses.get(clazzName).getJavaSourceCode().toCharArray();
 		}
 
 		@Override

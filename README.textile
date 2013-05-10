@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2.1
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.8.1
+version 0.9
 Compatibility: Play 2.1.0
 
 Note: version 0.7.4 and older is compatible with 2.0.4.
@@ -17,6 +17,7 @@ Japid42 is a native Java based template engine for Java programmers using Play2.
 # Java-based, thus very friendly to Java programmers.
 # The core Japid has been used in production for a long time and is very robust.  
 # Japid views compile lazy and compile on demand, unnoticed.
+# It integrates with Play2 well, in the meantime can be used alone with any Java applications.
 
 h2. Features
 
@@ -240,3 +241,36 @@ h2. History
 		String template = "`(String s, int i)\nhi ${s}, are you ${i} years old?";
 		return ok(renderDynamic(template, "Johnny", 13));
 	}
+2013.5.3. v0.9
+# breaking change: refactored JapidRenderer to Play independent. Added GlobalSettingsWithJapid for users to extend from when creating the Global configurations:
+
+  public class Global extends cn.bran.play.GlobalSettingsWithJapid {
+        @Override
+        public void onStartJapid() {
+            setTemplateRoot("japidroot", "modules/foo/japidroot");
+            setLogVerbose(true);
+            setKeepJavaFiles(false); // keep the Java code derived from Japid scripts in memory only
+            addImport("com.foo");
+        }
+  }
+# New feature: now the JapidRenderer can be used out of Play to render any data to Japid scripts. e.g.:
+
+	@Test
+	public void testDynamic() throws IOException {
+		JapidRenderer.setKeepJavaFiles(false);
+		JapidRenderer.init(OpMode.dev, "japidroot", 1, null, JapidRenderer.class.getClassLoader());
+		
+		String template = "`(String s, int i)\n";
+		template +="hi ${s}, are you ${i} years old?";
+		template +="\n`t japidviews._tags.taggy `-"; // calling a tag on hard drive
+		//
+		RenderResult rr = JapidRenderer.renderDynamic(template, "Johnny", 13);
+		System.out.println(rr);
+		//
+		rr = JapidRenderer.renderWith("japidviews/myscript.html", "hi", 123);
+		System.out.println(rr);
+		
+	}
+	
+	Pay attention to the renderDynamic(...) and renderWith(...) methods.
+	

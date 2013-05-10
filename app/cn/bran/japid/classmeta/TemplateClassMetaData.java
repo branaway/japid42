@@ -121,7 +121,7 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 	 * method while the layouts do not.
 	 */
 	protected void renderMethod() {
-		String resultType = useWithPlay? RENDER_RESULT : "String";
+		String resultType = true || useWithPlay? RENDER_RESULT : "String";
 
 		String paramNameArray = "";
 		String paramTypeArray = "";
@@ -241,20 +241,17 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 		hasActionInvocation = true;
 		
 		if (streaming) {
-			if (useWithPlay && hasActionInvocation)
-				pln("\t\treturn new " + RENDER_RESULT_PARTIAL + "(getHeaders(), null, __t, " + ACTION_RUNNERS + ");");
-			else {
-				if (useWithPlay) {
+			if (true || useWithPlay)
+				if (hasActionInvocation)
+					pln("\t\treturn new " + RENDER_RESULT_PARTIAL + "(getHeaders(), null, __t, " + ACTION_RUNNERS + ");");
+				else
 					pln("\t\treturn new " + resultType + "(getHeaders(), null, __t);");
-				}
-				else {
+			else {
 					pln("\t\t if (__t != -1) System.out.println(\"[" + super.className + "] rendering time: \" + __t);");
 					pln("\t\treturn getOut().toString();");
-				}
 			}
-
 		} else {
-			if (useWithPlay) {
+			if (true || useWithPlay) {
 				if (hasActionInvocation) 
 					pln("\t\treturn new " + RENDER_RESULT_PARTIAL + "(getHeaders(), getOut(), __t, " + ACTION_RUNNERS + ", sourceTemplate);");
 				else

@@ -31,22 +31,25 @@ public class TemplateClassLoader extends ClassLoader {
 
 	public TemplateClassLoader(ClassLoader parentClassLoader) {
 		super(TemplateClassLoader.class.getClassLoader());
+//		super(parentClassLoader);
 		this.parentClassLoader = parentClassLoader;
+		
 	}
 
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		if (!name.startsWith(JapidRenderer.JAPIDVIEWS)) {
 			Class<?> cl = parentClassLoader.loadClass(name);
-			if (cl != null)
+			if (cl != null) {
 				return cl;
-			return super.loadClass(name);
+			}
+			Class<?> superClass = super.loadClass(name);
+			return superClass;
 		} else {
 			String oid = "[TemplateClassLoader@" + Integer.toHexString(hashCode()) + "]";
 
 			Class<?> cla = localClasses.get(name);
 			if (cla != null) {
-//				JapidFlags.log(oid + " loaded from local cache : " + name);
 				return cla;
 			}
 
@@ -73,7 +76,6 @@ public class TemplateClassLoader extends ClassLoader {
 			rc.setClz(cl);
 			localClasses.put(name, cl);
 			rc.setLastDefined(System.currentTimeMillis());
-//			JapidFlags.log(oid + " defined: " + name);
 			return cl;
 		}
 	}
@@ -85,8 +87,13 @@ public class TemplateClassLoader extends ClassLoader {
 		name = name.replace(".", "/") + ".class";
 		InputStream is = getResourceAsStream(name);
 		if (is == null) {
-			return null;
+//			is = parentClassLoader.getResourceAsStream(name);
+//			if (is == null)
+				return null;
 		}
+		
+//		System.out.println("got class def for: " + name);
+		
 		try {
 			ByteArrayOutputStream os = new ByteArrayOutputStream(8192);
 			byte[] buffer = new byte[8192];

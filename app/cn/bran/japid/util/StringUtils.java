@@ -144,15 +144,37 @@ public class StringUtils {
         if (!iter.hasNext()) {
             return "";
         }
-        StringBuffer toReturn = new StringBuffer(String.valueOf(iter.next()));
+        StringBuffer toReturn = new StringBuffer(stringVal(iter.next()));
         while (iter.hasNext()) {
-            toReturn.append(separator + String.valueOf(iter.next()));
+            toReturn.append(separator).append(stringVal(iter.next()));
         }
         return toReturn.toString();
     }
 
+	private static <T> String stringVal(T  i) {
+		if (i instanceof char[]) {
+			return new String((char[])i);
+		}
+		else
+			return String.valueOf(i);
+	}
+
     public static String join(Object[] values, String separator) {
         return (values == null) ? "" : join(Arrays.asList(values), separator);
     }
+
+	/**
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param cc
+	 * @param separator
+	 * @return
+	 */
+	public static String join(char[] cc, String separator) {
+		StringBuffer sb = new StringBuffer();
+		for (char c : cc) {
+			sb.append(c).append(separator);
+		}
+		return sb.toString().substring(0, sb.length() - separator.length());
+	}
 
 }

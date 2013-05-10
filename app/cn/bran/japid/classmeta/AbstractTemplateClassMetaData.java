@@ -163,7 +163,7 @@ public abstract class AbstractTemplateClassMetaData {
 		else
 			pln(IMPORT_SPACE + cn.bran.japid.tags.Each.class.getName() + COMMA);
 
-		if (hasActionInvocation && useWithPlay) {
+		if (hasActionInvocation && (true || useWithPlay)) {
 			pln(IMPORT_SPACE + ActionRunner.class.getName() + COMMA);
 		}
 
@@ -416,7 +416,7 @@ public abstract class AbstractTemplateClassMetaData {
 	 */
 	private void classDeclare() {
 		if (superClass == null) {
-			if (useWithPlay) {
+			if (true || useWithPlay) {
 //				superClass = JapidTemplateBase.class.getName();
 				superClass = "cn.bran.play.JapidTemplateBase";
 				
@@ -568,7 +568,7 @@ public abstract class AbstractTemplateClassMetaData {
 		// now we use the headers var the template base, for slightly
 		// performance penalty
 		// pln("	private static final Map<String, String> headers = new HashMap<String, String>();");
-		if (useWithPlay && headers.size() > 0) {
+		if ((true || useWithPlay) && headers.size() > 0) {
 			// pln("	static {");
 			pln("\t{");
 			for (String k : headers.keySet()) {
@@ -601,13 +601,13 @@ public abstract class AbstractTemplateClassMetaData {
 			pln("StringBuilder sb = new StringBuilder();");
 			pln("StringBuilder ori = getOut();");
 			pln("this.setOut(sb);");
-			if (useWithPlay)
+			if (true || useWithPlay)
 				pln("TreeMap<Integer, cn.bran.japid.template.ActionRunner> parentActionRunners = actionRunners;\n" + 
 						"actionRunners = new TreeMap<Integer, cn.bran.japid.template.ActionRunner>();" );
 			
 			pln(tag.getBodyText());
 			pln("this.setOut(ori);");
-			if (useWithPlay)
+			if (true || useWithPlay)
 				pln("if (actionRunners.size() > 0) {\n" + 
 						"	StringBuilder sb2 = new StringBuilder();\n" + 
 						"	int segStart = 0;\n" + 
@@ -718,9 +718,7 @@ public abstract class AbstractTemplateClassMetaData {
 		embedSourceTemplateName();
 		printInitializer();
 		// buildStatics();
-		if (useWithPlay) {
-			addImplicitFields();
-		}
+		addImplicitFields();
 		// now tags are local variables in dolayout for better safety
 //		setupTagObjectsAsFields();
 		

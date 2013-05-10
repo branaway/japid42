@@ -149,6 +149,20 @@ public class JapidTemplateTransformer {
 		return f;
 
 	}
+
+	/**
+	 * compile a script with the designated class name and MIME type
+	 * 
+	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @param scriptSrc
+	 * @param fqName
+	 * @param mime
+	 * @return
+	 */
+	public static String generateInMemory(String scriptSrc,  String fqName, MimeTypeEnum mime, boolean usePlay) {
+		JapidTemplate temp = new JapidTemplate(fqName, mime, scriptSrc);
+		return compileJapid(scriptSrc, usePlay, temp);
+	}
 	
 	/**
 	 * 
@@ -177,19 +191,6 @@ public class JapidTemplateTransformer {
 		return jsrc;
 	}
 
-	/**
-	 * compile a script with the designated class name and MIME type
-	 * 
-	 * @author Bing Ran (bing.ran@hotmail.com)
-	 * @param scriptSrc
-	 * @param fqName
-	 * @param mime
-	 * @return
-	 */
-	public static String generateInMemory(String scriptSrc,  String fqName, MimeTypeEnum mime) {
-		JapidTemplate temp = new JapidTemplate(fqName, mime, scriptSrc);
-		return compileJapid(scriptSrc, true, temp);
-	}
 
 	/**
 	 * transform a source template to Java

@@ -10,7 +10,7 @@ public class JapidFlags {
 	 */
 	public static void log(String string) {
 		if (!string.startsWith("["))
-			string = "[Japid]" + string;
+			string = "[Japid]" + " " + string.trim();
 			
 		if (verbose)
 			System.out.println(string);
