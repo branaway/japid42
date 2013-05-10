@@ -1303,7 +1303,7 @@ public final class JapidRenderer {
 	 * @param args
 	 * @return
 	 */
-	public static RenderResult renderWith(String template, Object[] args) {
+	public static RenderResult renderWith(String template, Object... args) {
 		if (args == null)
 			args = new Object[0];
 		if (template == null || template.length() == 0) {
@@ -1327,7 +1327,7 @@ public final class JapidRenderer {
 	}
 	
 	public static RenderResult renderWith(String template) {
-		return renderWith(template, null);
+		return renderWith(template, new Object[0]);
 	}
 	
 	
