@@ -2,8 +2,8 @@ h1. japid42 - Japid for Play 2.1
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.9
-Compatibility: Play 2.1.0
+version 0.9.1
+Compatibility: Play 2.1.x
 
 Note: version 0.7.4 and older is compatible with 2.0.4.
 
@@ -50,7 +50,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.8.1"
+      "japid42" % "japid42_2.10" % "0.9.1"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies).settings(
@@ -104,7 +104,7 @@ In Build.scala, you may have a sub-project defined like this:
 
 <pre><code>
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.8.1"
+      "japid42" % "japid42_2.10" % "0.9.1"
     )
 
     val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
