@@ -260,6 +260,7 @@ public class JapidParser {
 	public JapidParser.Token nextToken() {
 		for (;;) {
 
+			// how many more chars to be processed 
 			int left = len - end;
 			if (left == 0) {
 				end++;
@@ -461,8 +462,11 @@ public class JapidParser {
 				}
 				break;
 			case TEMPLATE_ARGS:
-				if (c == ')' && getRestLine().trim().length() == 0) {
-					return found(Token.PLAIN, 1);
+				if (c == ')') {
+					String seg = getCurrentPartialToken();
+					if (JavaSyntaxTool.isValidParamList(seg)) {
+						return found(Token.PLAIN, 1);
+					}
 				}
 				break;
 			// bran
@@ -580,6 +584,14 @@ public class JapidParser {
 				break;
 			}
 		}
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @return
+	 */
+	private String getCurrentPartialToken() {
+		return pageSource.substring(begin, end - 1);
 	}
 
 	private String getCurrentLine() {

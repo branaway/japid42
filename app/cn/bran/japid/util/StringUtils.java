@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Bing Ran<bing_ran@hotmail.com> 
+ * Copyright 2010 Bing Ran<bing_ran@gmail.com> 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy 
@@ -164,7 +164,7 @@ public class StringUtils {
     }
 
 	/**
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param cc
 	 * @param separator
 	 * @return
@@ -175,6 +175,20 @@ public class StringUtils {
 			sb.append(c).append(separator);
 		}
 		return sb.toString().substring(0, sb.length() - separator.length());
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param template
+	 * @param ending
+	 * @return the string with the optional ending removed
+	 */
+	public static String removeEnding(final String template, String ending) {
+		String ret = template;
+		if (template.endsWith(ending)) {
+			ret = template.substring(0, template.length() - ending.length());
+		}		
+		return ret;
 	}
 
 }

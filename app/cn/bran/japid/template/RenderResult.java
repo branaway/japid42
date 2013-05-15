@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -38,6 +39,8 @@ public class RenderResult implements Externalizable {
 		this.content = content;
 		this.renderTime = renderTime;
 		this.headers = headers;
+		if (headers != null)
+			headers.put("x-render-duration(ms)",  "" + renderTime);
 	}
 
 	public RenderResult() {
@@ -73,11 +76,29 @@ public class RenderResult implements Externalizable {
 
 	@Override
 	public String toString() {
-		StringBuilder c = getContent();
-		if (c == null)
-			return "";
-		else
-			return c.toString();
+		return getContent().toString();
+	}
+
+	/**
+	 * print headers and body, seprated by a blank line
+	 * 
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @return
+	 */
+	public String toStringWithHeaders() {
+		// print the headers:
+		StringBuffer sb = new StringBuffer();
+		if (headers != null) {
+			for (String it : headers.keySet()) {
+				sb.append(it).append(": ").append(headers.get(it)).append("\n");
+			}
+		}
+		if (sb.toString().endsWith("\n")) {
+			sb.append("\n"); 
+		}
+		
+		sb.append(toString());
+		return sb.toString();
 	}
 
 	public Map<String, String> getHeaders() {

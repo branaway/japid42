@@ -225,21 +225,19 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 	
 	private void restOfRenderBody(String resultType) {
 		pln("\t\tlong __t = -1;");
-		if (stopWatch)
+		//if (stopWatch)
 			pln("\t\t __t = System.nanoTime();");
 
 //		pln("\t\tsuper.layout(" + superClassRenderArgs +  ");");
 		pln("\t\ttry {super.layout(" + superClassRenderArgs +  ");} catch (RuntimeException e) { super.handleException(e);} " + getLineMarker());
+		pln("    __t = System.nanoTime() - __t; __t = java.util.concurrent.TimeUnit.MILLISECONDS.convert(__t, java.util.concurrent.TimeUnit.NANOSECONDS);");
+		
 		if (stopWatch) {
-			pln("     	String __l = \"\" + (System.nanoTime() - __t) / 100000;\n" + 
-					"		int __len = __l.length();\n" + 
-					"		__l = __l.substring(0, __len - 1) + \".\" +  __l.substring(__len - 1);\n" + 
-					"");
-			pln("\t\tSystem.out.println(\"[" + super.className + "] rendering time(ms): \" + __l);");
+			pln("\t\tSystem.out.println(\"[" + super.className + "] rendering time(ms): \" + __t);");
 		}
 		// bug fix: always assume there is action invocation in the super class or it won't get rendered!
 		hasActionInvocation = true;
-		
+
 		if (streaming) {
 			if (true || useWithPlay)
 				if (hasActionInvocation)
@@ -247,8 +245,7 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 				else
 					pln("\t\treturn new " + resultType + "(getHeaders(), null, __t);");
 			else {
-					pln("\t\t if (__t != -1) System.out.println(\"[" + super.className + "] rendering time: \" + __t);");
-					pln("\t\treturn getOut().toString();");
+				pln("\t\treturn getOut().toString();");
 			}
 		} else {
 			if (true || useWithPlay) {
@@ -258,7 +255,6 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 					pln("\t\treturn new " + resultType + "(getHeaders(), getOut(), __t);");
 			}
 			else {
-				pln("\t\t if (__t != -1) System.out.println(\"[" + super.className + "] rendering time: \" + __t);");
 				pln("\t\treturn getOut().toString();");
 			}
 		}

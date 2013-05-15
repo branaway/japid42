@@ -59,6 +59,16 @@ public class RendererCompiler {
 		this.settings.put(CompilerOptions.OPTION_Encoding, "UTF-8");
 		this.settings.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
 		String javaVersion = CompilerOptions.VERSION_1_6;
+		try {
+		String version = System.getProperty("java.version");
+		if (version.startsWith("1.6"))
+			javaVersion = CompilerOptions.VERSION_1_6;
+		else if(version.startsWith("1.7"))
+			javaVersion = CompilerOptions.VERSION_1_7;
+		else if(version.startsWith("1.5"))
+			javaVersion = CompilerOptions.VERSION_1_5;
+		} catch (Exception e) {}
+		JapidFlags.log("compile Japid for JDK: " + javaVersion);
 		this.settings.put(CompilerOptions.OPTION_Source, javaVersion);
 		this.settings.put(CompilerOptions.OPTION_TargetPlatform, javaVersion);
 		this.settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);

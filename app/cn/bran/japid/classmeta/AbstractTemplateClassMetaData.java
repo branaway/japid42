@@ -685,7 +685,7 @@ public abstract class AbstractTemplateClassMetaData {
 		String s = this.staticsSrc.get(last);
 		char[] charArray = s.toCharArray();
 		for (char c : charArray) {
-			if (!Character.isSpaceChar(c))
+			if (!Character.isSpaceChar(c) && c != '\t')
 				return null;
 		}
 

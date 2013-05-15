@@ -10,6 +10,7 @@ import java.util.Map;
 
 import play.Application;
 import play.GlobalSettings;
+import play.Play;
 import play.api.mvc.Handler;
 import play.cache.Cache;
 import play.cache.Cached;
@@ -51,6 +52,7 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	public void onStart(Application app) {
 		_app = app;
 		JapidRenderer.usePlay = true;
+		JapidRenderer.setAppPath(Play.application().path().getPath());
 		JapidRenderer.init(app.isDev(), app.configuration().asMap(), app.classloader());
 		super.onStart(app);
 		onStartJapid();

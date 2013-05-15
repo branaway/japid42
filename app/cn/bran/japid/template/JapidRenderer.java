@@ -194,7 +194,7 @@ public final class JapidRenderer {
 	private static boolean keepJavaFiles = true;
 
 	/**
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param templateRoots2
 	 * @return
 	 */
@@ -206,7 +206,7 @@ public final class JapidRenderer {
 	/**
 	 * indicate if to save the intermediate Java artifacts. The default is true.
 	 * 
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param keep
 	 */
 	public static void setKeepJavaFiles(boolean keep) {
@@ -214,7 +214,7 @@ public final class JapidRenderer {
 	}
 
 	/**
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @return
 	 */
 	private static boolean playClassloaderChanged() {
@@ -369,7 +369,7 @@ public final class JapidRenderer {
 	/**
 	 * all artifacts in memory
 	 * 
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 */
 	static synchronized void refreshClassesInMemory() {
 		try {
@@ -481,7 +481,7 @@ public final class JapidRenderer {
 	}
 
 	/**
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param allTemplates
 	 * @return
 	 */
@@ -499,7 +499,7 @@ public final class JapidRenderer {
 	}
 
 	/**
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 */
 	private static void touch() {
 		lastChanged = System.currentTimeMillis();
@@ -509,7 +509,7 @@ public final class JapidRenderer {
 	 * transform a Japid script file to Java code which is then compiled to
 	 * bytecode stored in the global japidClasses object.
 	 * 
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param srcFileName
 	 * @param scriptSrc
 	 */
@@ -729,7 +729,7 @@ public final class JapidRenderer {
 	/**
 	 * set the paths where to look for japid scripts.
 	 * 
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param root
 	 */
 	public static void setTemplateRoot(String... root) {
@@ -777,7 +777,7 @@ public final class JapidRenderer {
 	}
 
 	/**
-	 * not: create the basic layout: app/japidviews/_layouts
+	 * note: create the basic layout: app/japidviews/_layouts
 	 * app/japidviews/_tags
 	 * 
 	 * then create a dir for each controller. //TODO
@@ -788,6 +788,9 @@ public final class JapidRenderer {
 	static List<File> mkdir(String... root) throws IOException {
 		List<File> files = new ArrayList<File>();
 		if (getOpMode() == OpMode.prod)
+			return files;
+
+		if (!usePlay) 
 			return files;
 
 		for (String r : root) {
@@ -809,10 +812,22 @@ public final class JapidRenderer {
 	}
 
 	public static void regen(String... roots) throws IOException {
+		removeDerivedJavaFiles(roots);
+		gen(roots);
+	}
+
+	/**
+	 * remove all the java files derived from Japid scripts
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 */
+	public static void removeDerivedJavaFiles() {
+		removeDerivedJavaFiles(templateRoots);
+	}
+
+	private static void removeDerivedJavaFiles(String... roots) {
 		for (String root : roots) {
 			delAllGeneratedJava(getJapidviewsDir(root));
 		}
-		gen(roots);
 	}
 
 	static void delAllGeneratedJava(String pathname) {
@@ -986,21 +1001,13 @@ public final class JapidRenderer {
 	// return opMode == OpMode.dev;
 	// }
 
-	static String removeSemi(String imp) {
-		imp = imp.trim();
-		if (imp.endsWith(";")) {
-			imp = imp.substring(0, imp.length() - 1);
-		}
-		return imp;
-	}
-
 	/**
 	 * A shorter version init() that takes default arguments. The mode matches
 	 * that of the app; the japidviews folder is located in the "japidroot"
 	 * directory in the application; the no-change-detection peroid is 3
 	 * seconds.
 	 * 
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param app
 	 * @throws IOException
 	 */
@@ -1079,7 +1086,7 @@ public final class JapidRenderer {
 	}
 
 	/**
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 */
 	@SuppressWarnings("unchecked")
 	private static void recoverClasses() {
@@ -1117,7 +1124,7 @@ public final class JapidRenderer {
 	/**
 	 * If true, allow verbose logging to the console of the Japid activities.
 	 * 
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param logVerbose
 	 */
 	public static void setLogVerbose(boolean logVerbose) {
@@ -1125,7 +1132,7 @@ public final class JapidRenderer {
 	}
 
 	/**
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @return
 	 */
 	public static Class<? extends JapidTemplateBaseWithoutPlay> getErrorRendererClass() {
@@ -1158,12 +1165,13 @@ public final class JapidRenderer {
 	}
 
 	static Class<JapidTemplateBaseWithoutPlay> devErrorClass;
+	private static String appPath;
 
 	/**
 	 * compile/recompile the class if disk change detected. Should later do the
 	 * compiling based on dependency graph.
 	 * 
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param rc
 	 */
 	public static void recompile(RendererClass rc) {
@@ -1173,7 +1181,7 @@ public final class JapidRenderer {
 	}
 
 	/**
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @return
 	 */
 	public static String[] getTemplateRoot() {
@@ -1187,7 +1195,7 @@ public final class JapidRenderer {
 	/**
 	 * register a dynamic japid template and get a key to it for later use
 	 * 
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param mimeType
 	 * @param source
 	 * @return key the key that the japid source is registered under
@@ -1207,7 +1215,7 @@ public final class JapidRenderer {
 	 * use it to render data by invoking
 	 * JapidController.renderJapidWith(className, args...);
 	 * 
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param mimeType
 	 *            the MIME type of content generated by this template.
 	 * @param source
@@ -1256,7 +1264,7 @@ public final class JapidRenderer {
 	}
 
 	/**
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param key
 	 * @return
 	 */
@@ -1298,7 +1306,7 @@ public final class JapidRenderer {
 	/**
 	 * render data to a template with a path relative to the "japid root" directory. e.g.: "japidviews/myscript.html"
 	 * 
-	 * @author Bing Ran (bing.ran@hotmail.com)
+	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param template
 	 * @param args
 	 * @return
@@ -1310,10 +1318,10 @@ public final class JapidRenderer {
 			throw new RuntimeException("JapidRenderer: template name cannot be empty.");
 		}
 
-		if (template.endsWith(HTML)) {
-			template = template.substring(0, template.length() - HTML.length());
-		}
-
+		//template = StringUtils.removeEnding(template, HTML);
+	
+		template = DirUtil.deriveClassName(template);
+		
 		String templateClassName = JapidRenderer.getTemplateClassName(template);
 
 		Class<? extends JapidTemplateBaseWithoutPlay> tClass = getClass(templateClassName);
@@ -1369,5 +1377,20 @@ public final class JapidRenderer {
 	}
 
 	public static final String HTML = ".html";
+
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @return
+	 */
+	public static String getAppPath() {
+		return appPath;
+	}
+
+	/**
+	 * @param appPath the appPath to set
+	 */
+	public static void setAppPath(String appPath) {
+		JapidRenderer.appPath = appPath;
+	}
 
 }

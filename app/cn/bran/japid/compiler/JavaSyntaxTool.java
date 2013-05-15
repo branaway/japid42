@@ -179,6 +179,28 @@ public class JavaSyntaxTool {
 		}
 		return ret;
 	}
+	
+	/**
+	 * tell if a string is a valid method parameter list expression
+	 * 
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param line
+	 * @return
+	 */
+	public static boolean isValidParamList(String line) {
+		if (line == null)
+			return false;
+		if (line.trim().length() == 0) 
+			return true;
+		
+		try {
+			parseParams(line);
+			return true;
+		}
+		catch(Exception e) {
+			return false;
+		}
+	}
 
 	private static final String classTempForArgs = "class T {  {  foo(%s); } }";
 	private static final String classTempForArgsNoParenthesis = "class T {  {  foo%s; } }";

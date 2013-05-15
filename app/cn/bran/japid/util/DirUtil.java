@@ -237,6 +237,8 @@ public class DirUtil {
 	 * @return
 	 */
 	public static String mapSrcToJava(String k) {
+		if (k.endsWith(".java"))
+				return k;
 		if (k.endsWith(".txt")) {
 			return getRoot(k) + "_txt" + ".java";
 		}
@@ -253,6 +255,7 @@ public class DirUtil {
 			return getRoot(k) + "_js" + ".java";
 		}
 		else { // including html
+			
 			return getRoot(k) + ".java";
 		}
 	}
@@ -264,6 +267,10 @@ public class DirUtil {
 	 * @return
 	 */
 	public static String mapJavaToSrc(String k) {
+		return rawConvert(k).replaceAll(DOT_SUB, ".");
+	}
+
+	private static String rawConvert(String k) {
 		if (k.endsWith(".java"))
 			k = k.substring(0, k.lastIndexOf(".java"));
 		
@@ -288,9 +295,16 @@ public class DirUtil {
 	}
  
 	private static String getRoot(String k) {
-		int indexOf = k.lastIndexOf(".");
-		if (indexOf > 0) {
-			return k.substring(0, indexOf);
+		for (String ext : TEMPLATE_EXTS) {
+			if (k.endsWith(ext)) {
+				String sub = k.substring(0, k.lastIndexOf(ext));
+				String first = "";
+				if (sub.startsWith(".")) { // keep the first dot, which means current dir
+					first = ".";
+					sub = sub.substring(1);
+				}
+				return first + sub.replaceAll("\\.", DOT_SUB);
+			}
 		}
 		return k;
 	}
@@ -498,10 +512,13 @@ public class DirUtil {
 	 * @return
 	 */
 	public static String deriveClassName(String japidScriptFileName) {
-		japidScriptFileName = japidScriptFileName.replace('/', '.').replace('\\', '.');
+		// remove the leading slash
+		if (japidScriptFileName.startsWith("/") || japidScriptFileName.startsWith("\\"))
+			japidScriptFileName = japidScriptFileName.substring(1);
 		if (japidScriptFileName.startsWith("."))
 			japidScriptFileName = japidScriptFileName.substring(1);
 		japidScriptFileName = mapSrcToJava(japidScriptFileName);
+		japidScriptFileName = japidScriptFileName.replace('/', '.').replace('\\', '.');
 		if (japidScriptFileName.endsWith(".java")) {
 			japidScriptFileName = japidScriptFileName.substring(0, japidScriptFileName.length() - 5);
 		} 

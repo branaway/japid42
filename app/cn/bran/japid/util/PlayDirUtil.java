@@ -1,15 +1,11 @@
 package cn.bran.japid.util;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import play.Play;
+import cn.bran.japid.template.JapidRenderer;
 
 public class PlayDirUtil {
 
@@ -112,7 +108,7 @@ public class PlayDirUtil {
 	
 	//		JapidFlags.log("JapidCommands:  check default template packages for email notifiers.");
 			try {
-				String notifiersDir = Play.application().path()  + sep + "app" + sep + "notifiers";
+				String notifiersDir = JapidRenderer.getAppPath()  + sep + "app" + sep + "notifiers";
 				File notifiersDirFile = new File(notifiersDir);
 				if (!notifiersDirFile.exists()) {
 					if (notifiersDirFile.mkdir()) {

@@ -31,6 +31,7 @@ h2. Features
 - cache with action invocation, wither using the Cached annotation or timeout spec in `a directive 
 - session.authentityToken to protect app from forged form submission attach. 
 - render data to dynamic templates in memory
+- support JDK6 & 7.
 
 
 h2. Usage
@@ -241,8 +242,8 @@ h2. History
 		String template = "`(String s, int i)\nhi ${s}, are you ${i} years old?";
 		return ok(renderDynamic(template, "Johnny", 13));
 	}
-2013.5.3. v0.9
-# breaking change: refactored JapidRenderer to Play independent. Added GlobalSettingsWithJapid for users to extend from when creating the Global configurations:
+2013.5.15. v0.9.1
+# breaking change: re-factored JapidRenderer to Play independent. Added GlobalSettingsWithJapid for users to extend from when creating the Global configurations:
 
   public class Global extends cn.bran.play.GlobalSettingsWithJapid {
         @Override
@@ -254,7 +255,7 @@ h2. History
         }
   }
 # New feature: now the JapidRenderer can be used out of Play to render any data to Japid scripts. e.g.:
-
+<pre>
 	@Test
 	public void testDynamic() throws IOException {
 		JapidRenderer.setKeepJavaFiles(false);
@@ -271,6 +272,20 @@ h2. History
 		System.out.println(rr);
 		
 	}
+</pre>
 	
 	Pay attention to the renderDynamic(...) and renderWith(...) methods.
+# new feature: support JDK 7 syntax in Japid script.e.g.:
+<pre>
+	`(String who)
+	Hello ${who}!
+	` switch(who) { case "John":
+		this is John
+	` break; case "Mary":
+		this is Mary
+	` break; default:
+		who are you?
+	`}
+</pre>
+# various bug fixes to pass all the unit tests
 	
