@@ -267,7 +267,7 @@ public class DirUtil {
 	 * @return
 	 */
 	public static String mapJavaToSrc(String k) {
-		return rawConvert(k).replaceAll(DOT_SUB, ".");
+		return rawConvert(k);//.replaceAll(DOT_SUB, ".");
 	}
 
 	private static String rawConvert(String k) {
@@ -298,12 +298,13 @@ public class DirUtil {
 		for (String ext : TEMPLATE_EXTS) {
 			if (k.endsWith(ext)) {
 				String sub = k.substring(0, k.lastIndexOf(ext));
-				String first = "";
-				if (sub.startsWith(".")) { // keep the first dot, which means current dir
-					first = ".";
-					sub = sub.substring(1);
-				}
-				return first + sub.replaceAll("\\.", DOT_SUB);
+//				String first = "";
+//				if (sub.startsWith(".")) { // keep the first dot, which means current dir
+//					first = ".";
+//					sub = sub.substring(1);
+//				}
+//				return first + sub.replaceAll("\\.", DOT_SUB);
+				return sub;
 			}
 		}
 		return k;

@@ -32,6 +32,7 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	private static final String NO_CACHE = "no-cache";
 	private static String dumpRequest;
 	public static Application _app;
+	private boolean cacheResponse = true; // support @Cache annotation
 
 	/**
 	 * @author Bing Ran (bing.ran@hotmail.com)
@@ -73,6 +74,9 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 
 	@Override
 	public Action<?> onRequest(Request request, final Method actionMethod) {
+		if (!cacheResponse)
+			return super.onRequest(request, actionMethod);
+		
 		return new Action<Cached>() {
 			public Result call(Context ctx) {
 				try {
@@ -127,7 +131,9 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	}
 
 
+
 	public void onActionInvocationResult(Context ctx) {
+		
 		play.mvc.Http.Flash fl = ctx.flash();
 		if (RenderResultCache.shouldIgnoreCacheInCurrentAndNextReq()) {
 			fl.put(RenderResultCache.READ_THRU_FLASH, "yes");
@@ -163,7 +169,7 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		if (string != null) {
 			RenderResultCache.setIgnoreCache(true);
 		} else {
-			// cache-control in lower case, lowercase for some reason
+			// cache-control in lower case, lower-case for some reason
 			String[] header = headers.get("cache-control");
 			if (header != null) {
 				List<String> list = Arrays.asList(header);
@@ -221,6 +227,10 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	
 	public static void setRefreshInterval(int i) {
 		JapidRenderer.setRefreshInterval(i);
+	}
+	
+	public void setCacheResponse(boolean c) {
+		this.cacheResponse = c;
 	}
 }
 

@@ -95,13 +95,21 @@ public class JapidController extends Controller {
 	 * @param objects
 	 */
 	public static JapidResult renderJapid(Object... objects) {
-		String action = template("renderJapid");
-		return renderJapidWith(action, objects);
+		try {
+			String action = template("renderJapid");
+			return renderJapidWith(action, objects);
+		} catch (Exception e) {
+			return new JapidResult(handleException(e));
+		}
 	}
 
 	public static JapidResult renderJapidByName(NamedArgRuntime... namedArgs) {
-		String action = template("renderJapidByName");
-		return renderJapidWith(action, namedArgs);
+		try {
+			String action = template("renderJapidByName");
+			return renderJapidWith(action, namedArgs);
+		} catch (Exception e) {
+			return new JapidResult(handleException(e));
+		}
 	}
 
 	/**
@@ -114,10 +122,14 @@ public class JapidController extends Controller {
 	 * @return
 	 */
 	public static JapidResult renderJapidWith(String templateName, Object... args) {
-		templateName = getFullViewName(templateName);
-		JapidResult japidResult = new JapidResult(JapidRenderer.renderWith(templateName, args));
-		postProcess(japidResult);
-		return japidResult;
+		try {
+			templateName = getFullViewName(templateName);
+			JapidResult japidResult = new JapidResult(JapidRenderer.renderWith(templateName, args));
+			postProcess(japidResult);
+			return japidResult;
+		} catch (Exception e) {
+			return new JapidResult(handleException(e));
+		}
 	}
 
 	/**
@@ -159,9 +171,13 @@ public class JapidController extends Controller {
 	}
 
 	public static JapidResult renderJapidWith(String template, NamedArgRuntime[] namedArgs) {
-		template = getFullViewName(template);
-		JapidResult japidResult = new JapidResult(JapidRenderer.getRenderResultWith(template, namedArgs));
-		return postProcess(japidResult);
+		try {
+			template = getFullViewName(template);
+			JapidResult japidResult = new JapidResult(JapidRenderer.getRenderResultWith(template, namedArgs));
+			return postProcess(japidResult);
+		} catch (Exception e) {
+			return new JapidResult(handleException(e));
+		}
 	}
 
 	public static String template(String method) {
