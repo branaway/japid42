@@ -2,6 +2,7 @@ package cn.bran.play;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Map;
 
 import play.cache.Cached;
 import cn.bran.japid.template.JapidRenderer;
@@ -66,7 +67,10 @@ public abstract class CacheablePlayActionRunner extends CacheableRunner {
 
 	@Override
 	protected RenderResult render() {
+		Map<String, String> threadData = JapidController.threadData.get();
+		threadData.put(GlobalSettingsWithJapid.ACTION_METHOD, controllerClass.getName() + "." + actionName);
 		JapidResult jr = runPlayAction();
+		threadData.remove(GlobalSettingsWithJapid.ACTION_METHOD);
 		RenderResult rr = jr.getRenderResult();
 		return rr;
 	}

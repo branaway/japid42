@@ -188,8 +188,14 @@ public class WebUtils {
 //    }
 //
     public static String format(Date date, String pattern) {
-    	Lang lan = play.i18n.Lang.preferred(Context.current().request().acceptLanguages());
-        return format(date, pattern, lan.language());
+    	Context ctx = Context.current.get();
+    	if (ctx != null && ctx.request() != null) {
+    		Lang lan = play.i18n.Lang.preferred(ctx.request().acceptLanguages());
+    		return format(date, pattern, lan.language());
+    	}
+    	else {
+    		return format(date, pattern, play.i18n.Lang.defaultLang().language());
+    	}
     }
 
     public static String format(Date date, String pattern, String lang) {
@@ -404,12 +410,12 @@ public class WebUtils {
      * concatenate items of a collection as a string separated with <tt>separator</tt>
      *  items toString() method should be implemented to provide a string representation
      */
-    public static String join(Collection items, String separator) {
+    public static String join(Collection<?> items, String separator) {
         if (items == null) {
             return "";
         }
         StringBuffer sb = new StringBuffer();
-        Iterator ite = items.iterator();
+        Iterator<?> ite = items.iterator();
         int i = 0;
         while (ite.hasNext()) {
             if (i++ > 0) {
@@ -426,6 +432,5 @@ public class WebUtils {
 		Context.current().session().put(AuthenticityCheck.AUTH_TOKEN, sign);
     	return "<input type=\"hidden\" name=\"" + 
     	AuthenticityCheck.AUTH_TOKEN + "\" value=\"" + uuid + "\" />";
-
     }
 }

@@ -40,7 +40,7 @@ public class RenderResult implements Externalizable {
 		this.renderTime = renderTime;
 		this.headers = headers;
 		if (headers != null)
-			headers.put("x-render-duration(ms)",  "" + renderTime);
+			headers.put("X-Japid-Rendering-Duration-ms",  "" + renderTime);
 	}
 
 	public RenderResult() {

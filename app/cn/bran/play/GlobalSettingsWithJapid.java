@@ -29,6 +29,10 @@ import cn.bran.japid.util.StringUtils;
  *
  */
 public class GlobalSettingsWithJapid extends GlobalSettings {
+	/**
+	 * 
+	 */
+	public static final String ACTION_METHOD = "__actionMethod";
 	private static final String NO_CACHE = "no-cache";
 	private static String dumpRequest;
 	public static Application _app;
@@ -54,9 +58,9 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		_app = app;
 		JapidRenderer.usePlay = true;
 		JapidRenderer.setAppPath(Play.application().path().getPath());
-		JapidRenderer.init(app.isDev(), app.configuration().asMap(), app.classloader());
 		super.onStart(app);
 		onStartJapid();
+		JapidRenderer.init(app.isDev(), app.configuration().asMap(), app.classloader());
 		if (JapidFlags.verbose) {
 			JapidFlags.log("You can turn off Japid logging in the console by calling JapidRenderer.setLogVerbose(false) in the Global's onStartJapid() method.");
 		}
@@ -74,8 +78,21 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 
 	@Override
 	public Action<?> onRequest(Request request, final Method actionMethod) {
-		if (!cacheResponse)
-			return super.onRequest(request, actionMethod);
+		final String actionName = actionMethod.getDeclaringClass().getName() + "." + actionMethod.getName();
+		final Map<String, String> threadData = JapidController.threadData.get();
+		if (!cacheResponse) {
+			return new Action.Simple() {
+				public Result call(Context ctx) throws Throwable {
+					// pass the FQN to the japid controller to determine the template to use
+					// will be cleared right when the value is retrieved in the japid controller
+					// assuming the delegate call will take place in the same thread
+					threadData.put(ACTION_METHOD, actionName);
+					Result call = delegate.call(ctx);
+					threadData.remove(ACTION_METHOD);
+					return call;
+				}
+			};
+		}
 		
 		return new Action<Cached>() {
 			public Result call(Context ctx) {
@@ -98,7 +115,11 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 						result = (Result) Cache.get(key);
 					}
 					if (result == null) {
+						// pass the action name hint to japid controller
+						threadData.put(ACTION_METHOD, actionName);
 						result = delegate.call(ctx);
+						threadData.remove(ACTION_METHOD);
+
 						if (!StringUtils.isEmpty(key) && duration > 0) {
 							Cache.set(key, result, duration);
 						}
@@ -156,10 +177,10 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		if (property != null && property.length() > 0) {
 			if (!"false".equals(property) && !"no".equals(property)) {
 				if ("yes".equals(property) || "true".equals(property)) {
-					System.out.println("--- action ->: " + actionMethod.toString());
+					JapidFlags.log("action ->: " + actionMethod.toString());
 				} else {
 					if (request.uri().matches(property)) {
-						System.out.println("--- action ->: " + actionMethod.toString());
+						JapidFlags.log("action ->: " + actionMethod.toString());
 					}
 				}
 			}

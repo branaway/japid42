@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2
 
 冉兵 (bing.ran@gmail.com)
 
-版本： 0.7.4
+版本： 0.7.4 (需要更新了)
 状态： RC
 适用版本： Play 2.0.4
 

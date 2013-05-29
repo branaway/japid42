@@ -224,15 +224,16 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 	
 	
 	private void restOfRenderBody(String resultType) {
-		pln("\t\tlong __t = -1;");
-		//if (stopWatch)
-			pln("\t\t __t = System.nanoTime();");
+		if (stopWatch)
+			pln("\t\tlong __t = System.nanoTime();");
+		else
+			pln("\t\tlong __t = -1;");
+			
 
 //		pln("\t\tsuper.layout(" + superClassRenderArgs +  ");");
 		pln("\t\ttry {super.layout(" + superClassRenderArgs +  ");} catch (RuntimeException e) { super.handleException(e);} " + getLineMarker());
-		pln("    __t = System.nanoTime() - __t; __t = java.util.concurrent.TimeUnit.MILLISECONDS.convert(__t, java.util.concurrent.TimeUnit.NANOSECONDS);");
-		
 		if (stopWatch) {
+			pln("    __t = System.nanoTime() - __t; __t = java.util.concurrent.TimeUnit.MILLISECONDS.convert(__t, java.util.concurrent.TimeUnit.NANOSECONDS);");
 			pln("\t\tSystem.out.println(\"[" + super.className + "] rendering time(ms): \" + __t);");
 		}
 		// bug fix: always assume there is action invocation in the super class or it won't get rendered!

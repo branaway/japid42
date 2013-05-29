@@ -53,6 +53,8 @@ public final class JapidRenderer {
 	/**
 	 * 
 	 */
+	public static final String VERSION="0.9.2.3";
+	
 	private static final String JAPIDROOT = "japidroot";
 	private static final String RENDER_JAPID_WITH = "/renderJapidWith";
 	private static AtomicLong lastTimeChecked = new AtomicLong(0);
@@ -619,7 +621,7 @@ public final class JapidRenderer {
 	// }
 
 	public static RendererCompiler compiler;
-	public static String[] templateRoots = { "plainjapid" };
+	public static String[] templateRoots = { "japidroot" };
 	public static final String JAPIDVIEWS = "japidviews";
 	public static final String SEP = File.separator;
 	// public static String[] japidviews;
@@ -730,10 +732,22 @@ public final class JapidRenderer {
 	 * set the paths where to look for japid scripts.
 	 * 
 	 * @author Bing Ran (bing.ran@gmail.com)
-	 * @param root
+	 * @param roots
 	 */
-	public static void setTemplateRoot(String... root) {
-		templateRoots = root;
+	public static void setTemplateRoot(String... roots) {
+		for (String r: roots) {
+			File file = new File(r);
+			if (file.exists()) {
+				if (!file.isDirectory()) {
+					throw new RuntimeException("exists but not a directory: " + r);
+				}
+			}
+			else {
+				throw new RuntimeException("not exists: " + r);
+			}
+		}
+		templateRoots = roots;
+		
 	}
 
 	/**
@@ -1041,6 +1055,8 @@ public final class JapidRenderer {
 	 */
 	public static void init(OpMode opMode, String templateRoot, int refreshInterval, Map<String, Object> app,
 			ClassLoader clr) throws IOException {
+		showCurrentDirectory();
+
 		inited = true;
 		JapidRenderer.opMode = opMode == null ? OpMode.dev : opMode;
 		setTemplateRoot(templateRoot);
@@ -1079,10 +1095,20 @@ public final class JapidRenderer {
 		if (usePlay)
 			initErrorRenderer();
 		touch();
-		JapidFlags.log("[Japid] initialized. ");
 		if (opMode == OpMode.dev)
 			recoverClasses();
 		dynamicClasses.clear();
+		refreshClasses();
+		JapidFlags.log("[Japid] initialized version " + VERSION);
+	}
+
+	private static void showCurrentDirectory() {
+		File cf = new File(".");
+		String path = cf.getAbsolutePath();
+	
+		String[] fs = cf.list();
+		
+		JapidFlags.log("current directory: " + path + " Content in the folder: " + StringUtils.join(fs, ","));
 	}
 
 	/**

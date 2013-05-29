@@ -8,6 +8,7 @@ import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Http.Context;
 import play.mvc.Result;
+import play.mvc.Results;
 import cn.bran.japid.compiler.JapidCompilationException;
 import cn.bran.japid.compiler.NamedArgRuntime;
 import cn.bran.japid.exceptions.JapidTemplateException;
@@ -26,6 +27,13 @@ import cn.bran.japid.util.StackTraceUtils;
  * @author Bing Ran<bing_ran@hotmail.com>
  */
 public class JapidController extends Controller {
+	public static ThreadLocal<Map<String, String>> threadData = new ThreadLocal<Map<String, String>>() {
+		@Override
+		protected Map<String, String> initialValue() {
+			return new HashMap<String, String>();
+		}
+	};
+	
 	/**
 	 * 
 	 */
@@ -181,8 +189,13 @@ public class JapidController extends Controller {
 	}
 
 	public static String template(String method) {
-		// return StackTraceUtils.getJapidRenderInvoker();
-		String japidControllerInvoker = StackTraceUtils.getJapidControllerInvoker(method);
+		// first check if there is a method hint in the session
+		String japidControllerInvoker = threadData.get().remove(GlobalSettingsWithJapid.ACTION_METHOD);
+		if (japidControllerInvoker == null) {
+			// return StackTraceUtils.getJapidRenderInvoker();
+			japidControllerInvoker = StackTraceUtils.getJapidControllerInvoker(method);
+		}
+
 		if (japidControllerInvoker.startsWith(CONTROLLERS))
 			japidControllerInvoker = japidControllerInvoker.substring(CONTROLLERS.length());
 
@@ -400,11 +413,7 @@ public class JapidController extends Controller {
 			return (rr);
 		}
 
-		if (JapidFlags.verbose) {
-			e.printStackTrace();
-		} else {
-			System.err.println(e.getClass().getName() + ":" + e.getMessage());
-		}
+		e.printStackTrace();
 
 		// find the latest japidviews exception or the controller that caused
 		// the exception
@@ -451,6 +460,20 @@ public class JapidController extends Controller {
     public static <T> Form<T> form(String name, Class<T> clazz) {
         return new AuthenticForm<T>(name, clazz);
     }
-    
+
+    /**
+     * wrap a RenderResult in an OK result.
+     * 
+     * @author Bing Ran (bing.ran@gmail.com)
+     * @param rr
+     * @return
+     */
+    public static Result ok(RenderResult rr) {
+    	try {
+			return Results.ok(new JapidResult(rr));
+		} catch (Exception e) {
+			return Results.ok(new JapidResult(handleException(e)));
+		}
+    }
 
 }

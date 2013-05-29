@@ -37,7 +37,7 @@
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.1.1/repository/local/net.sf.ehcache/ehcache-core/2.6.0/jars/ehcache-core.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.1.1/repository/local/javax.transaction/jta/1.1/jars/jta.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.1.1/repository/local/org.scala-lang/scala-reflect/2.10.0/jars/scala-reflect.jar"/>
-	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.1.1/repository/local/play/play-java_2.10/2.1.1/jars/play-java_2.10.jar"/>
+	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.1.1/repository/local/play/play-java_2.10/2.1.1/jars/play-java_2.10.jar" sourcepath="/Play20"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.1.1/repository/local/org.yaml/snakeyaml/1.10/bundles/snakeyaml.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.1.1/repository/local/org.hibernate/hibernate-validator/4.3.0.Final/jars/hibernate-validator.jar"/>
 	<classpathentry kind="lib" path="/Users/bran/projects/playversions/play-2.1.1/repository/local/javax.validation/validation-api/1.0.0.GA/jars/validation-api.jar"/>
