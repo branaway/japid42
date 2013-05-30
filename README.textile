@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2.1
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.9.2.3
+version 0.9.3
 Compatibility: Play 2.1.x
 
 Note: version 0.7.4 and older is compatible with 2.0.4.
@@ -291,7 +291,9 @@ h2. History
 2013.5.23 v0.9.2
 # performance enhancement: removed the overhead associated with finding the matching template in renderJapid(...)
 # change: lowered the required play version to 2.1.0 in the plugins.sbt. 
-2013.5.23 v0.9.2.3
+2013.5.28 v0.9.2.3
 # bug fix: called init after the onStartJapid() in GlobalSettingsWithJapid
 # work around: heroku environment does not like custom header without "X-". Modified to "X-Japid..."
+2013.5.29 v0.9.3
+# fixed readme and bumped up the version to 0.9.3
 
