@@ -118,7 +118,7 @@ In Build.scala, you may have a sub-project defined like this:
 Obviously you have a sub-project located in modules/foo. For the system to know the Japid scripts in the sub-project, you'll need to tell Japid the location, using the JapidRenderer.setTemplateRoot(String...) method, in the global initialization method:
 
 <pre><code>
-public class Global extends JapidRenderer {
+public class Global extends cn.bran.play.GlobalSettingsWithJapid {
 	@Override
 	public void onStartJapid() {
 		setTemplateRoot("japidroot", "modules/foo/japidroot");
