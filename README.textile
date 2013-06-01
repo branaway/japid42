@@ -131,6 +131,22 @@ In the above example, the first argument is the location of the Japid scripts in
 
 The @computer-japid@(http://github.com/branaway/computer-japid) sample application demos this feature. 
 
+h2. Use Japid in plain Java applications
+
+First of all, you grab the japid jar from the @target/scala-2.10@ folder and two other dependencies from the @libs4plainjava@ folder. 
+
+Then the following code snippet is the simplest form of using Japid in any plain Java applications:
+
+<pre>
+	// do this once, using true to set dev mode to reload Japid script changes, false otherwise. 
+JapidRenderer.init(true) 
+	// now render some data to a Japid script "{app name}/japidroot/japidviews/hello.html"
+RenderResult rr = JapidRenderer.renderWith("japidviews/hello.html", "John");
+	// rr.toString() outputs what you want to see
+</pre>
+
+By default the intermediary Java files derived from the Japid scripts are saved along with the scripts. Use @JapidRenderer.setKeepJavaFiles(false)@ to keep them in the memory only. 
+
 h2. Documentation
 
 The "computer-japid" sample project contains a README file that explains most of the Japid usage. Please refer to it. 

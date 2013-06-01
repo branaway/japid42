@@ -46,7 +46,23 @@ import cn.bran.japid.util.WebUtils;
  * 
  * GloabalSettingsWithJapid initializes Japid engine in a Play2 environment.
  * 
- * @author bran
+ * Japid Engine can be used as a generic advanced template engine. Here is how:
+ * 
+ * <ol>
+ * <li>Initialize Japid, to be done once in your application. 
+ *	<pre>
+ *	JapidRenderer.init(OpMode.prod, "japidroot", 1, null, JapidRenderer.class.getClassLoader()); // or simply: JapidRenderer.init(true|false) 
+ *	</pre>
+ *	</li>
+ * <li> Use it anywhere in your app:
+ *	 <pre>
+ *	RenderResult rr = JapidRenderer.renderWith("japidviews/hello.html", "John");
+ *	// rr.toString() outputs the render result in text. 
+ *	 </pre>
+ * </li>
+ * </ol>
+ * 
+ * @author bran (bing.ran@gmail.com)
  * 
  */
 public final class JapidRenderer {
@@ -1032,6 +1048,20 @@ public final class JapidRenderer {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	/**
+	 * To initialize Japid with default settings: 
+	 * <ol>
+	 * <li>all japid scripts are located in {app_name}/japidroot/japidviews. Use {@link #setTemplateRoot(String...)} to chage it.</li>
+	 * <li>The intermediary Java files derived form the Japid scripts are kept along with the source files in the file system. Use {@link #setKeepJavaFiles(boolean)} to change it.</li>
+	 * </ol> 
+	 * 
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param isDevMode to set the Japid runtime to run in dev mode or production mode. In dev mode Japid runtime monitors the changes of the Japid scripts and reload them on the fly. 
+	 */
+	public static void init(boolean isDevMode) {
+		init(isDevMode, null, JapidRenderer.class.getClassLoader());
+	}
 
 	/**
 	 * The <em>required</em> initialization step in using the JapidRender.
@@ -1099,7 +1129,7 @@ public final class JapidRenderer {
 			recoverClasses();
 		dynamicClasses.clear();
 		refreshClasses();
-		JapidFlags.log("[Japid] initialized version " + VERSION);
+		JapidFlags.log("[Japid] initialized version " + VERSION + " in " + getOpMode() + " mode");
 	}
 
 	private static void showCurrentDirectory() {
