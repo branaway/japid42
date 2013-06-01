@@ -10,6 +10,7 @@ Note: version 0.7.4 and older is compatible with 2.0.4.
 h2. About
 
 Japid42 is a native Java based template engine for Java programmers using Play2. 
+It can also be used in any application that need an advanced templating solution.  
 
 # Very fast in reloading changed views. You simply change the views and refresh your browser to get it right away in a blink instead of taking a coffee break. Japid manages its own view compilation and class loading. Changes in the Japid views are isolated from the Play reloading mechanism. 
 # Full featured. It at least matches the feature set of the built-in Scala based template engine. 
@@ -17,7 +18,7 @@ Japid42 is a native Java based template engine for Java programmers using Play2.
 # Java-based, thus very friendly to Java programmers.
 # The core Japid has been used in production for a long time and is very robust.  
 # Japid views compile lazy and compile on demand, unnoticed.
-# It integrates with Play2 well, in the meantime can be used alone with any Java applications.
+# It integrates with Play2 well, in the meantime can be used stand-alone with any Java applications.
 
 h2. Features
 
@@ -64,14 +65,14 @@ Note: adjust the version number accordingly.
 1. Initialize Japid in Global.java in the app directory:
 
 <pre>
-public class Global extends cn.bran.japid.template.JapidRenderer{}
+public class Global extends cn.bran.play.GlobalSettingsWithJapid{}
 </pre>  
 
 Note:
 
-- There are a few things that can be customized here. Please see the javadoc of JapidRenderer. 
+- There are a few things that can be customized here. Please see the javadoc of cn.bran.play.GlobalSettingsWithJapid. 
    
-Please see the @computer-japid@ example for a real-world Global class definition.
+Please see the @computer-japid@ (https://github.com/branaway/computer-japid) example for a real-world Global class definition.
 
 2. Extend cn.bran.play.JapidController to create your own controllers and use the renderJapid(...) etc to render the views. 
 
