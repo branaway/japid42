@@ -1,7 +1,10 @@
 logs
 project/project
 project/target
-target/
+target/resolution-cache
+target/scala-2.10/cache
+target/scala-2.10/classes
+target/streams
 tmp/
 .history
 .cache
