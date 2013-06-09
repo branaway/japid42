@@ -313,4 +313,7 @@ h2. History
 # work around: heroku environment does not like custom header without "X-". Modified to "X-Japid..."
 2013.5.29 v0.9.3
 # fixed readme and bumped up the version to 0.9.3
+2013.6.9 v0.9.3 (keep the old number)
+# fixed: there was transitive dependency on play in the JapidAbstractCompiler. Removed it so stand-alone use of Japid proceeds as claimed. 
+
 

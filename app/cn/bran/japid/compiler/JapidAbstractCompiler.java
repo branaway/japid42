@@ -30,7 +30,6 @@ import cn.bran.japid.tags.Each;
 import cn.bran.japid.template.ActionRunner;
 import cn.bran.japid.template.JapidTemplate;
 import cn.bran.japid.template.RenderResult;
-import cn.bran.japid.util.DirUtil;
 import cn.bran.japid.util.WebUtils;
 
 /**
@@ -68,7 +67,7 @@ public abstract class JapidAbstractCompiler {
 	static final String IF_PATTERN_STRING = "if\\s*\\((.*)\\).*";
 	static final Pattern IF_PATTERN = Pattern.compile(IF_PATTERN_STRING);
 
-	private static final String JAPID_RESULT = cn.bran.play.JapidResult.class.getName();
+	private static final String JAPID_RESULT = "cn.bran.play.JapidResult";//.class.getName();
 
 	private static final String ARGS = "args";
 

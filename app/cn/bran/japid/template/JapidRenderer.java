@@ -1360,6 +1360,17 @@ public final class JapidRenderer {
 	public static final String JAPID_CLASSES_CACHE = ".japidClasses.cache";
 
 	/**
+	 * render data to a Japid script in the full path of "{japidroot}/japidviews/{fully qualified class name with slash as separator}/{method name}.html"
+	 * 
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param args
+	 * @return
+	 */
+	public static RenderResult render(Object... args) {
+		return renderWith(findTemplate(), args);
+	}
+	
+	/**
 	 * render data to a template with a path relative to the "japid root" directory. e.g.: "japidviews/myscript.html"
 	 * 
 	 * @author Bing Ran (bing.ran@gmail.com)
