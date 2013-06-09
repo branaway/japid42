@@ -69,7 +69,7 @@ public final class JapidRenderer {
 	/**
 	 * 
 	 */
-	public static final String VERSION="0.9.3";
+	public static final String VERSION="0.9.4";
 	
 	private static final String JAPIDROOT = "japidroot";
 	private static final String RENDER_JAPID_WITH = "/renderJapidWith";
@@ -92,6 +92,8 @@ public final class JapidRenderer {
 		addImportStatic(WebUtils.class);
 	}
 
+	static AmmendableScheduledExecutor saveJapidClassesService = new AmmendableScheduledExecutor();
+	
 	public static ConcurrentHashMap<String, RendererClass> dynamicClasses = new ConcurrentHashMap<String, RendererClass>();
 
 	// last time that something in the Japid root was changed
@@ -476,6 +478,21 @@ public final class JapidRenderer {
 		}
 	}
 
+	/**
+	 * 
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 */
+	public static void persistJapidClassesLater() {
+		if (getOpMode() == OpMode.dev) {
+			saveJapidClassesService.schedule(new Runnable() {
+				@Override
+				public void run() {
+					persistJapidClasses();
+				}
+			});
+		}
+	}
+
 	private static void setupImports() {
 		JapidTemplateTransformer.addImportLine("japidviews.*");
 		JapidTemplateTransformer.addImportLine("java.util.*");
@@ -637,7 +654,7 @@ public final class JapidRenderer {
 	// }
 
 	public static RendererCompiler compiler;
-	public static String[] templateRoots = { "japidroot" };
+	public static String[] templateRoots = { JAPIDROOT };
 	public static final String JAPIDVIEWS = "japidviews";
 	public static final String SEP = File.separator;
 	// public static String[] japidviews;
@@ -753,13 +770,20 @@ public final class JapidRenderer {
 	public static void setTemplateRoot(String... roots) {
 		for (String r: roots) {
 			File file = new File(r);
+			String fullPath = file.getAbsolutePath();
 			if (file.exists()) {
 				if (!file.isDirectory()) {
-					throw new RuntimeException("exists but not a directory: " + r);
+					throw new RuntimeException("Japid template root exists but is not a directory: " + fullPath);
+				}
+				else {
+					File japidviews = new File(file, JAPIDVIEWS);
+					if (!japidviews.exists()) {
+						throw new RuntimeException("Japid template root does not exist: " + japidviews.getAbsolutePath());
+					}
 				}
 			}
 			else {
-				throw new RuntimeException("not exists: " + r);
+				throw new RuntimeException("Japid template root does not exists: " + fullPath);
 			}
 		}
 		templateRoots = roots;
@@ -1043,7 +1067,7 @@ public final class JapidRenderer {
 	 */
 	public static void init(boolean isDevMode, Map<String, Object> config, ClassLoader clr) {
 		try {
-			init(isDevMode ? OpMode.dev : OpMode.prod, JAPIDROOT, 3, config, clr);
+			init(isDevMode ? OpMode.dev : OpMode.prod, templateRoots, 3, config, clr);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -1083,7 +1107,7 @@ public final class JapidRenderer {
 	 *            the Play application instance
 	 * @throws IOException
 	 */
-	public static void init(OpMode opMode, String templateRoot, int refreshInterval, Map<String, Object> app,
+	public static void init(OpMode opMode, String[] templateRoot, int refreshInterval, Map<String, Object> app,
 			ClassLoader clr) throws IOException {
 		showCurrentDirectory();
 
@@ -1340,6 +1364,7 @@ public final class JapidRenderer {
 			try {
 				oos = new ObjectOutputStream(bos);
 				oos.writeObject(japidClasses);
+				JapidFlags.log("japid template classes cached on disk.");
 			} catch (Exception e) {
 				System.out.println(e);
 				if (oos != null) {

@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2.1
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.9.3
+version 0.9.4
 Compatibility: Play 2.1.x
 
 Note: version 0.7.4 and older is compatible with 2.0.4.
@@ -51,7 +51,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.9.3"
+      "japid42" % "japid42_2.10" % "0.9.4"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies).settings(
@@ -105,7 +105,7 @@ In Build.scala, you may have a sub-project defined like this:
 
 <pre><code>
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.9.3"
+      "japid42" % "japid42_2.10" % "0.9.4"
     )
 
     val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
@@ -146,6 +146,26 @@ RenderResult rr = JapidRenderer.renderWith("japidviews/hello.html", "John");
 </pre>
 
 By default the intermediary Java files derived from the Japid scripts are saved along with the scripts. Use @JapidRenderer.setKeepJavaFiles(false)@ to keep them in the memory only. 
+
+The following is a code snippet that demonstrate using Japid with a Servlet:
+
+<pre>
+public class S2 extends HttpServlet {
+
+	public void init(ServletConfig config) throws ServletException {
+		String p = config.getServletContext().getRealPath("WEB-INF/japidroot");
+		JapidRenderer.setTemplateRoot(p);
+		JapidRenderer.init(true);
+	}
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		Person p = new Person(); p.name = "Nadal";
+		RenderResult rr = JapidRenderer.render(p);
+		response.getWriter().println(rr.toString());
+	}
+
+}
+</pre>
 
 h2. Documentation
 
@@ -315,5 +335,7 @@ h2. History
 # fixed readme and bumped up the version to 0.9.3
 2013.6.9 v0.9.3 (keep the old number)
 # fixed: there was transitive dependency on play in the JapidAbstractCompiler. Removed it so stand-alone use of Japid proceeds as claimed. 
-
+2013.6.10 v0.9.4 
+# fixed: JapidRenderer.init() ignored previously set template root.
+# enhanced: added Servlet sample in the readme to show how to use Japid in servlets. 
 
