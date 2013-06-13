@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import cn.bran.japid.classmeta.MimeTypeEnum;
+import cn.bran.japid.compiler.JapidCompilationException;
 import cn.bran.japid.compiler.JapidTemplateTransformer;
 import cn.bran.japid.compiler.NamedArgRuntime;
 import cn.bran.japid.compiler.OpMode;
@@ -69,17 +70,18 @@ public final class JapidRenderer {
 	/**
 	 * 
 	 */
-	public static final String VERSION="0.9.4";
+	public static final String VERSION="0.9.4.1";
 	
 	private static final String JAPIDROOT = "japidroot";
-	private static final String RENDER_JAPID_WITH = "/renderJapidWith";
-	private static AtomicLong lastTimeChecked = new AtomicLong(0);
+//	private static final String RENDER_JAPID_WITH = "/renderJapidWith";
+//	private static AtomicLong lastTimeChecked = new AtomicLong(0);
 	// can be used to cache a plugin scoped valules
 	private static Map<String, Object> japidCache = new ConcurrentHashMap<String, Object>();
 
 	private static final String DEV_ERROR = "japidviews.devError";
 	public static boolean usePlay = false;
 
+	private static boolean presentErrorInHtml = true;
 	/**
 	 * 
 	 */
@@ -93,6 +95,8 @@ public final class JapidRenderer {
 	}
 
 	static AmmendableScheduledExecutor saveJapidClassesService = new AmmendableScheduledExecutor();
+
+	static boolean enableJITCachePersistence = true;
 	
 	public static ConcurrentHashMap<String, RendererClass> dynamicClasses = new ConcurrentHashMap<String, RendererClass>();
 
@@ -342,7 +346,13 @@ public final class JapidRenderer {
 				RendererClass rc = japidClasses.get(k);
 				if (rc.getJavaSourceCode() == null) {
 					if (!rc.getClassName().contains("$")) {
-						setSources(rc, k);
+						try {
+							setSources(rc, k);
+						} catch (Exception e) {
+							JapidFlags.log("Cannot find the source Java file for " + rc.getClassName() + ". Dropped.");
+							i.remove();
+							continue;
+						}
 						cleanByteCode(rc);
 						updatedClasses.add(k);
 					} else {
@@ -580,12 +590,11 @@ public final class JapidRenderer {
 
 	private static void setSources(RendererClass rc, String className) {
 		boolean found = false;
-
+		String tried = "";
 		for (String r : templateRoots) {
-			String pathname = r + SEP + className;
-			pathname = pathname.replace(".", SEP);
+			String pathname = r + SEP + className.replace(".", SEP);
 			File f = new File(pathname + ".java");
-
+			tried += f.getAbsolutePath() + "; ";
 			try {
 				setSources(rc, f);
 				found = true;
@@ -594,7 +603,7 @@ public final class JapidRenderer {
 		}
 
 		if (!found) {
-			throw new RuntimeException("could not find the source for: " + className);
+			throw new RuntimeException("could not find the source for: " + className + ". Tried: " + tried);
 		}
 	}
 
@@ -687,8 +696,7 @@ public final class JapidRenderer {
 	}
 
 	static void howlong(String string, long t) {
-		if (JapidFlags.verbose)
-			System.out.println(string + ":" + (System.currentTimeMillis() - t) + "ms");
+		JapidFlags.log(string + ":" + (System.currentTimeMillis() - t) + "ms");
 	}
 
 	/**
@@ -778,8 +786,14 @@ public final class JapidRenderer {
 				else {
 					File japidviews = new File(file, JAPIDVIEWS);
 					if (!japidviews.exists()) {
-						throw new RuntimeException("Japid template root does not exist: " + japidviews.getAbsolutePath());
+							if (!japidviews.mkdir())
+								throw new RuntimeException("Japid template prefix folder does not exist and failed to be created: " + japidviews.getAbsolutePath() + ". "
+									+ "You should create manually.");
+							else
+								JapidFlags.log("created directory: " + japidviews.getAbsolutePath());
 					}
+					else 
+						JapidFlags.log("set Japid root to: " + fullPath);
 				}
 			}
 			else {
@@ -1146,14 +1160,18 @@ public final class JapidRenderer {
 
 		compiler = new RendererCompiler(japidClasses, classLoader);
 
-		if (usePlay)
+	//	if (usePlay)
 			initErrorRenderer();
 		touch();
 		if (opMode == OpMode.dev)
 			recoverClasses();
 		dynamicClasses.clear();
-		refreshClasses();
-		JapidFlags.log("[Japid] initialized version " + VERSION + " in " + getOpMode() + " mode");
+		try {
+			refreshClasses();
+		} catch (Exception e) {
+			JapidFlags.log("There was an error in refreshing the japid classes. Will show the error in detail in processing a request: " + e);
+		}
+		System.out.println("[Japid] initialized version " + VERSION + " in " + getOpMode() + " mode");
 	}
 
 	private static void showCurrentDirectory() {
@@ -1416,13 +1434,26 @@ public final class JapidRenderer {
 		
 		String templateClassName = JapidRenderer.getTemplateClassName(template);
 
-		Class<? extends JapidTemplateBaseWithoutPlay> tClass = getClass(templateClassName);
+		Class<? extends JapidTemplateBaseWithoutPlay> tClass = null;
+		
+		try {
+			tClass = getClass(templateClassName);
+		}
+		catch(Throwable t) {
+			RenderResult er = handleException(t);
+			return er;
+		}
 
 		if (tClass == null) {
 			throw new RuntimeException("Could not find a Japid template with the name: "
 					+ (templateClassName.replace('.', '/') + HTML));
 		} else {
-			return RenderInvokerUtils.invokeRender(tClass, args);
+			try {
+				return RenderInvokerUtils.invokeRender(tClass, args);
+			} catch (Throwable t) {
+				RenderResult er = handleException(t);
+				return er;
+			}
 		}
 	}
 	
@@ -1435,19 +1466,36 @@ public final class JapidRenderer {
 	public static RenderResult getRenderResultWith(String template, NamedArgRuntime[] args) {
 
 		String templateClassName = JapidRenderer.getTemplateClassName(template);
-		Class<? extends JapidTemplateBaseWithoutPlay> tClass = getClass(templateClassName);
+		
+		Class<? extends JapidTemplateBaseWithoutPlay> tClass;
+		try {
+			tClass = getClass(templateClassName);
+		} catch (Throwable e) {
+			RenderResult er = handleException(e);
+			return er;
+		}
 
 		if (tClass == null) {
 			String templateFileName = templateClassName.replace('.', '/') + HTML;
 			throw new RuntimeException("Could not find a Japid template with the name of: " + templateFileName);
 		} else {
-			return RenderInvokerUtils.invokeNamedArgsRender(tClass, args);
+			try {
+				return RenderInvokerUtils.invokeNamedArgsRender(tClass, args);
+			} catch (Throwable e) {
+				RenderResult er = handleException(e);
+				return er;
+			}
 		}
 	}
 
 	public static RenderResult renderDynamic(String template, Object... args) {
-		String key = registerTemplate(MimeTypeEnum.html, template);
-		return renderDynamicByKey(key, args);
+		try {
+			String key = registerTemplate(MimeTypeEnum.html, template);
+			return renderDynamicByKey(key, args);
+		} catch (Throwable e) {
+			RenderResult er = handleException(e);
+			return er;
+		}
 	}
 
 	public static RenderResult renderDynamicByKey(String key, Object... args) {
@@ -1485,4 +1533,105 @@ public final class JapidRenderer {
 		JapidRenderer.appPath = appPath;
 	}
 
+	public static RenderResult handleException(Throwable e) throws RuntimeException {
+		if (!presentErrorInHtml)
+			if (e instanceof RuntimeException)
+				throw (RuntimeException) e;
+			else
+				throw new RuntimeException(e);	
+		
+		// if (Play.mode == Mode.PROD)
+		// throw new RuntimeException(e);
+		//
+		Class<? extends JapidTemplateBaseWithoutPlay> rendererClass = getErrorRendererClass();
+	
+		if (e instanceof JapidTemplateException) {
+			RenderResult rr = RenderInvokerUtils.invokeRender(rendererClass, (JapidTemplateException) e);
+			return (rr);
+		}
+	
+		if (e instanceof RuntimeException && e.getCause() != null)
+			e = e.getCause();
+	
+		if (e instanceof JapidCompilationException) {
+			JapidCompilationException jce = (JapidCompilationException) e;
+			JapidTemplateException te = JapidTemplateException.from(jce);
+			RenderResult rr = RenderInvokerUtils.invokeRender(rendererClass, te);
+			return (rr);
+		}
+	
+		e.printStackTrace();
+	
+		// find the latest japidviews exception or the controller that caused
+		// the exception
+		StackTraceElement[] stackTrace = e.getStackTrace();
+		for (StackTraceElement ele : stackTrace) {
+			String className = ele.getClassName();
+			if (className.startsWith("japidviews")) {
+				int lineNumber = ele.getLineNumber();
+				RendererClass applicationClass = japidClasses.get(className);
+				if (applicationClass != null) {
+					// let's get the line of problem
+					int oriLineNumber = applicationClass.mapJavaLineToJapidScriptLine(lineNumber);
+					if (oriLineNumber > 0) {
+						if (rendererClass != null) {
+							String path = applicationClass.getScriptPath();
+							JapidTemplateException te = new JapidTemplateException("Japid Error", path + "("
+									+ oriLineNumber + "): " + e.getClass().getName() + ": " + e.getMessage(),
+									oriLineNumber, path, applicationClass.getJapidSourceCode());
+							RenderResult rr = RenderInvokerUtils.invokeRender(rendererClass, te);
+							return (rr);
+						}
+					}
+				}
+			} else if (className.startsWith("controllers.")) {
+				if (e instanceof RuntimeException)
+					throw (RuntimeException) e;
+				else
+					throw new RuntimeException(e);
+			}
+		}
+		
+		if (e instanceof RuntimeException)
+			throw (RuntimeException) e;
+		else
+			throw new RuntimeException(e);	
+	}
+
+	/**
+	 * @return the presentErrorInHtml
+	 */
+	public static boolean isPresentErrorInHtml() {
+		return presentErrorInHtml;
+	}
+
+	/**
+	 * @param presentErrorInHtml the presentErrorInHtml to set
+	 */
+	public static void setPresentErrorInHtml(boolean presentErrorInHtml) {
+		JapidRenderer.presentErrorInHtml = presentErrorInHtml;
+	}
+
+	public static void shutdown() {
+		saveJapidClassesService.shutdown();
+		saveJapidClassesService = new AmmendableScheduledExecutor();
+	}
+
+	/**
+	 * @return the enableJITCachePersistence
+	 */
+	public static boolean isEnableJITCachePersistence() {
+		return enableJITCachePersistence;
+	}
+
+	/**
+	 * controls if Just-In-Time persisting of the Japid classes is enabled.
+	 *  
+	 * @param enableJITCachePersistence the enableJITCachePersistence to set
+	 */
+	public static void setEnableJITCachePersistence(boolean enableJITCachePersistence) {
+		JapidRenderer.enableJITCachePersistence = enableJITCachePersistence;
+	}
+	
+	
 }

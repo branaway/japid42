@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2.1
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.9.4
+version 0.9.4.1
 Compatibility: Play 2.1.x
 
 Note: version 0.7.4 and older is compatible with 2.0.4.
@@ -51,7 +51,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.9.4"
+      "japid42" % "japid42_2.10" % "0.9.4.1"
     )
 
     val main = PlayProject(appName, appVersion, appDependencies).settings(
@@ -70,7 +70,21 @@ public class Global extends cn.bran.play.GlobalSettingsWithJapid{}
 
 Note:
 
-- There are a few things that can be customized here. Please see the javadoc of cn.bran.play.GlobalSettingsWithJapid. 
+- There are a few things that can be customized here. Here is a list of them. Hopefully they are self-explanatory.
+
+<pre>
+	addImport(String imp)
+	addImport(Class<?> cls)
+	addImportStatic(String imp)
+	addImportStatic(Class<?> cls)
+	setKeepJavaFiles(boolean keepJava)
+	setLogVerbose(boolean verb)
+	setTemplateRoot(String... root)
+	setRefreshInterval(int i)
+	setCacheResponse(boolean c)
+	setPresentErrorInHtml(boolean presentErrorInHtml)
+	setEnableJITCachePersistence(boolean enableJITCachePersistence)
+</pre> 
    
 Please see the @computer-japid@ (https://github.com/branaway/computer-japid) example for a real-world Global class definition.
 
@@ -105,7 +119,7 @@ In Build.scala, you may have a sub-project defined like this:
 
 <pre><code>
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.9.4"
+      "japid42" % "japid42_2.10" % "0.9.4.1"
     )
 
     val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
@@ -338,4 +352,7 @@ h2. History
 2013.6.10 v0.9.4 
 # fixed: JapidRenderer.init() ignored previously set template root.
 # enhanced: added Servlet sample in the readme to show how to use Japid in servlets. 
+2013.6.13 v0.9.4.1
+# fixed: trouble finding java source with dot on the path. 
+# enhanced: JIT cacjhe persisting. cached the Japid classes once a new compile is done. Used to be an explicit call. For use in stand-alone environment such as Tomcat.  
 

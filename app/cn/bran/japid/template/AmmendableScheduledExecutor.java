@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * An ScheduledThreadPoolExecutor that uses one thread and cancel previous future work when new job is scheduled
+ * An ScheduledThreadPoolExecutor that uses one thread and cancels previous future work when new job is scheduled
  * 
  * @author bran
  *
