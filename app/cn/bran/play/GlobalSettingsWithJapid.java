@@ -46,6 +46,8 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	public void onStop(Application app) {
 		if (app.isDev())
 			JapidRenderer.persistJapidClasses();
+		JapidRenderer.shutdown();
+		JapidFlags.log("Cache persister shut down and recycled.");
 	}
 
 	/*
@@ -212,10 +214,10 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		}
 	}
 
-	static private void getDumpRequest() {
-		String property = _app.configuration().getString("japid.dump.request");
-		dumpRequest = property;
-	}
+//	static private void getDumpRequest() {
+//		String property = _app.configuration().getString("japid.dump.request");
+//		dumpRequest = property;
+//	}
 
 	public void addImport(String imp) {
 		JapidRenderer.addImport(imp);
@@ -253,5 +255,25 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	public void setCacheResponse(boolean c) {
 		this.cacheResponse = c;
 	}
+
+	/**
+	 * set the switch to present a Japid error in pretty HTML page, or it throws an exception. The default is true;
+	 * 
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param presentErrorInHtml
+	 */
+	public void setPresentErrorInHtml(boolean presentErrorInHtml) {
+		JapidRenderer.setPresentErrorInHtml(presentErrorInHtml);
+	}
+
+	/**
+	 * controls if Just-In-Time persisting of the Japid classes is enabled.
+	 *  
+	 * @param enableJITCachePersistence the enableJITCachePersistence to set
+	 */
+	public static void setEnableJITCachePersistence(boolean enableJITCachePersistence) {
+		JapidRenderer.setEnableJITCachePersistence(enableJITCachePersistence);
+	}
+
 }
 

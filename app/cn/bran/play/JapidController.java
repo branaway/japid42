@@ -9,10 +9,7 @@ import play.mvc.Controller;
 import play.mvc.Http.Context;
 import play.mvc.Result;
 import play.mvc.Results;
-import cn.bran.japid.compiler.JapidCompilationException;
 import cn.bran.japid.compiler.NamedArgRuntime;
-import cn.bran.japid.exceptions.JapidTemplateException;
-import cn.bran.japid.rendererloader.RendererClass;
 import cn.bran.japid.template.JapidRenderer;
 import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
 import cn.bran.japid.template.RenderResult;
@@ -103,21 +100,13 @@ public class JapidController extends Controller {
 	 * @param objects
 	 */
 	public static JapidResult renderJapid(Object... objects) {
-		try {
-			String action = template("renderJapid");
-			return renderJapidWith(action, objects);
-		} catch (Exception e) {
-			return new JapidResult(handleException(e));
-		}
+		String action = template("renderJapid");
+		return renderJapidWith(action, objects);
 	}
 
 	public static JapidResult renderJapidByName(NamedArgRuntime... namedArgs) {
-		try {
-			String action = template("renderJapidByName");
-			return renderJapidWith(action, namedArgs);
-		} catch (Exception e) {
-			return new JapidResult(handleException(e));
-		}
+		String action = template("renderJapidByName");
+		return renderJapidWith(action, namedArgs);
 	}
 
 	/**
@@ -130,14 +119,16 @@ public class JapidController extends Controller {
 	 * @return
 	 */
 	public static JapidResult renderJapidWith(String templateName, Object... args) {
-		try {
 			templateName = getFullViewName(templateName);
 			JapidResult japidResult = new JapidResult(JapidRenderer.renderWith(templateName, args));
 			postProcess(japidResult);
 			return japidResult;
-		} catch (Exception e) {
-			return new JapidResult(handleException(e));
-		}
+	}
+
+	private static JapidResult generateErrorResult(Exception e) {
+		JapidResult result = new JapidResult(JapidRenderer.handleException(e));
+		postProcess(result);
+		return result;
 	}
 
 	/**
@@ -153,7 +144,7 @@ public class JapidController extends Controller {
 			RenderResult rr = JapidRenderer.renderDynamic(template, args);
 			return new JapidResult(rr);
 		} catch (Throwable e) {
-			return new JapidResult(handleException(e));
+			return new JapidResult(JapidRenderer.handleException(e));
 		}
 	}
 	
@@ -162,7 +153,7 @@ public class JapidController extends Controller {
 			RenderResult rr = JapidRenderer.renderDynamicByKey(key, args);
 			return new JapidResult(rr);
 		} catch (Throwable e) {
-			return new JapidResult(handleException(e));
+			return new JapidResult(JapidRenderer.handleException(e));
 		}
 	}
 	
@@ -179,13 +170,9 @@ public class JapidController extends Controller {
 	}
 
 	public static JapidResult renderJapidWith(String template, NamedArgRuntime[] namedArgs) {
-		try {
-			template = getFullViewName(template);
-			JapidResult japidResult = new JapidResult(JapidRenderer.getRenderResultWith(template, namedArgs));
-			return postProcess(japidResult);
-		} catch (Exception e) {
-			return new JapidResult(handleException(e));
-		}
+		template = getFullViewName(template);
+		JapidResult japidResult = new JapidResult(JapidRenderer.getRenderResultWith(template, namedArgs));
+		return postProcess(japidResult);
 	}
 
 	public static String template(String method) {
@@ -381,73 +368,7 @@ public class JapidController extends Controller {
 		return false;
 	}
 
-	public static String genCacheKey() {
-		throw new RuntimeException("not implemented in this version");
-		// return "japidcache:" + Request.current().action + ":"
-		// + Request.current().querystring;
-	}
-
-	// public static Result ok(String s) {
-	// return new JapidResult(new RenderResult(new HashMap(), new
-	// StringBuilder(s), -1));
-	// }
-
-	public static RenderResult handleException(Throwable e) throws RuntimeException {
-		// if (Play.mode == Mode.PROD)
-		// throw new RuntimeException(e);
-		//
-		Class<? extends JapidTemplateBaseWithoutPlay> rendererClass = JapidRenderer.getErrorRendererClass();
-
-		if (e instanceof JapidTemplateException) {
-			RenderResult rr = RenderInvokerUtils.invokeRender(rendererClass, (JapidTemplateException) e);
-			return (rr);
-		}
-
-		if (e instanceof RuntimeException && e.getCause() != null)
-			e = e.getCause();
-
-		if (e instanceof JapidCompilationException) {
-			JapidCompilationException jce = (JapidCompilationException) e;
-			JapidTemplateException te = JapidTemplateException.from(jce);
-			RenderResult rr = RenderInvokerUtils.invokeRender(rendererClass, te);
-			return (rr);
-		}
-
-		e.printStackTrace();
-
-		// find the latest japidviews exception or the controller that caused
-		// the exception
-		StackTraceElement[] stackTrace = e.getStackTrace();
-		for (StackTraceElement ele : stackTrace) {
-			String className = ele.getClassName();
-			if (className.startsWith("japidviews")) {
-				int lineNumber = ele.getLineNumber();
-				RendererClass applicationClass = JapidRenderer.japidClasses.get(className);
-				if (applicationClass != null) {
-					// let's get the line of problem
-					int oriLineNumber = applicationClass.mapJavaLineToJapidScriptLine(lineNumber);
-					if (oriLineNumber > 0) {
-						if (rendererClass != null) {
-							String path = applicationClass.getScriptPath();
-							JapidTemplateException te = new JapidTemplateException("Japid Error", path + "("
-									+ oriLineNumber + "): " + e.getClass().getName() + ": " + e.getMessage(),
-									oriLineNumber, path, applicationClass.getJapidSourceCode());
-							RenderResult rr = RenderInvokerUtils.invokeRender(rendererClass, te);
-							return (rr);
-						}
-					}
-				}
-			} else if (className.startsWith("controllers.")) {
-				if (e instanceof RuntimeException)
-					throw (RuntimeException) e;
-				else
-					throw new RuntimeException(e);
-			}
-		}
-		throw new RuntimeException(e);
-	}
-	
-    /**
+	/**
      * Instantiates a new authenticity checking form that wraps the specified class.
      */
     public static <T> Form<T> form(Class<T> clazz) {
@@ -472,7 +393,7 @@ public class JapidController extends Controller {
     	try {
 			return Results.ok(new JapidResult(rr));
 		} catch (Exception e) {
-			return Results.ok(new JapidResult(handleException(e)));
+			return Results.ok(generateErrorResult(e));
 		}
     }
 
