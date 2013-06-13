@@ -493,7 +493,7 @@ public final class JapidRenderer {
 	 * @author Bing Ran (bing.ran@gmail.com)
 	 */
 	public static void persistJapidClassesLater() {
-		if (getOpMode() == OpMode.dev) {
+		if (getOpMode() == OpMode.dev && enableJITCachePersistence) {
 			saveJapidClassesService.schedule(new Runnable() {
 				@Override
 				public void run() {
