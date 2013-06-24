@@ -17,35 +17,40 @@ public class JapidTemplateException extends JapidRuntimeException {
 	 * @param string
 	 */
 	public JapidTemplateException(String title, String description, int errLineNum, String sourceName, String sourceCode) {
-		super(description);
-		this.title = title;
-		this.description = description;
+		super(title, description);
 		this.errLineNum = errLineNum;
 		this.soureName = sourceName;
 		this.srcCode = sourceCode;
 		interestingLines = getInterestingLines();
 	}
 	
+	/**
+	 * @param e2
+	 */
+	public JapidTemplateException(Throwable e) {
+		super(e.getClass().getName(), e.getMessage());
+	}
+
 	public Throwable e;
-	public String title;
-	public String description;
 	public Integer errLineNum; // 1-based
 	public String soureName;
 	public String srcCode;
-	public TreeMap<Integer, String> interestingLines;
+	public TreeMap<Integer, String> interestingLines = new TreeMap<Integer, String>();
 	public Integer errLinePosInInterestingLines;
 	
 	private TreeMap<Integer, String> getInterestingLines() {
-		String[] lines = srcCode.split("\n");
-		int size = lines.length;
-		int start = errLineNum - 4;
-		start = start > 0 ? start : 1;
-		errLinePosInInterestingLines = errLineNum - start;
-		int end = errLineNum + 4;
-		end = end < size ? end : size;
 		TreeMap<Integer, String> re = new TreeMap<Integer, String>();
-		for (int i = start; i <= end; i++) {
-			re.put(i, lines[i - 1]);
+		if (srcCode != null && srcCode.length() > 0) {
+			String[] lines = srcCode.split("\n");
+			int size = lines.length;
+			int start = errLineNum - 4;
+			start = start > 0 ? start : 1;
+			errLinePosInInterestingLines = errLineNum - start;
+			int end = errLineNum + 4;
+			end = end < size ? end : size;
+			for (int i = start; i <= end; i++) {
+				re.put(i, lines[i - 1]);
+			}
 		}
 		return re;
 	}

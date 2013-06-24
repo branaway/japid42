@@ -1,6 +1,7 @@
 package cn.bran.japid.rendererloader;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -87,5 +88,14 @@ public class RendererCompiler {
 
 		jdtCompiler.compile(compilationUnits);
 		JapidRenderer.persistJapidClassesLater();
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param scriptNames
+	 */
+	public void compile(List<String> scriptNames) {
+		String[] names = new String[scriptNames.size()];
+		compile(scriptNames.toArray(names));
 	}
 }

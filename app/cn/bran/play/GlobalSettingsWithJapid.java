@@ -275,5 +275,14 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		JapidRenderer.setEnableJITCachePersistence(enableJITCachePersistence);
 	}
 
+	/**
+	 * set the folder to save the japid classes cache file
+	 * 
+	 * @param classCacheRoot the classCacheRoot to set
+	 */
+	public static void setClassCacheRoot(String classCacheRoot) {
+		JapidRenderer.setClassCacheRoot(classCacheRoot);
+	}
+	
 }
 

@@ -22,6 +22,8 @@ public class RendererClass implements Serializable{
 	private long lastCompiled;
 	private long lastDefined;
 	private long scripTimestamp;
+	// who has contributed this class. options: "jar"
+	private String contributor;
 	
 //	public ClassLoader getCl() {
 //		return cl;
@@ -192,6 +194,31 @@ public class RendererClass implements Serializable{
 		else {
 			return className;
 		}
+	}
+	/**
+	 * set the contributor. Options are: "jar"
+	 *  
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param string
+	 */
+	public void setContributor(String string) {
+		this.contributor = string;
+	}
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @return
+	 */
+	public String getContributor() {
+		return this.contributor;
+	}
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @return
+	 */
+	public boolean fromJar() {
+		if (this.contributor != null && contributor.startsWith("jar:"))
+			return true;
+		else return false;
 	}
 
 }

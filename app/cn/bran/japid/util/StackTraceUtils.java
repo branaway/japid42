@@ -43,7 +43,7 @@ public class StackTraceUtils {
 	}
 
 	/**
-	 * @return
+	 * @return {invokerclass}.{method}
 	 */
 	public static String getInvokerOf(String targetClassName, String methodName) {
 		final StackTraceElement[] ste = new Throwable().getStackTrace();

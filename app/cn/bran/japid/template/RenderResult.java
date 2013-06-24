@@ -125,4 +125,8 @@ public class RenderResult implements Externalizable {
 		renderTime = in.readLong();
 		headers = (Map<String, String>) in.readObject();
 	}
+
+	public String getContentType() {
+		return getHeaders().get("Content-Type");
+	}
 }
