@@ -54,6 +54,7 @@
   <classpathentry path="/Users/bran/projects/playversions/play-2.1.1/repository/local/commons-lang/commons-lang/2.6/jars/commons-lang.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play2/framework/../repository/cache/org.eclipse.tycho/org.eclipse.jdt.core/jars/org.eclipse.jdt.core-3.8.2.v20120814-155456.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play2/framework/../repository/cache/com.google.code.javaparser/javaparser/jars/javaparser-1.0.8.jar" kind="lib"></classpathentry>
+  <classpathentry path="/Users/bran/projects/playversions/play2/framework/../repository/cache/javax.ws.rs/jsr311-api/jars/jsr311-api-1.1-ea.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.1.1/repository/local/play/play-test_2.10/2.1.1/jars/play-test_2.10.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.1.1/repository/local/junit/junit-dep/4.10/jars/junit-dep.jar" kind="lib"></classpathentry>
   <classpathentry path="/Users/bran/projects/playversions/play-2.1.1/repository/local/org.hamcrest/hamcrest-core/1.1/jars/hamcrest-core.jar" kind="lib"></classpathentry>

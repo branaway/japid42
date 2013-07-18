@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
 import cn.bran.japid.template.JapidRenderer;
+import cn.bran.japid.util.JapidFlags;
 
 /**
  * Something to compile
@@ -50,7 +51,13 @@ final class CompilationUnit implements ICompilationUnit {
 
 	@Override
 	public char[] getContents() {
-			return JapidRenderer.japidClasses.get(clazzName).getJavaSourceCode().toCharArray();
+			try {
+				RendererClass rendererClass = JapidRenderer.japidClasses.get(clazzName);
+				return rendererClass.getJavaSourceCode().toCharArray();
+			} catch (NullPointerException e) {
+				JapidFlags.log("NPE was thrown with class name: " + clazzName);
+				throw e;
+			}
 	}
 
 	@Override

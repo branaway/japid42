@@ -22,6 +22,7 @@ import play.mvc.Result;
 import cn.bran.japid.template.JapidRenderer;
 import cn.bran.japid.util.JapidFlags;
 import cn.bran.japid.util.StringUtils;
+import cn.bran.play.routing.JaxrsRouter;
 
 
 /**
@@ -37,6 +38,7 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	private static String dumpRequest;
 	public static Application _app;
 	private boolean cacheResponse = true; // support @Cache annotation
+	private boolean useJaxrs;
 
 	/**
 	 * @author Bing Ran (bing.ran@hotmail.com)
@@ -63,9 +65,12 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		super.onStart(app);
 		onStartJapid();
 		JapidRenderer.init(app.isDev(), app.configuration().asMap(), app.classloader());
+		JaxrsRouter.setClassLoader( app.classloader());
 		if (JapidFlags.verbose) {
 			JapidFlags.log("You can turn off Japid logging in the console by calling JapidRenderer.setLogVerbose(false) in the Global's onStartJapid() method.");
 		}
+		
+		JaxrsRouter.init(app, this);
 	}
 
 
@@ -150,7 +155,10 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 
 	@Override
 	public Handler onRouteRequest(RequestHeader request) {
-		return super.onRouteRequest(request);
+		if (useJaxrs)
+		     return JaxrsRouter.handlerFor(request);
+		else
+			return super.onRouteRequest(request);
 	}
 
 
@@ -282,6 +290,22 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	 */
 	public static void setClassCacheRoot(String classCacheRoot) {
 		JapidRenderer.setClassCacheRoot(classCacheRoot);
+	}
+
+	/**
+	 * @return the useJaxrs
+	 */
+	public boolean isUseJaxrs() {
+		return useJaxrs;
+	}
+
+	/**
+	 * set to use Jax-RS protocol based routing mechanism
+	 * 
+	 * @param useJaxrs the useJaxrs to set
+	 */
+	public void setUseJapidRouting(boolean useJaxrs) {
+		this.useJaxrs = useJaxrs;
 	}
 	
 }

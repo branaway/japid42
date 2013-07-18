@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -166,9 +165,7 @@ public final class JapidRenderer {
 	private static RendererClass getRendererClassWithoutRefresh(String name) {
 		RendererClass rc = japidClasses.get(name);
 		if (rc == null)
-			throw new RuntimeException("renderer class not found: " + name
-					+ ". Was searching for: " + flattern(templateRoots) + SEP
-					+ name.replace('.', File.separatorChar) + ".html");
+			throw new JapidTemplateNotFoundException(name, flattern(templateRoots));
 		else {
 			if (rc.getClz() == null || playClassloaderChanged()) {
 				compileAndLoad(name, rc);
@@ -1692,20 +1689,21 @@ public final class JapidRenderer {
 						path = path.substring("file:".length());
 					}
 					path = path.substring(0, path.lastIndexOf('!'));
-					JarFile jarFile;
-					jarFile = new JarFile(path);
+					
+					JarFile jarFile = new JarFile(path);
 					Enumeration<JarEntry> entries = jarFile.entries();
+					
 					while (entries.hasMoreElements()) {
 						JarEntry entry = entries.nextElement();
 						String name = entry.getName();
 						if (shouldIgnore(name))
 							continue;
-						String cname = DirUtil.deriveClassName(name);
-						scriptNames.add(cname);
 						if (name.startsWith("japidviews/") && !name.endsWith("/")) {
 							 RendererClass rc = process((name), jarFile.getInputStream(entry));
-							 JapidFlags.log("converted contributed script: " + u.toString() + ":" + name);
 							 rc.setContributor(u.toString());
+							 JapidFlags.log("converted contributed script: " + u + ":" + name);
+							 String cname = DirUtil.deriveClassName(name);
+							 scriptNames.add(cname);
 							 specialClasses.add(cname);
 						}
 					}
@@ -1760,5 +1758,54 @@ public final class JapidRenderer {
 				throw (JapidTemplateException) e;
 			throw new RuntimeException(e);
 		}
+	}
+	
+	/**
+	 * render data to the Japid derived class
+	 * 
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param rendererClass
+	 * @param args
+	 * @return
+	 */
+	public static RenderResult renderWith(Class<JapidTemplateBaseWithoutPlay> rendererClass, Object... args) {
+		try {
+			return RenderInvokerUtils.invokeRender(rendererClass, args);
+		} catch (Throwable t) {
+			RenderResult er = handleException(t);
+			return er;
+		}
+	}
+	
+	/**
+	 * find out if a Japid class denoted by the template name is available
+	 * 
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param templateName
+	 * @return
+	 */
+	public static boolean hasTemplate(String templateName) {
+		String template = DirUtil.deriveClassName(templateName);
+		String templateClassName = JapidRenderer.getTemplateClassName(template);
+		try {
+			Class<? extends JapidTemplateBaseWithoutPlay> c = getClass(templateClassName);
+			if (c == null)
+				return false;
+			else
+				return true;
+		} catch (JapidTemplateNotFoundException e) {
+			return false;
+		}
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param templateName
+	 * @return
+	 */
+	public static Class<? extends JapidTemplateBaseWithoutPlay> getTemplateClass(String templateName) {
+		String template = DirUtil.deriveClassName(templateName);
+		String templateClassName = JapidRenderer.getTemplateClassName(template);
+		return getRendererClass(templateClassName).getClz();
 	}
 }

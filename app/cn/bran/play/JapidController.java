@@ -13,7 +13,7 @@ import cn.bran.japid.compiler.NamedArgRuntime;
 import cn.bran.japid.template.JapidRenderer;
 import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
 import cn.bran.japid.template.RenderResult;
-import cn.bran.japid.util.JapidFlags;
+import cn.bran.japid.util.DirUtil;
 import cn.bran.japid.util.RenderInvokerUtils;
 import cn.bran.japid.util.StackTraceUtils;
 
@@ -178,7 +178,9 @@ public class JapidController extends Controller {
 	public static String template(String method) {
 		// first check if there is a method hint in the session
 		String japidControllerInvoker = threadData.get().remove(GlobalSettingsWithJapid.ACTION_METHOD);
-		if (japidControllerInvoker == null) {
+		// use the thread local is not reliable nor correct if the action forwards to another action. 
+		// disable it
+		if (true || japidControllerInvoker == null) {
 			// return StackTraceUtils.getJapidRenderInvoker();
 			japidControllerInvoker = StackTraceUtils.getJapidControllerInvoker(method);
 		}
@@ -397,4 +399,18 @@ public class JapidController extends Controller {
 		}
     }
 
+	/**
+	 * find out if a Japid class denoted by the template name is available
+	 * 
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param templateName
+	 * @return
+	 */
+	public static boolean hasTemplate(String templateName) {
+		return JapidRenderer.hasTemplate(templateName);
+	}
+	
+	public static 	Class<? extends JapidTemplateBaseWithoutPlay> getTemplateClass(String templateName) {
+		return JapidRenderer.getTemplateClass(templateName);
+	}
 }
