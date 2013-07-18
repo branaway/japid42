@@ -489,6 +489,6 @@ h2. History
 # enhanced: JIT cacjhe persisting. cached the Japid classes once a new compile is done. Used to be an explicit call. For use in stand-alone environment such as Tomcat.  
 
 2013.7.18 v0.9.5
-# new feture: Japid script can be packaged in jars. 
+# new feture: Japid script can be packaged in jars. Japid scans resourses in the path of "japidviews/" in jar files and compile all the found Japid scripts. To pack Japid scripts in a jar file from a Play project, add the folowing line to the PlayProject settings:	unmanagedResourceDirectories in Compile  <+= baseDirectory( _ / "japidroot" )
 # new feature: route file-less routing. a big feature to replace the default route file with annotations and conventions. 
 
