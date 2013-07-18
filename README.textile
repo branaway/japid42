@@ -184,6 +184,7 @@ public class Global extends GlobalSettingsWithJapid {
 </pre>
 
 2. Use a few annotations in the controllers:
+
 <pre>
 package controllers;
 
@@ -237,25 +238,28 @@ When an action method carries no JAX-RS @Path annotation, the routing takes a se
 # The first segment is the controller's class name minus the "controller." part.
 # The second segment is the name of the method to invoke. 
 # The rest of the URL path is mapped to the parameters of the action method by position, i.e., the first segment is mapped to the first none-@QueryParam-annotated parameter and so on. Basically the URL is composed to invoke the action method as in PASCAL convention. An example:
-<pre>
-package controllers;
 
+<pre>
+<code>
+package controllers;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
-
 import play.mvc.Result;
-
 @Path("") // the path to this controller is the name of the class minus the "controller." part
 public class Jax extends Controller {
 	public static Result book(int id, String chap, @QueryParam("note") String note) {
 		return ok("got book: " + id + "/" + chap + ": " + note);
 	}
 }
+</code>
 </pre>
+
 To invoke the @book@ action, the URL must be compose similar to @/Jax/book/123/chapter2?note=mynote@. The id parameter takes 123 as the value. The chap parameter takes "chapter2" as the value. The argument to the "note" parameter gets its value from the query string in the name of "note". The convention can be summarized as
+
 <pre>
-http://myhost/<app name>/<controller name(partial)>/<method name>/<parameter 1>/<parameter 2>/...?<query param 1>=...&<query param 2>=...
+http://myhost/{app name}/{controller name(partial)}/{method name}/{parameter 1}/{parameter 2}/...?{query param 1}=...&{query param 2}=...
 </pre>
+
 Note: the app name segment is defined by an instance of @ApplicationPath with the Global class. 
 
 h3. Credit
