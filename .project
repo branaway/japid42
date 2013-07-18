@@ -1,6 +1,6 @@
 <projectDescription>
   <name>japid42</name>
-  <buildSpec>
+ <buildSpec>
     <buildCommand>
       <name>org.scala-ide.sdt.core.scalabuilder</name>
     </buildCommand>

@@ -3,20 +3,16 @@
  */
 package cn.bran.play.routing;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.TypeAnnotationsScanner;
