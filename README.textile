@@ -57,7 +57,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.9.6"
+      "japid42" % "japid42_2.10" % "0.9.6" // use 0.9.5 if you want to use Japid routing with Play 2.1.1 or earlier
     )
 
     val main = PlayProject(appName, appVersion, appDependencies).settings(
@@ -126,7 +126,7 @@ In Build.scala, you may have a sub-project defined like this:
 
 <pre><code>
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.9.4.1"
+      "japid42" % "japid42_2.10" % "0.9.6"
     )
 
     val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
@@ -157,7 +157,7 @@ The @computer-japid@(http://github.com/branaway/computer-japid) sample applicati
 h2. Use Japid Router to replace the Play2 routing mechanism (experimental but quite usable)
 
 
-Note: Play 2.1.1 is supported. Play 2.1.2 support is separate. 
+Note: version 0.9.5 supports Play 2.1.1 while version 0.9.6 supports Play 2.1.2. 
 
 
 Every typical Play applications come with a route file in the conf directory. The conf file is compiled to multiple scala files when the app is loaded or reloaded. 
