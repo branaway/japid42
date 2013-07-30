@@ -414,14 +414,18 @@ h2. History
 
 2013.2.8. v0.8.1 
 # new feature: using dynamic template in memory. Now one can render data to a template in the form of Java String in memory. The template can be retrieved from a database storage for example:
-    // an action in a controller
+<pre><code>
+// an action in a controller
 	public static Result dynamic() {
 		String template = "`(String s, int i)\nhi ${s}, are you ${i} years old?";
 		return ok(renderDynamic(template, "Johnny", 13));
 	}
-2013.5.15. v0.9.1
-# breaking change: re-factored JapidRenderer to Play independent. Added GlobalSettingsWithJapid for users to extend from when creating the Global configurations:
+</code></pre>
 
+2013.5.15. v0.9.1
+1. breaking change: re-factored JapidRenderer to Play independent. Added GlobalSettingsWithJapid for users to extend from when creating the Global configurations:
+
+<pre><code>
   public class Global extends cn.bran.play.GlobalSettingsWithJapid {
         @Override
         public void onStartJapid() {
@@ -431,29 +435,31 @@ h2. History
             addImport("com.foo");
         }
   }
-# New feature: now the JapidRenderer can be used out of Play to render any data to Japid scripts. e.g.:
-<pre>
+</code></pre>
+
+2. New feature: now the JapidRenderer can be used out of Play to render any data to Japid scripts. e.g.:
+
+<pre><code>
 	@Test
 	public void testDynamic() throws IOException {
 		JapidRenderer.setKeepJavaFiles(false);
 		JapidRenderer.init(OpMode.dev, "japidroot", 1, null, JapidRenderer.class.getClassLoader());
-		
+
 		String template = "`(String s, int i)\n";
 		template +="hi ${s}, are you ${i} years old?";
 		template +="\n`t japidviews._tags.taggy `-"; // calling a tag on hard drive
-		//
 		RenderResult rr = JapidRenderer.renderDynamic(template, "Johnny", 13);
 		System.out.println(rr);
-		//
 		rr = JapidRenderer.renderWith("japidviews/myscript.html", "hi", 123);
 		System.out.println(rr);
 		
 	}
-</pre>
-	
-	Pay attention to the renderDynamic(...) and renderWith(...) methods.
-# new feature: support JDK 7 syntax in Japid script.e.g.:
-<pre>
+</code></pre>
+
+Pay attention to the renderDynamic(...) and renderWith(...) methods.
+
+3. new feature: support JDK 7 syntax in Japid script.e.g.:
+<pre><code>
 	`(String who)
 	Hello ${who}!
 	` switch(who) { case "John":
@@ -463,8 +469,9 @@ h2. History
 	` break; default:
 		who are you?
 	`}
-</pre>
-# various bug fixes to pass all the unit tests
+</code></pre>
+
+4. various bug fixes to pass all the unit tests
 
 2013.5.23 v0.9.2
 # performance enhancement: removed the overhead associated with finding the matching template in renderJapid(...)
