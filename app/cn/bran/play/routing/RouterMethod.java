@@ -3,10 +3,8 @@
  */
 package cn.bran.play.routing;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +24,11 @@ import javax.ws.rs.QueryParam;
 
 public class RouterMethod {
 	private boolean autoRouting;
+	private String withExtension = ""; // the artificial url extension such as .html
 
 	/**
+	 * 
+	 * no method annotation means taking "any"
 	 * @param m
 	 */
 	public RouterMethod(Method m, String pathPrefix) {
@@ -37,17 +38,16 @@ public class RouterMethod {
 					|| a instanceof OPTIONS)
 				httpMethodAnnotations.add(a);
 		}
-		// no method annotation means taking "any"
-		// if (httpMethodAnnotations.size() == 0)
-		// throw new
-		// RuntimeException("the method must be annotated with one of the HTTP method");
-
 		meth = m;
 		Consumes consumes = m.getAnnotation(Consumes.class);
 		if (consumes != null) {
 			consumeTypes = consumes.value();
 		}
 
+		OptionalExt artExt = m.getAnnotation(OptionalExt.class);
+		if (artExt != null)
+			this.withExtension = artExt.value();
+		
 		Annotation[][] parameterAnnotations = m.getParameterAnnotations();
 		Class<?>[] paramTypes = m.getParameterTypes();
 		// now parse the path spec
@@ -63,7 +63,8 @@ public class RouterMethod {
 					rootParamNames.addAll(rm.subgroups);
 				}
 				for (String s : rootParamNames) {
-					paramSpecList.add(new ParamSpec(s));
+					if (s != null)
+						paramSpecList.add(new ParamSpec(s));
 				}
 
 				if (parameterAnnotations.length < paramSpecList.size()) {
@@ -126,7 +127,6 @@ public class RouterMethod {
 			// 1. use method name as the first part
 			this.autoRouting = true;
 			pathSpec = pathPrefix + "/" + m.getName();
-			pathSpecPattern = Pattern.compile(pathSpec.replaceAll(JaxrsRouter.urlParamCapture, "\\\\{(.*)\\\\}"));
 
 			int pos = 0; // path param position
 			int ppos = 0; //natural parameter 
@@ -151,6 +151,7 @@ public class RouterMethod {
 				}
 				ppos++;
 			}
+			pathSpecPattern = Pattern.compile(pathSpec.replaceAll(JaxrsRouter.urlParamCapture, "\\\\{(.*)\\\\}"));
 		}
 
 
@@ -177,8 +178,11 @@ public class RouterMethod {
 	}
 
 	public Object[] extractArguments(play.mvc.Http.RequestHeader r) {
-		String uri = r.path();
-		List<RegMatch> rootParamValueMatches = RegMatch.findAllMatchesIn(valueExtractionPattern, uri);
+		String path = r.path();
+		if (path.endsWith(withExtension))
+			path = path.substring(0, path.lastIndexOf(withExtension));
+		
+		List<RegMatch> rootParamValueMatches = RegMatch.findAllMatchesIn(valueExtractionPattern, path);
 		List<String> rootParamValues = new ArrayList<String>();
 		for (RegMatch rm : rootParamValueMatches) {
 			rootParamValues.addAll(rm.subgroups);
@@ -231,7 +235,7 @@ public class RouterMethod {
 							+ pathParam.value() + "in " + meth.getDeclaringClass() + "#" + meth);
 			} else if (queryParam != null) {
 				String name = queryParam.value();
-				String queryString = r.getQueryString(name);
+				String queryString = r.getQueryString(name); // XXX should this be of String[]?
 				argVals.add(convertArgType(c, name, queryString, meth.getParameterTypes()[c]));
 			} else if (autoRouting) {
 				Object v = args.get("_" + pos++);
@@ -252,7 +256,7 @@ public class RouterMethod {
 
 	private Object convertArgType(int c, String name, String value, Class<?> type) {
 		Object val = null;
-		if (type == Boolean.class || type == byte.class) {
+		if (type == Boolean.class || type == boolean.class) {
 			val = Boolean.valueOf(value);
 		} else if (type == Byte.class || type == byte.class) {
 			val = Byte.valueOf(value);

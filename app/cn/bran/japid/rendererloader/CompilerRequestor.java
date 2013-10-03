@@ -56,7 +56,9 @@ import cn.bran.japid.util.JapidFlags;
 
 					String descr = srcFile + "(" + line + "): " + message;
 
-					int oriSrcLineNum = DirUtil.mapJavaLineToSrcLine(rc.getJavaSourceCode(), problem.getSourceLineNumber());
+					String javaSourceCode = rc.getJavaSourceCode();
+					
+					int oriSrcLineNum = DirUtil.mapJavaLineToSrcLine(javaSourceCode, problem.getSourceLineNumber());
 					String scriptPath = rc.getScriptPath();
 					if (oriSrcLineNum > 0) {
 						// has a original script marker
@@ -66,7 +68,7 @@ import cn.bran.japid.util.JapidFlags;
 						throw te;
 					} else {
 						JapidTemplateException te = new JapidTemplateException("Japid Compilation Error", descr, line,
-								srcFile, rc.getJavaSourceCode());
+								srcFile, javaSourceCode);
 						throw te;
 
 					}

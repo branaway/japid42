@@ -20,6 +20,8 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
+import cn.bran.japid.util.JapidFlags;
+
 import play.Application;
 import play.GlobalSettings;
 import play.api.mvc.Handler;
@@ -95,22 +97,13 @@ public class JaxrsRouter {
 	 */
 	public static Handler handlerFor(final play.mvc.Http.RequestHeader r) {
 		if (assetServing.length == 2 && r.path().startsWith(assetServing[0])) {
-			return controllers.Assets.at(assetServing[1], r.path().replaceFirst(assetServing[0], ""));// serve
-																										// static
-																										// asset
+			// serve static asset
+			return controllers.Assets.at(assetServing[1], r.path().replaceFirst(assetServing[0], ""));
 		} else {
-			// final TargetClassWithPath targetClassWithPath =
-			// RouterUtils.findLongestMatch(classes, r, appPath);
 			final RouterClass targetRouterClass = RouterUtils.findLongestMatch(routerClasses, r);
 			if (targetRouterClass == null)
 				return null;
 
-	
-			// Set<Method> methods =
-			// RouterUtils.relevantMethods(targetClassWithPath._1(),
-			// httpMethodClass);
-			// final Tuple<Method, Map<String, String>> methodWithArgs =
-			// RouterUtils.findMethodAndGenerateContext(
 			final Tuple<Method, Object[]> methodWithArgs = targetRouterClass
 					.findMethodAndGenerateArgs(r);
 
@@ -144,6 +137,7 @@ public class JaxrsRouter {
 				return handler;
 			}
 		}
+		JapidFlags.debug("Japid router could not route this request");
 		return null;
 	}
 

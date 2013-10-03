@@ -342,21 +342,21 @@ public class DirUtil {
 			return false;
 	}
 
-	public static boolean hasTags(String root) {
-		String dirName = DirUtil.TAGSDIR;
-		return containsTemplateFiles(root, dirName);
-	}
+//	public static boolean hasTags(String root) {
+//		String dirName = DirUtil.TAGSDIR;
+//		return containsTemplateFiles(root, dirName);
+//	}
 
 //	public static boolean hasJavaTags(String root) {
 //		String dirName = DirUtil.JAVATAGS;
 //		return containsTemplateFiles(root, dirName);
 //	}
-
-	public static boolean hasLayouts(String root) {
-		String dirName = DirUtil.LAYOUTDIR;
-		return containsTemplateFiles(root, dirName);
-	}
-	
+//
+//	public static boolean hasLayouts(String root) {
+//		String dirName = DirUtil.LAYOUTDIR;
+//		return containsTemplateFiles(root, dirName);
+//	}
+//	
 	 public static boolean isClassname( String classname ) {
 	      if (classname == null || classname.length() ==0) return false;
 
@@ -375,8 +375,8 @@ public class DirUtil {
 	  }
 
 //	public static final String JAVATAGS = "_javatags";
-	public static final String LAYOUTDIR = "_layouts";
-	public static final String TAGSDIR = "_tags";
+//	public static final String LAYOUTDIR = "_layouts";
+//	public static final String TAGSDIR = "_tags";
 	public static final String JAPIDVIEWS_ROOT = "japidviews";
 
 //	public static List<String> scanJavaTags(String root) {

@@ -35,6 +35,8 @@ public class RouterClass {
 	String absPath;
 	Pattern absPathPatternForValues;
 
+	List<String> routeTable = new ArrayList<String>();
+	
 	/**
 	 * @param cl
 	 */
@@ -53,11 +55,11 @@ public class RouterClass {
 		String r = absPath.replaceAll(JaxrsRouter.urlParamCapture, "(.*)");
 		absPathPatternForValues = Pattern.compile(r);
 
-		@SuppressWarnings("unchecked")
-		Predicate<AnnotatedElement> and = Predicates.or(withAnnotation(GET.class),
-				withAnnotation(POST.class), withAnnotation(PUT.class),
-				withAnnotation(DELETE.class), withAnnotation(HEAD.class),
-				withAnnotation(OPTIONS.class));
+//		@SuppressWarnings("unchecked")
+//		Predicate<AnnotatedElement> and = Predicates.or(withAnnotation(GET.class),
+//				withAnnotation(POST.class), withAnnotation(PUT.class),
+//				withAnnotation(DELETE.class), withAnnotation(HEAD.class),
+//				withAnnotation(OPTIONS.class));
 //		Set<Method> allMethods = getAllMethods(cl, and);
 		// let's allow any methods
 		Set<Method> allMethods = getAllMethods(cl, Predicates.and(withModifier(Modifier.STATIC), withReturnType(Result.class)));

@@ -1,9 +1,9 @@
-h1. japid42 - Japid for Play 2.1
+h1. japid42 - Japid for Play 2.1+
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.9.6
-Compatibility: Play 2.1.x
+version 0.9.9
+Compatibility: Play 2.1.x, 2.2.x
 
 Note: version 0.7.4 and older is compatible with 2.0.4.
 
@@ -33,6 +33,7 @@ h2. Features
 - session.authentityToken to protect app from forged form submission attach. 
 - render data to dynamic templates in memory
 - support JDK6 & 7.
+- fully packageable in jar files.
 
 New features since version 0.9.5:
 
@@ -57,7 +58,7 @@ Basically you'll need to do three things:
 <pre>
 //...
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.9.6" // use 0.9.5 if you want to use Japid routing with Play 2.1.1 or earlier
+      "japid42" % "japid42_2.10" % "0.9.9" // use 0.9.5 if you want to use Japid routing with Play 2.1.1 or earlier
     )
 
     val main = PlayProject(appName, appVersion, appDependencies).settings(
@@ -119,6 +120,28 @@ Hello, $m!
 
 4. Hit http://localhost:9000/ to see Japid at work!
 
+h2. Packaging Japid scripts in jar files
+
+When an app is ready to be distributed in a jar file, you'll need to modify the build.scala to prepare your project for distribution. There are two things needed to be done:
+
+# include a directive in the build.scala, so the Japid scripts are included in the generated jar file:
+    val main = play.Project(appName, appVersion, Seq()).settings(
+        ...
+        ,unmanagedResourceDirectories in Compile  <+= baseDirectory( _ / "japidroot" )
+    )
+# set the japid root to null explicitly in your global settings file, so the Japid engine will pick up the Japid scripts in the jars. 
+    public class Global extends GlobalSettingsWithJapid {
+        @Override
+        public void onStartJapid() {
+            if (_app.isDev())
+                setTemplateRoot("japidroot", "app");
+            else
+                setTemplateRoot((String[])null); // scan class only
+        }
+    }
+
+This applies to using Japid in sub-projects settings too. 
+
 
 h2. Using Japid in Sub-projects
 
@@ -126,7 +149,7 @@ In Build.scala, you may have a sub-project defined like this:
 
 <pre><code>
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.9.6"
+      "japid42" % "japid42_2.10" % "0.9.9"
     )
 
     val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
@@ -157,7 +180,7 @@ The @computer-japid@(http://github.com/branaway/computer-japid) sample applicati
 h2. Use Japid Router to replace the Play2 routing mechanism (experimental but quite usable)
 
 
-Note: version 0.9.5 supports Play 2.1.1 while version 0.9.6 supports Play 2.1.2. 
+Note: version 0.9.5 supports Play 2.1.1 while version 0.9.6+ supports Play 2.1.2. 
 
 
 Every typical Play applications come with a route file in the conf directory. The conf file is compiled to multiple scala files when the app is loaded or reloaded. 
@@ -486,9 +509,36 @@ h2. History
 
 2013.6.13 v0.9.4.1
 # fixed: trouble finding java source with dot on the path. 
-# enhanced: JIT cacjhe persisting. cached the Japid classes once a new compile is done. Used to be an explicit call. For use in stand-alone environment such as Tomcat.  
+# enhanced: JIT cache persisting. cached the Japid classes once a new compile is done. Used to be an explicit call. For use in stand-alone environment such as Tomcat.  
 
 2013.7.18 v0.9.5
-# new feture: Japid script can be packaged in jars. Japid scans resourses in the path of "japidviews/" in jar files and compile all the found Japid scripts. To pack Japid scripts in a jar file from a Play project, add the folowing line to the PlayProject settings:	unmanagedResourceDirectories in Compile  <+= baseDirectory( _ / "japidroot" )
-# new feature: route file-less routing. a big feature to replace the default route file with annotations and conventions. 
+# new feture: Japid script can be packaged in jars. Japid scans resources in the path of "japidviews/" in jar files and compile all the found Japid scripts. To pack Japid scripts in a jar file from a Play project, add the folowing line to the PlayProject settings(assuming your japid scripts are rooted in "japidroot" directory):	
+      unmanagedResourceDirectories in Compile  <+= baseDirectory( _ / "japidroot" )
+# new feature: routing without the route files. a big feature to replace the default route file with annotations and conventions. 
+
+2013.7.23 0.9.7
+# new feature: added @OptionalExt in the routing package to specify an optional path extension to an action. With the annotation, "/controller/action/p1.html" equals "/controller/action/p1". 
+
+2013.8.30 0.9.8
+# fix: &{xxx, "yyy", zzz} did not work because old code did not allow more than one args
+
+2013.10.3 0.9.9
+# bug: cannot run app from a jar distribution. One way of running a Play 2 app is to run the "play dist" and run the start script packged in the zip file generated in the dist commmand. There are two things to do to make it work:
+## include a directive in the build.scala:
+    val main = play.Project(appName, appVersion, Seq()).settings(
+        ...
+        ,unmanagedResourceDirectories in Compile  <+= baseDirectory( _ / "japidroot" )
+    )
+## set the japid root to null explicitly in your global settings file:
+    public class Global extends GlobalSettingsWithJapid {
+        @Override
+        public void onStartJapid() {
+            if (_app.isDev())
+                setTemplateRoot("japidroot", "app");
+            else
+                setTemplateRoot((String[])null); // scan class only
+        }
+    }
+# bug: user defined imported were not added to the diervied Java code for those Japid scripts that were picked up from classpath. 
+    
 

@@ -12,6 +12,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 import cn.bran.japid.template.JapidRenderer;
+import cn.bran.japid.util.JapidFlags;
 import cn.bran.japid.util.StringUtils;
 
 /**
@@ -42,6 +43,7 @@ final class NameEnv implements INameEnvironment {
 
 	private NameEnvironmentAnswer findType(final String name) {
 		char[] fileName = name.toCharArray();
+
 		try {
 			if (!name.startsWith("japidviews.")) {
 				// let super class loader to load the bytecode

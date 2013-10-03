@@ -58,7 +58,7 @@ public class RendererCompiler {
 			else if(version.startsWith("1.5"))
 				javaVersion = VERSION_1_5;
 		} catch (Exception e) {}
-		JapidFlags.log("would compile Japid for JDK version: " + javaVersion);
+		JapidFlags.debug("would compile Japid for JDK version: " + javaVersion);
 		
 		
 		settings.put(OPTION_Source, javaVersion);

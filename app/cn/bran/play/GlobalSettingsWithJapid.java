@@ -49,7 +49,7 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		if (app.isDev())
 			JapidRenderer.persistJapidClasses();
 		JapidRenderer.shutdown();
-		JapidFlags.log("Cache persister shut down and recycled.");
+		JapidFlags.debug("Cache persister shut down and recycled.");
 	}
 
 	/*
@@ -66,9 +66,9 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		onStartJapid();
 		JapidRenderer.init(app.isDev(), app.configuration().asMap(), app.classloader());
 		JaxrsRouter.setClassLoader( app.classloader());
-		if (JapidFlags.verbose) {
-			JapidFlags.log("You can turn off Japid logging in the console by calling JapidRenderer.setLogVerbose(false) in the Global's onStartJapid() method.");
-		}
+//		if (JapidFlags.verbose) {
+//			JapidFlags.log("You can turn off Japid logging in the console by calling JapidRenderer.setLogVerbose(false) in the Global's onStartJapid() method.");
+//		}
 		
 		JaxrsRouter.init(app, this);
 	}
