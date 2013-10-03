@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2.1+
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.9.9
+version 0.9.9.1
 Compatibility: Play 2.1.x, 2.2.x
 
 Note: version 0.7.4 and older is compatible with 2.0.4.
@@ -125,11 +125,14 @@ h2. Packaging Japid scripts in jar files
 When an app is ready to be distributed in a jar file, you'll need to modify the build.scala to prepare your project for distribution. There are two things needed to be done:
 
 # include a directive in the build.scala, so the Japid scripts are included in the generated jar file:
+<pre><code>
     val main = play.Project(appName, appVersion, Seq()).settings(
         ...
         ,unmanagedResourceDirectories in Compile  <+= baseDirectory( _ / "japidroot" )
     )
-# set the japid root to null explicitly in your global settings file, so the Japid engine will pick up the Japid scripts in the jars. 
+</code></pre>
+# (optionally, to avoid some warning messages) set the japid root to null explicitly in your global settings file, so the Japid engine will pick up the Japid scripts in the jars. 
+<pre><code>
     public class Global extends GlobalSettingsWithJapid {
         @Override
         public void onStartJapid() {
@@ -139,17 +142,19 @@ When an app is ready to be distributed in a jar file, you'll need to modify the 
                 setTemplateRoot((String[])null); // scan class only
         }
     }
+</code></pre>
+
 
 This applies to using Japid in sub-projects settings too. 
 
 
 h2. Using Japid in Sub-projects
 
-In Build.scala, you may have a sub-project defined like this:
 
+In Build.scala, you may have a sub-project defined like this:
 <pre><code>
     val appDependencies = Seq(
-      "japid42" % "japid42_2.10" % "0.9.9"
+      "japid42" % "japid42_2.10" % "0.9.9.1"
     )
 
     val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
@@ -538,7 +543,7 @@ Pay attention to the renderDynamic(...) and renderWith(...) methods.
         ,unmanagedResourceDirectories in Compile  <+= baseDirectory( _ / "japidroot" )
     )
 </code></pre>
-## set the japid root to null explicitly in your global settings file:
+## (optionally) set the japid root to null explicitly in your global settings file:
 <pre><code>
     public class Global extends GlobalSettingsWithJapid {
         @Override
@@ -553,3 +558,5 @@ Pay attention to the renderDynamic(...) and renderWith(...) methods.
 # bug: user defined imported were not added to the diervied Java code for those Japid scripts that were picked up from classpath. 
     
 
+2013.10.3 0.9.9.1
+# enhancement: previously a runtime exception was thrown when the japid roots were not found. Changed to issue an warning, so that applications will continue to pick up Japid scripts from classpath. This would make the second step in the 0.9.9 bug fix optional.  

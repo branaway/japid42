@@ -79,7 +79,7 @@ public final class JapidRenderer {
 	/**
 	 * 
 	 */
-	public static final String VERSION = "0.9.9";
+	public static final String VERSION = "0.9.9.1";
 
 	private static final String JAPIDROOT = "japidroot";
 	// private static final String RENDER_JAPID_WITH = "/renderJapidWith";
@@ -171,7 +171,7 @@ public final class JapidRenderer {
 	private static RendererClass getRendererClassWithoutRefresh(String name) {
 		RendererClass rc = japidClasses.get(name);
 		if (rc == null)
-			throw new JapidTemplateNotFoundException(name, flattern(templateRoots));
+			throw new JapidTemplateNotFoundException(name, "classpath and " + flattern(templateRoots));
 		else {
 			if (rc.getClz() == null || playClassloaderChanged()) {
 				compileAndLoad(name, rc);
@@ -788,11 +788,12 @@ public final class JapidRenderer {
 	public static void setTemplateRoot(String... roots) {
 		templateRoots = roots;
 		if (roots == null) {
-			JapidFlags.info("japid roots was set to null. Will search for Japid scripts from classpath only");
+			JapidFlags.info("japid roots was set to null. Will search classpth only for Japid scripts.");
 		} else {
 			for (String r : roots) {
 				File file = new File(r);
 				String fullPath = file.getAbsolutePath();
+				
 				if (file.exists()) {
 					if (!file.isDirectory()) {
 						throw new RuntimeException("Japid template root exists but is not a directory: " + fullPath);
@@ -809,7 +810,7 @@ public final class JapidRenderer {
 							JapidFlags.log("set Japid root to: " + fullPath);
 					}
 				} else {
-					throw new RuntimeException("Japid template root does not exists: " + fullPath);
+					JapidFlags.warn("root directory does not exist: " + fullPath);
 				}
 			}
 		}
@@ -907,7 +908,8 @@ public final class JapidRenderer {
 
 	private static void removeDerivedJavaFiles(String... roots) {
 		for (String root : roots) {
-			delAllGeneratedJava(getJapidviewsDir(root));
+			if (new File(root).exists())
+				delAllGeneratedJava(getJapidviewsDir(root));
 		}
 	}
 
@@ -947,13 +949,18 @@ public final class JapidRenderer {
 		if (roots == null)
 			return files;
 		
-		try {
-			mkdir(roots);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
+//		try {
+//			mkdir(roots);
+//		} catch (Exception e) {
+//			throw new RuntimeException(e);
+//		}
+//
 		for (String r : roots) {
+			File root = new File(r);
+			if (!root.exists()) {
+				JapidFlags.warn("root directory does not exist: " + root.getAbsolutePath());
+				continue;
+			}
 			TranslateTemplateTask t = new TranslateTemplateTask();
 			t.addImport("japidviews.*");
 			t.addImport("java.util.*");
@@ -975,7 +982,7 @@ public final class JapidRenderer {
 			}
 			t.setUsePlay(usePlay);
 
-			t.setPackageRoot(new File(r));
+			t.setPackageRoot(root);
 			t.setInclude(new File(r + SEP + JAPIDVIEWS + SEP));
 			// _layouts and _tags are deprecated
 			// if (DirUtil.hasLayouts(r))
@@ -1018,7 +1025,6 @@ public final class JapidRenderer {
 			String pathname = getJapidviewsDir(packageRoot);
 			File src = new File(pathname);
 			if (!src.exists()) {
-				log("Could not find required Japid root directory: " + pathname);
 				return hasRealOrphan;
 			}
 

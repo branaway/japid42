@@ -82,9 +82,12 @@ public class DirUtil {
 		List<String> re = new ArrayList<String>();
 		
 		for(String dir : dirs) {
-			List<String> files = new ArrayList<String>();
-			getAllFileNames("", new File(dir), files, TEMPLATE_EXTS);
-			re.addAll(files);
+			File dirF = new File(dir);
+			if (dirF.exists()) {
+				List<String> files = new ArrayList<String>();
+				getAllFileNames("", dirF, files, TEMPLATE_EXTS);
+				re.addAll(files);
+			}
 		}
 		// should filter out bad named files
 		String[] ret = new String[re.size()];
@@ -534,7 +537,9 @@ public class DirUtil {
 	public static Set<File> getAllTemplateFiles(String[] templateRoots) {
 		Set<File> re = new HashSet<File>();
 		for (String r: templateRoots) {
-			re.addAll(getAllTemplateFiles(new File(r)));	
+			File root = new File(r);
+			if (root.exists())
+				re.addAll(getAllTemplateFiles(root));	
 		}
 		return re;
 	}  

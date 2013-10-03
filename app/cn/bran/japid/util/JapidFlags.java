@@ -85,6 +85,12 @@ public class JapidFlags {
 	public static void setLogLevelError() {
 		setLogLevel(LogLevel.error);
 	}
+
+	public static void warn(String string) {
+		if (LogLevel.warn.noLowerThan(logLevel)) {
+			out(string);
+		}
+	}
 	
 	
 }

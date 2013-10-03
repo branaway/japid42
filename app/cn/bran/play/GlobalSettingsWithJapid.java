@@ -308,5 +308,12 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		this.useJaxrs = useJaxrs;
 	}
 	
+	/**
+	 * tell Japid engine to search for Japid scripts from classpath only
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 */
+	public void setScanClasspathOnly() {
+		setTemplateRoot((String[])null);
+	}
 }
 
