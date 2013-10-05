@@ -3,7 +3,7 @@ h1. japid42 - Japid for Play 2.1+
 Bing Ran (bing.ran@gmail.com)
 
 version 0.9.9.1
-Compatibility: Play 2.1.x, 2.2.x
+Compatibility: Play 2.1.x
 
 Note: version 0.7.4 and older is compatible with 2.0.4.
 
