@@ -79,7 +79,7 @@ public final class JapidRenderer {
 	/**
 	 * 
 	 */
-	public static final String VERSION = "0.9.9.1";
+	public static final String VERSION = "0.9.10";
 
 	private static final String JAPIDROOT = "japidroot";
 	// private static final String RENDER_JAPID_WITH = "/renderJapidWith";

@@ -9,11 +9,6 @@
           
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../../index.html';
@@ -261,8 +256,11 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">java.lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -316,8 +314,11 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">java.lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -346,7 +347,10 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GlobalSettings</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Exception]</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -441,41 +445,41 @@
       </h4>
       
     </li><li name="play.GlobalSettings#onBadRequest" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="onBadRequest(x$1:play.mvc.Http.RequestHeader,x$2:String):play.mvc.Result"></a>
-      <a id="onBadRequest(RequestHeader,String):Result"></a>
+      <a id="onBadRequest(x$1:play.mvc.Http.RequestHeader,x$2:String):play.libs.F.Promise[play.mvc.SimpleResult]"></a>
+      <a id="onBadRequest(RequestHeader,String):Promise[SimpleResult]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">onBadRequest</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="play.mvc.Http.RequestHeader">RequestHeader</span></span>, <span name="arg1">arg1: <span class="extype" name="java.lang.String">String</span></span>)</span><span class="result">: <span class="extype" name="play.mvc.Result">Result</span></span>
+        <span class="name">onBadRequest</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="play.mvc.Http.RequestHeader">RequestHeader</span></span>, <span name="arg1">arg1: <span class="extype" name="java.lang.String">String</span></span>)</span><span class="result">: <span class="extype" name="play.libs.F.Promise">Promise</span>[<span class="extype" name="play.mvc.SimpleResult">SimpleResult</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GlobalSettings</dd></dl></div>
     </li><li name="play.GlobalSettings#onError" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="onError(x$1:play.mvc.Http.RequestHeader,x$2:Throwable):play.mvc.Result"></a>
-      <a id="onError(RequestHeader,Throwable):Result"></a>
+      <a id="onError(x$1:play.mvc.Http.RequestHeader,x$2:Throwable):play.libs.F.Promise[play.mvc.SimpleResult]"></a>
+      <a id="onError(RequestHeader,Throwable):Promise[SimpleResult]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">onError</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="play.mvc.Http.RequestHeader">RequestHeader</span></span>, <span name="arg1">arg1: <span class="extype" name="java.lang.Throwable">Throwable</span></span>)</span><span class="result">: <span class="extype" name="play.mvc.Result">Result</span></span>
+        <span class="name">onError</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="play.mvc.Http.RequestHeader">RequestHeader</span></span>, <span name="arg1">arg1: <span class="extype" name="java.lang.Throwable">Throwable</span></span>)</span><span class="result">: <span class="extype" name="play.libs.F.Promise">Promise</span>[<span class="extype" name="play.mvc.SimpleResult">SimpleResult</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GlobalSettings</dd></dl></div>
     </li><li name="play.GlobalSettings#onHandlerNotFound" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="onHandlerNotFound(x$1:play.mvc.Http.RequestHeader):play.mvc.Result"></a>
-      <a id="onHandlerNotFound(RequestHeader):Result"></a>
+      <a id="onHandlerNotFound(x$1:play.mvc.Http.RequestHeader):play.libs.F.Promise[play.mvc.SimpleResult]"></a>
+      <a id="onHandlerNotFound(RequestHeader):Promise[SimpleResult]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">onHandlerNotFound</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="play.mvc.Http.RequestHeader">RequestHeader</span></span>)</span><span class="result">: <span class="extype" name="play.mvc.Result">Result</span></span>
+        <span class="name">onHandlerNotFound</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="play.mvc.Http.RequestHeader">RequestHeader</span></span>)</span><span class="result">: <span class="extype" name="play.libs.F.Promise">Promise</span>[<span class="extype" name="play.mvc.SimpleResult">SimpleResult</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GlobalSettings</dd></dl></div>
@@ -674,7 +678,10 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -690,7 +697,10 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -706,7 +716,10 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li></ol>
@@ -740,7 +753,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../lib/template.js"></script>
     </body>
       </html>

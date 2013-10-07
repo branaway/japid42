@@ -7,15 +7,8 @@ import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Map;
 
-import play.mvc.Result;
-import play.api.mvc.SimpleResult;
-
 import play.mvc.Content;
-import play.mvc.Http.Request;
-import play.mvc.Http.Response;
-import play.mvc.Results.Status;
-import scala.Tuple2;
-import scala.collection.JavaConversions;
+import play.mvc.Results;
 import scala.collection.Seq;
 import cn.bran.japid.template.RenderResult;
 
@@ -43,7 +36,7 @@ import cn.bran.japid.template.RenderResult;
  * @author bran
  * 
  */
-public class JapidResult implements Result,  Externalizable, Content {
+public class JapidResult extends Results.Status implements Externalizable, Content {
 	public static final String CONTENT_TYPE = "Content-Type";
 	public static final String CACHE_CONTROL = "Cache-Control";
 
@@ -64,12 +57,15 @@ public class JapidResult implements Result,  Externalizable, Content {
 	// }
 
 	public JapidResult(RenderResult r) {
+		super(play.core.j.JavaResults.Status(200), r.getContent().toString(), play.api.mvc.Codec.javaSupported("utf-8") );
 		this.renderResult = r;
 		this.setHeaders(r.getHeaders());
-       
+    	Seq<scala.Tuple2<String, String>> seq = scala.collection.JavaConversions.mapAsScalaMap(renderResult.getHeaders()).toSeq();
+		super.getWrappedSimpleResult().withHeaders(seq);
 	}
 
 	public JapidResult() {
+		super(play.core.j.JavaResults.Status(200));
 	}
 
 
@@ -105,27 +101,12 @@ public class JapidResult implements Result,  Externalizable, Content {
 //		out.writeUTF(resultContent);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		renderResult = (RenderResult) in.readObject();
 		setHeaders((Map<String, String>) in.readObject());
-//		eager = in.readBoolean();
-//		resultContent = in.readUTF();
 	}
-
-	private Status status;
-
-
-    public play.api.mvc.Result getWrappedResult() {
-//    	if (status == null) {
-			String content = extractContent();
-	    	play.api.mvc.Results.Status sta = play.core.j.JavaResults.Status(200);
-	    	Seq<Tuple2<String, String>> seq = JavaConversions.mapAsScalaMap(renderResult.getHeaders()).toSeq();
-	    	sta.withHeaders(seq);
-			status = new play.mvc.Results.Status(sta, content,  play.api.mvc.Codec.javaSupported("utf-8"));
-//    	}
-        return status.getWrappedResult();
-    }
 
 	/**
 	 * @return the headers
@@ -142,18 +123,49 @@ public class JapidResult implements Result,  Externalizable, Content {
 	}
 
 	@Override
-	public String body() {
-		String content = extractContent();
-		return content;
+	public String toString() {
+		return extractContent();
 	}
 
+	/* (non-Javadoc)
+	 * @see play.api.mvc.Content#body()
+	 */
+	@Override
+	public String body() {
+		return renderResult == null? null : renderResult.getText();
+	}
+
+	/* (non-Javadoc)
+	 * @see play.api.mvc.Content#contentType()
+	 */
 	@Override
 	public String contentType() {
-		return headers.get("Content-Type");
+		return renderResult == null? null : renderResult.getContentType();
 	}
 
-	@Override
-	public String toString() {
-		return body();
-	}
+//	/* (non-Javadoc)
+//	 * @see play.mvc.SimpleResult#getWrappedSimpleResult()
+//	 */
+//	@Override
+//	public SimpleResult getWrappedSimpleResult() {
+//		String content = extractContent();
+//		Results.Status st = Results.ok(content);
+////		
+////    	play.api.mvc.Results.Status sta = play.core.j.JavaResults.Status(200);
+////    	Seq<Tuple2<String, String>> seq = JavaConversions.mapAsScalaMap(renderResult.getHeaders()).toSeq();
+////    	st.withHeaders(seq);
+////		status = new play.mvc.Results.Status(sta, content,  play.api.mvc.Codec.javaSupported("utf-8"));
+////	}
+//    return st;
+//    }
+
+//	/* (non-Javadoc)
+//	 * @see play.mvc.Result#getWrappedResult()
+//	 */
+//	@Override
+//	public Future<SimpleResult> getWrappedResult() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+
 }

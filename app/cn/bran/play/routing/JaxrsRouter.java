@@ -27,6 +27,7 @@ import play.GlobalSettings;
 import play.api.mvc.Handler;
 import play.libs.F.Tuple;
 import play.mvc.Result;
+import play.mvc.SimpleResult;
 
 /**
  * @author bran
@@ -110,7 +111,7 @@ public class JaxrsRouter {
 			if (methodWithArgs != null) {
 				ResultBuilder resultBuilder = new ResultBuilder() {
 					@Override
-					public Result create() {
+					public SimpleResult create() {
 						try {
 							Method m = methodWithArgs._1;
 							Class<?> cl = targetRouterClass.clz;
@@ -119,7 +120,7 @@ public class JaxrsRouter {
 								throw new RuntimeException("the action method is not static while the target object is null: " + targetRouterClass.clz + "#" + m.getName());
 							}
 							Object[] args = methodWithArgs._2;
-							Result result = (Result)m.invoke(obj, args);
+							SimpleResult result = (SimpleResult)m.invoke(obj, args);
 							Produces produces = methodWithArgs._1.getAnnotation(Produces.class);
 							return produces != null ? new WrapProducer(produces.value()[0], result) : result;
 						} catch (InvocationTargetException cause) {

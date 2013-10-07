@@ -9,11 +9,6 @@
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../../../index.html';
@@ -46,7 +41,7 @@
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="play.core.j.JavaAction">JavaAction</span>, <span class="extype" name="play.core.j.JavaHelpers">JavaHelpers</span>, <span class="extype" name="play.api.mvc.Action">Action</span>[<span class="extype" name="play.mvc.Http.RequestBody">RequestBody</span>], <span class="extype" name="play.api.mvc.EssentialAction">EssentialAction</span>, <span class="extype" name="play.api.mvc.Handler">Handler</span>, (<span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span>) ⇒ <span class="extype" name="play.api.libs.iteratee.Iteratee">Iteratee</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>], <span class="extype" name="play.api.mvc.Result">Result</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="play.core.j.JavaAction">JavaAction</span>, <span class="extype" name="play.core.j.JavaHelpers">JavaHelpers</span>, <span class="extype" name="play.api.mvc.Action">Action</span>[<span class="extype" name="play.mvc.Http.RequestBody">RequestBody</span>], <span class="extype" name="play.api.mvc.EssentialAction">EssentialAction</span>, <span class="extype" name="play.api.mvc.Handler">Handler</span>, (<span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span>) ⇒ <span class="extype" name="play.api.libs.iteratee.Iteratee">Iteratee</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>], <span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -189,14 +184,14 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.Function1#andThen" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="andThen[A&lt;:&lt;?&gt;](g:&lt;?&gt;):T1=&gt;A"></a>
-      <a id="andThen[A]((Iteratee[Array[Byte],Result])⇒A):(RequestHeader)⇒A"></a>
+      <a id="andThen[A]((Iteratee[Array[Byte],SimpleResult])⇒A):(RequestHeader)⇒A"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">andThen</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="play.api.libs.iteratee.Iteratee">Iteratee</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>], <span class="extype" name="play.api.mvc.Result">Result</span>]) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>)</span><span class="result">: (<span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span>) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>
+        <span class="name">andThen</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="play.api.libs.iteratee.Iteratee">Iteratee</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>], <span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span>]) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>)</span><span class="result">: (<span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span>) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
@@ -217,15 +212,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="cn.bran.play.routing.JavaActionBridge">JavaActionBridge</a> → JavaAction</dd></dl></div>
     </li><li name="play.core.j.JavaAction#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(req:play.api.mvc.Request[play.mvc.Http.RequestBody]):play.api.mvc.Result"></a>
-      <a id="apply(Request[RequestBody]):Result"></a>
+      <a id="apply(req:play.api.mvc.Request[play.mvc.Http.RequestBody]):scala.concurrent.Future[play.api.mvc.SimpleResult]"></a>
+      <a id="apply(Request[RequestBody]):Future[SimpleResult]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="req">req: <span class="extype" name="play.api.mvc.Request">Request</span>[<span class="extype" name="play.mvc.Http.RequestBody">RequestBody</span>]</span>)</span><span class="result">: <span class="extype" name="play.api.mvc.Result">Result</span></span>
+        <span class="name">apply</span><span class="params">(<span name="req">req: <span class="extype" name="play.api.mvc.Request">Request</span>[<span class="extype" name="play.mvc.Http.RequestBody">RequestBody</span>]</span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaAction → Action</dd></dl></div>
@@ -243,15 +238,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Action → EssentialAction</dd></dl></div>
     </li><li name="play.api.mvc.Action#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(rh:play.api.mvc.RequestHeader):play.api.libs.iteratee.Iteratee[Array[Byte],play.api.mvc.Result]"></a>
-      <a id="apply(RequestHeader):Iteratee[Array[Byte],Result]"></a>
+      <a id="apply(rh:play.api.mvc.RequestHeader):play.api.libs.iteratee.Iteratee[Array[Byte],play.api.mvc.SimpleResult]"></a>
+      <a id="apply(RequestHeader):Iteratee[Array[Byte],SimpleResult]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="rh">rh: <span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span></span>)</span><span class="result">: <span class="extype" name="play.api.libs.iteratee.Iteratee">Iteratee</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>], <span class="extype" name="play.api.mvc.Result">Result</span>]</span>
+        <span class="name">apply</span><span class="params">(<span name="rh">rh: <span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span></span>)</span><span class="result">: <span class="extype" name="play.api.libs.iteratee.Iteratee">Iteratee</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>], <span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Action → Function1</dd></dl></div>
@@ -280,20 +275,23 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">java.lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li><li name="scala.Function1#compose" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="compose[A&lt;:&lt;?&gt;](g:&lt;?&gt;):A=&gt;R"></a>
-      <a id="compose[A]((A)⇒RequestHeader):(A)⇒Iteratee[Array[Byte],Result]"></a>
+      <a id="compose[A]((A)⇒RequestHeader):(A)⇒Iteratee[Array[Byte],SimpleResult]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span></span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="play.api.libs.iteratee.Iteratee">Iteratee</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>], <span class="extype" name="play.api.mvc.Result">Result</span>]</span>
+        <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span></span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="play.api.libs.iteratee.Iteratee">Iteratee</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>], <span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
@@ -340,15 +338,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaHelpers</dd></dl></div>
     </li><li name="play.core.j.JavaHelpers#createResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="createResult(javaContext:&lt;?&gt;,javaResult:&lt;?&gt;):play.api.mvc.Result"></a>
-      <a id="createResult(Context,Result):Result"></a>
+      <a id="createResult(javaContext:&lt;?&gt;,javaResult:&lt;?&gt;):play.api.mvc.SimpleResult"></a>
+      <a id="createResult(Context,SimpleResult):SimpleResult"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">createResult</span><span class="params">(<span name="javaContext">javaContext: <span class="extype" name="play.mvc.Http.Context">Context</span></span>, <span name="javaResult">javaResult: <span class="extype" name="play.mvc.Result">Result</span></span>)</span><span class="result">: <span class="extype" name="play.api.mvc.Result">Result</span></span>
+        <span class="name">createResult</span><span class="params">(<span name="javaContext">javaContext: <span class="extype" name="play.mvc.Http.Context">Context</span></span>, <span name="javaResult">javaResult: <span class="extype" name="play.mvc.SimpleResult">SimpleResult</span></span>)</span><span class="result">: <span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaHelpers</dd></dl></div>
@@ -378,6 +376,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="play.api.mvc.Action#executionContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="executionContext:scala.concurrent.ExecutionContext"></a>
+      <a id="executionContext:ExecutionContext"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">executionContext</span><span class="result">: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Action</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -390,8 +401,11 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<span class="extype" name="java.lang">java.lang</span>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -434,15 +448,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="cn.bran.play.routing.JavaActionBridge">JavaActionBridge</a> → JavaAction</dd></dl></div>
     </li><li name="play.core.j.JavaHelpers#invokeWithContext" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="invokeWithContext(request:&lt;?&gt;,f:&lt;?&gt;):Option[play.api.mvc.Result]"></a>
-      <a id="invokeWithContext(RequestHeader,(Request)⇒Option[Result]):Option[Result]"></a>
+      <a id="invokeWithContext(request:&lt;?&gt;,f:&lt;?&gt;):Option[scala.concurrent.Future[play.api.mvc.SimpleResult]]"></a>
+      <a id="invokeWithContext(RequestHeader,(Request)⇒Option[Promise[SimpleResult]]):Option[Future[SimpleResult]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">invokeWithContext</span><span class="params">(<span name="request">request: <span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span></span>, <span name="f">f: (<span class="extype" name="play.mvc.Http.Request">Request</span>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="play.mvc.Result">Result</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="play.api.mvc.Result">Result</span>]</span>
+        <span class="name">invokeWithContext</span><span class="params">(<span name="request">request: <span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span></span>, <span name="f">f: (<span class="extype" name="play.mvc.Http.Request">Request</span>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="play.libs.F.Promise">Promise</span>[<span class="extype" name="play.mvc.SimpleResult">SimpleResult</span>]]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span>]]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaHelpers</dd></dl></div>
@@ -524,6 +538,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="play.core.j.JavaHelpers#toPartialFunction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toPartialFunction[A&lt;:&lt;?&gt;,B&lt;:&lt;?&gt;](f:&lt;?&gt;):PartialFunction[A,B]"></a>
+      <a id="toPartialFunction[A,B](Function[A,B]):PartialFunction[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toPartialFunction</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="f">f: <span class="extype" name="play.libs.F.Function">Function</span>[<span class="extype" name="play.core.j.JavaHelpers.toPartialFunction.A">A</span>, <span class="extype" name="play.core.j.JavaHelpers.toPartialFunction.B">B</span>]</span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<span class="extype" name="play.core.j.JavaHelpers.toPartialFunction.A">A</span>, <span class="extype" name="play.core.j.JavaHelpers.toPartialFunction.B">B</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>JavaHelpers</dd></dl></div>
     </li><li name="play.api.mvc.Action#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -550,7 +577,10 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -566,7 +596,10 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -582,7 +615,10 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li></ol>
@@ -605,7 +641,7 @@
             </div><div class="parent" name="play.api.mvc.Handler">
               <h3>Inherited from <span class="extype" name="play.api.mvc.Handler">Handler</span></h3>
             </div><div class="parent" name="scala.Function1">
-              <h3>Inherited from (<span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span>) ⇒ <span class="extype" name="play.api.libs.iteratee.Iteratee">Iteratee</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>], <span class="extype" name="play.api.mvc.Result">Result</span>]</h3>
+              <h3>Inherited from (<span class="extype" name="play.api.mvc.RequestHeader">RequestHeader</span>) ⇒ <span class="extype" name="play.api.libs.iteratee.Iteratee">Iteratee</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>], <span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span>]</h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
@@ -626,7 +662,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../../lib/template.js"></script>
     </body>
       </html>

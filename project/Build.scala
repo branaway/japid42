@@ -5,15 +5,16 @@ import play.Project._
 object ApplicationBuild extends Build {
 
   val appName         = "japid42"
-  val appVersion      = "0.9.9.1" // note: update the version name in the JapidRenderer to match this.
+  val appVersion      = "0.9.10" // note: update the version name in the JapidRenderer to match this.
 
   val appDependencies = Seq(
     javaCore
+    ,cache
     ,"org.apache.commons" % "commons-email" % "1.2"
-    ,"commons-lang" % "commons-lang" % "2.6"
+    ,"org.apache.commons" % "commons-lang3" % "3.1"
     ,"org.eclipse.tycho" % "org.eclipse.jdt.core" % "3.8.2.v20120814-155456"
     ,"com.google.code.javaparser" % "javaparser" % "1.0.8"
-    , "javax.ws.rs" % "jsr311-api" % "1.1-ea"
+    ,"javax.ws.rs" % "jsr311-api" % "1.1-ea"
   )
 
   val main = play.Project(

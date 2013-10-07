@@ -393,9 +393,9 @@ public class JapidController extends Controller {
      */
     public static Result ok(RenderResult rr) {
     	try {
-			return Results.ok(new JapidResult(rr));
+			return new JapidResult(rr);
 		} catch (Exception e) {
-			return Results.ok(generateErrorResult(e));
+			return generateErrorResult(e);
 		}
     }
 

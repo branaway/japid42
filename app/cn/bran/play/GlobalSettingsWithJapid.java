@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import play.Application;
 import play.GlobalSettings;
@@ -18,12 +19,12 @@ import play.mvc.Action;
 import play.mvc.Http.Context;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestHeader;
-import play.mvc.Result;
+import play.mvc.SimpleResult;
 import cn.bran.japid.template.JapidRenderer;
 import cn.bran.japid.util.JapidFlags;
 import cn.bran.japid.util.StringUtils;
 import cn.bran.play.routing.JaxrsRouter;
-
+import play.libs.F.Promise;
 
 /**
  * @author bran
@@ -89,12 +90,12 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		final Map<String, String> threadData = JapidController.threadData.get();
 		if (!cacheResponse) {
 			return new Action.Simple() {
-				public Result call(Context ctx) throws Throwable {
+				public Promise<SimpleResult> call(Context ctx) throws Throwable {
 					// pass the FQN to the japid controller to determine the template to use
 					// will be cleared right when the value is retrieved in the japid controller
 					// assuming the delegate call will take place in the same thread
 					threadData.put(ACTION_METHOD, actionName);
-					Result call = delegate.call(ctx);
+					Promise<SimpleResult> call = delegate.call(ctx);
 					threadData.remove(ACTION_METHOD);
 					return call;
 				}
@@ -102,11 +103,11 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		}
 		
 		return new Action<Cached>() {
-			public Result call(Context ctx) {
+			public Promise<SimpleResult> call(Context ctx) {
 				try {
 					beforeActionInvocation(ctx, actionMethod);
 
-					Result result = null;
+					SimpleResult result = null;
 					Request req = ctx.request();
 					String method = req.method();
 					int duration = 0;
@@ -119,20 +120,26 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 							key = "urlcache:" + req.uri() + ":" + req.queryString();
 						}
 						duration = cachAnno.duration();
-						result = (Result) Cache.get(key);
+						result = (SimpleResult) Cache.get(key);
 					}
 					if (result == null) {
 						// pass the action name hint to japid controller
 						threadData.put(ACTION_METHOD, actionName);
-						result = delegate.call(ctx);
+						Promise<SimpleResult> ps = delegate.call(ctx);
 						threadData.remove(ACTION_METHOD);
 
 						if (!StringUtils.isEmpty(key) && duration > 0) {
+							result = ps.get(1, TimeUnit.MILLISECONDS);
 							Cache.set(key, result, duration);
 						}
+						onActionInvocationResult(ctx);
+						return ps;
 					}
-					onActionInvocationResult(ctx);
-					return result;
+					else {
+						onActionInvocationResult(ctx);
+						return Promise.pure(result);
+					}
+					
 				} catch (RuntimeException e) {
 					throw e;
 				} catch (Throwable t) {
