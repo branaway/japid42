@@ -35,13 +35,13 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">JapidResult</span><span class="result"> extends <span class="extype" name="play.mvc.Result">Result</span> with <span class="extype" name="java.io.Externalizable">Externalizable</span> with <span class="extype" name="play.mvc.Content">Content</span></span>
+        <span class="name">JapidResult</span><span class="result"> extends <span class="extype" name="play.mvc.Results.Status">Status</span> with <span class="extype" name="java.io.Externalizable">Externalizable</span> with <span class="extype" name="play.mvc.Content">Content</span></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="play.mvc.Content">Content</span>, <span class="extype" name="play.api.mvc.Content">Content</span>, <span class="extype" name="java.io.Externalizable">Externalizable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="play.mvc.Result">Result</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="play.mvc.Content">Content</span>, <span class="extype" name="play.api.mvc.Content">Content</span>, <span class="extype" name="java.io.Externalizable">Externalizable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="play.mvc.Results.Status">Status</span>, <span class="extype" name="play.mvc.SimpleResult">SimpleResult</span>, <span class="extype" name="play.mvc.Result">Result</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -59,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="cn.bran.play.JapidResult"><span>JapidResult</span></li><li class="in" name="play.mvc.Content"><span>Content</span></li><li class="in" name="play.api.mvc.Content"><span>Content</span></li><li class="in" name="java.io.Externalizable"><span>Externalizable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="play.mvc.Result"><span>Result</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="cn.bran.play.JapidResult"><span>JapidResult</span></li><li class="in" name="play.mvc.Content"><span>Content</span></li><li class="in" name="play.api.mvc.Content"><span>Content</span></li><li class="in" name="java.io.Externalizable"><span>Externalizable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="play.mvc.Results.Status"><span>Status</span></li><li class="in" name="play.mvc.SimpleResult"><span>SimpleResult</span></li><li class="in" name="play.mvc.Result"><span>Result</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -179,6 +179,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="play.mvc.Results.Status#as" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="as(x$1:String):play.mvc.Results.Status"></a>
+      <a id="as(String):Status"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">as</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="java.lang.String">String</span></span>)</span><span class="result">: <span class="extype" name="play.mvc.Results.Status">Status</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Status</dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -334,19 +347,32 @@
       </span>
       </h4>
       
-    </li><li name="cn.bran.play.JapidResult#getWrappedResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="getWrappedResult():play.api.mvc.Result"></a>
-      <a id="getWrappedResult():Result"></a>
+    </li><li name="play.mvc.SimpleResult#getWrappedResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getWrappedResult():scala.concurrent.Future[play.api.mvc.SimpleResult]"></a>
+      <a id="getWrappedResult():Future[SimpleResult]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">getWrappedResult</span><span class="params">()</span><span class="result">: <span class="extype" name="play.api.mvc.Result">Result</span></span>
+        <span class="name">getWrappedResult</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span>]</span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="cn.bran.play.JapidResult">JapidResult</a> → Result</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>SimpleResult → Result</dd></dl></div>
+    </li><li name="play.mvc.Results.Status#getWrappedSimpleResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getWrappedSimpleResult():play.api.mvc.SimpleResult"></a>
+      <a id="getWrappedSimpleResult():SimpleResult"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getWrappedSimpleResult</span><span class="params">()</span><span class="result">: <span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Status → SimpleResult</dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <a id="hashCode():Int"></a>
@@ -450,7 +476,7 @@
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="cn.bran.play.JapidResult">JapidResult</a> → AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="cn.bran.play.JapidResult">JapidResult</a> → Status → AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -538,6 +564,10 @@
               <h3>Inherited from <span class="extype" name="java.io.Externalizable">Externalizable</span></h3>
             </div><div class="parent" name="java.io.Serializable">
               <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="play.mvc.Results.Status">
+              <h3>Inherited from <span class="extype" name="play.mvc.Results.Status">Status</span></h3>
+            </div><div class="parent" name="play.mvc.SimpleResult">
+              <h3>Inherited from <span class="extype" name="play.mvc.SimpleResult">SimpleResult</span></h3>
             </div><div class="parent" name="play.mvc.Result">
               <h3>Inherited from <span class="extype" name="play.mvc.Result">Result</span></h3>
             </div><div class="parent" name="scala.AnyRef">

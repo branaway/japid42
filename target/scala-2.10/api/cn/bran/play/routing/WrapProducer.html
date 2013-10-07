@@ -35,13 +35,13 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">WrapProducer</span><span class="result"> extends <span class="extype" name="play.mvc.Result">Result</span></span>
+        <span class="name">WrapProducer</span><span class="result"> extends <span class="extype" name="play.mvc.SimpleResult">SimpleResult</span></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="play.mvc.Result">Result</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="play.mvc.SimpleResult">SimpleResult</span>, <span class="extype" name="play.mvc.Result">Result</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -59,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="cn.bran.play.routing.WrapProducer"><span>WrapProducer</span></li><li class="in" name="play.mvc.Result"><span>Result</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="cn.bran.play.routing.WrapProducer"><span>WrapProducer</span></li><li class="in" name="play.mvc.SimpleResult"><span>SimpleResult</span></li><li class="in" name="play.mvc.Result"><span>Result</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -80,7 +80,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="cn.bran.play.routing.WrapProducer#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(produces:String,r:play.mvc.Result):cn.bran.play.routing.WrapProducer"></a>
+      <a id="&lt;init&gt;(produces:String,r:play.mvc.SimpleResult):cn.bran.play.routing.WrapProducer"></a>
       <a id="&lt;init&gt;:WrapProducer"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -88,7 +88,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">WrapProducer</span><span class="params">(<span name="produces">produces: <span class="extype" name="java.lang.String">String</span></span>, <span name="r">r: <span class="extype" name="play.mvc.Result">Result</span></span>)</span>
+        <span class="name">WrapProducer</span><span class="params">(<span name="produces">produces: <span class="extype" name="java.lang.String">String</span></span>, <span name="r">r: <span class="extype" name="play.mvc.SimpleResult">SimpleResult</span></span>)</span>
       </span>
       </h4>
       
@@ -256,19 +256,32 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="cn.bran.play.routing.WrapProducer#getWrappedResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="getWrappedResult():play.api.mvc.Result"></a>
-      <a id="getWrappedResult():Result"></a>
+    </li><li name="play.mvc.SimpleResult#getWrappedResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getWrappedResult():scala.concurrent.Future[play.api.mvc.SimpleResult]"></a>
+      <a id="getWrappedResult():Future[SimpleResult]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">getWrappedResult</span><span class="params">()</span><span class="result">: <span class="extype" name="play.api.mvc.Result">Result</span></span>
+        <span class="name">getWrappedResult</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span>]</span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="cn.bran.play.routing.WrapProducer">WrapProducer</a> → Result</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>SimpleResult → Result</dd></dl></div>
+    </li><li name="cn.bran.play.routing.WrapProducer#getWrappedSimpleResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getWrappedSimpleResult():play.api.mvc.SimpleResult"></a>
+      <a id="getWrappedSimpleResult():SimpleResult"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getWrappedSimpleResult</span><span class="params">()</span><span class="result">: <span class="extype" name="play.api.mvc.SimpleResult">SimpleResult</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="cn.bran.play.routing.WrapProducer">WrapProducer</a> → SimpleResult</dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <a id="hashCode():Int"></a>
@@ -426,7 +439,9 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="play.mvc.Result">
+        <div class="parent" name="play.mvc.SimpleResult">
+              <h3>Inherited from <span class="extype" name="play.mvc.SimpleResult">SimpleResult</span></h3>
+            </div><div class="parent" name="play.mvc.Result">
               <h3>Inherited from <span class="extype" name="play.mvc.Result">Result</span></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>

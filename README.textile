@@ -562,3 +562,6 @@ Pay attention to the renderDynamic(...) and renderWith(...) methods.
 
 2013.10.3 0.9.9.1
 # enhancement: previously a runtime exception was thrown when the japid roots were not found. Changed to issue an warning, so that applications will continue to pick up Japid scripts from classpath. This would make the second step in the 0.9.9 bug fix optional.  
+
+2013.10.6 version 0.9.10
+# API upgrade: initial support for Play 2.2.0. internal API change to comply with the API changes in play 2.2.0, mainly the Result clas hierarchy.  
