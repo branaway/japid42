@@ -33,7 +33,7 @@ h2. Features
 - session.authentityToken to protect app from forged form submission attach. 
 - render data to dynamic templates in memory
 - support JDK6 & 7.
-- fully packageable in jar files.
+- fully distribute-able in jar files.
 
 New features since version 0.9.5:
 
