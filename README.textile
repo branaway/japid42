@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2.1+
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.9.10
+version 0.9.10.1
 Compatibility: Play 2.1.x, 2.2.x
 
 Note: version 0.7.4 and older is compatible with 2.0.4. Version 0.9.9.1 or earlier is compatible with Play2.1.x.
@@ -60,7 +60,7 @@ Basically you'll need to do three things:
     val appDependencies = Seq(
       javaCore,
       cache, // not needed for working with Play 2.1.x
-      "japid42" % "japid42_2.10" % "0.9.10" // use 0.9.9.1 if you want to use Japid routing with Play 2.1.1 or earlier
+      "japid42" % "japid42_2.10" % "0.9.10.1" // use 0.9.9.1 if you want to use Japid routing with Play 2.1.1 or earlier
     )
 
     val main = PlayProject(appName, appVersion, appDependencies).settings(
@@ -565,3 +565,7 @@ Pay attention to the renderDynamic(...) and renderWith(...) methods.
 
 2013.10.6 version 0.9.10
 # API upgrade: initial support for Play 2.2.0. internal API change to comply with the API changes in play 2.2.0, mainly the Result clas hierarchy.  
+
+2013.10.9 version 0.9.10.1
+# bug fix: the cache mechnism in compiling japid scripts from classpath were overly optimistic, causing new scripts not picked up. Removed the cache for now. 
+# enhancement: japid scripts from classpath got recompiled everytime being called again. Now the contributor is checked to avoid japid scripts from classpath being recompiled too often. 

@@ -79,7 +79,7 @@ public final class JapidRenderer {
 	/**
 	 * 
 	 */
-	public static final String VERSION = "0.9.10";
+	public static final String VERSION = "0.9.10.1";
 
 	private static final String JAPIDROOT = "japidroot";
 	// private static final String RENDER_JAPID_WITH = "/renderJapidWith";
@@ -173,7 +173,7 @@ public final class JapidRenderer {
 		if (rc == null)
 			throw new JapidTemplateNotFoundException(name, "classpath and " + flattern(templateRoots));
 		else {
-			if (rc.getClz() == null || playClassloaderChanged()) {
+			if (rc.getClz() == null || (playClassloaderChanged() && !rc.getContributor().startsWith("jar"))) {
 				compileAndLoad(name, rc);
 				// try {
 				// new TemplateClassLoader(parentClassLoader).loadClass(name);
@@ -1257,9 +1257,11 @@ public final class JapidRenderer {
 				JapidFlags.debug("recovered Japid classes from cache");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			JapidFlags.info("error in recovering class cache. Ignored: " + e);
+//			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			JapidFlags.info("error in recovering class cache. Ignored: " + e);
+//			e.printStackTrace();
 		} finally {
 			if (file.exists()) {
 				file.delete();
@@ -1752,8 +1754,8 @@ public final class JapidRenderer {
 					}
 					path = path.substring(0, path.lastIndexOf('!'));
 					// test if already in cache
-					if (cachedAlready(path))
-						continue;
+//					if (cachedAlready(path))
+//						continue;
 					JarFile jarFile = new JarFile(path);
 					Enumeration<JarEntry> entries = jarFile.entries();
 
