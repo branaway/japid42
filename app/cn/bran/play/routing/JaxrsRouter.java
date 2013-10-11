@@ -150,4 +150,11 @@ public class JaxrsRouter {
 		parentClassloader = classloader;
 	}
 
+	public static String getRouteTable() {
+		String s = "";
+		for (RouterClass c : routerClasses) {
+			s += c.toString();
+		}
+		return s;
+	}
 }

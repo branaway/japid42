@@ -3,7 +3,6 @@ package cn.bran.japid.template;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -79,7 +78,7 @@ public final class JapidRenderer {
 	/**
 	 * 
 	 */
-	public static final String VERSION = "0.9.10.1";
+	public static final String VERSION = "0.9.11";
 
 	private static final String JAPIDROOT = "japidroot";
 	// private static final String RENDER_JAPID_WITH = "/renderJapidWith";
@@ -285,14 +284,13 @@ public final class JapidRenderer {
 				return;
 		}
 
-		if (templateRoots == null) 
+		if (templateRoots == null)
 			return;
-		
+
 		if (!JapidRenderer.keepJavaFiles) {
 			refreshClassesInMemory();
 			return;
 		}
-		
 
 		try {
 			// there are two passes of directory scanning. XXX
@@ -424,7 +422,7 @@ public final class JapidRenderer {
 	static synchronized void refreshClassesInMemory() {
 		if (templateRoots == null)
 			return;
-		
+
 		try {
 			Set<File> allTemplates = DirUtil.getAllTemplateFiles(templateRoots);
 
@@ -436,7 +434,7 @@ public final class JapidRenderer {
 				RendererClass rc = japidClasses.get(cname);
 				if (rc == null) {
 					toBeUpdated.add(tf);
-				} else if (rc.getScripTimestamp() < tf.lastModified()) {
+				} else if (rc.getScriptTimestamp() < tf.lastModified()) {
 					toBeUpdated.add(tf);
 				} else if (rc.getJavaSourceCode() == null || rc.getJavaSourceCode().length() == 0) {
 					toBeUpdated.add(tf);
@@ -457,8 +455,10 @@ public final class JapidRenderer {
 					if (!classNamesRegistered.isEmpty()) {
 						for (String n : classNamesRegistered) {
 							if (!n.contains("$")) {
-								touch();
-								break;
+								if (!specialClasses.contains(n)) {
+									touch();
+									break;
+								}
 							}
 						}
 					}
@@ -793,7 +793,7 @@ public final class JapidRenderer {
 			for (String r : roots) {
 				File file = new File(r);
 				String fullPath = file.getAbsolutePath();
-				
+
 				if (file.exists()) {
 					if (!file.isDirectory()) {
 						throw new RuntimeException("Japid template root exists but is not a directory: " + fullPath);
@@ -948,13 +948,13 @@ public final class JapidRenderer {
 		List<File> files = new ArrayList<File>();
 		if (roots == null)
 			return files;
-		
-//		try {
-//			mkdir(roots);
-//		} catch (Exception e) {
-//			throw new RuntimeException(e);
-//		}
-//
+
+		// try {
+		// mkdir(roots);
+		// } catch (Exception e) {
+		// throw new RuntimeException(e);
+		// }
+		//
 		for (String r : roots) {
 			File root = new File(r);
 			if (!root.exists()) {
@@ -1157,7 +1157,8 @@ public final class JapidRenderer {
 		File cf = new File(".");
 		String path = cf.getAbsolutePath();
 		setClassCacheRoot(path);
-
+		japidResourceCompiled = false;
+		
 		inited = true;
 		JapidRenderer.opMode = opMode == null ? OpMode.dev : opMode;
 		setTemplateRoot(templateRoot);
@@ -1201,7 +1202,7 @@ public final class JapidRenderer {
 		dynamicClasses.clear();
 
 		setupImports();
-		
+
 		compileJapidResources();
 
 		try {
@@ -1258,10 +1259,10 @@ public final class JapidRenderer {
 			}
 		} catch (IOException e) {
 			JapidFlags.info("error in recovering class cache. Ignored: " + e);
-//			e.printStackTrace();
+			// e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			JapidFlags.info("error in recovering class cache. Ignored: " + e);
-//			e.printStackTrace();
+			// e.printStackTrace();
 		} finally {
 			if (file.exists()) {
 				file.delete();
@@ -1754,8 +1755,8 @@ public final class JapidRenderer {
 					}
 					path = path.substring(0, path.lastIndexOf('!'));
 					// test if already in cache
-//					if (cachedAlready(path))
-//						continue;
+					// if (cachedAlready(path))
+					// continue;
 					JarFile jarFile = new JarFile(path);
 					Enumeration<JarEntry> entries = jarFile.entries();
 

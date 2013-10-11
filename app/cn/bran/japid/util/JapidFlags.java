@@ -45,7 +45,7 @@ public class JapidFlags {
 	 */
 	public static void debug(String string) {
 		if (LogLevel.debug.noLowerThan(logLevel)) {
-			out(string);
+			out("debug: " + string);
 		}
 	}
 
@@ -60,13 +60,13 @@ public class JapidFlags {
 	 */
 	public static void info(String string) {
 		if (LogLevel.info.noLowerThan(logLevel)) {
-			out(string);
+			out("info: " + string);
 		}
 	}
 	
 	public static void error(String string) {
 		if (LogLevel.error.noLowerThan(logLevel)) {
-			out(string);
+			out("error: " + string);
 		}
 	}
 
@@ -88,8 +88,15 @@ public class JapidFlags {
 
 	public static void warn(String string) {
 		if (LogLevel.warn.noLowerThan(logLevel)) {
-			out(string);
+			out("warn: " + string);
 		}
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 */
+	public static void printLogLevel() {
+		out("japid log level: " + logLevel);
 	}
 	
 	

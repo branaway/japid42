@@ -22,6 +22,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import cn.bran.japid.util.StringUtils;
+
 public class RouterMethod {
 	private boolean autoRouting;
 	private String withExtension = ""; // the artificial url extension such as .html
@@ -126,7 +128,7 @@ public class RouterMethod {
 			// auto-routing mechanism:
 			// 1. use method name as the first part
 			this.autoRouting = true;
-			pathSpec = pathPrefix + "/" + m.getName();
+			pathSpec = pathPrefix + "\\." + m.getName();
 
 			int pos = 0; // path param position
 			int ppos = 0; //natural parameter 
@@ -338,5 +340,23 @@ public class RouterMethod {
 				return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		String meths = "";
+		for (Annotation an : httpMethodAnnotations) {
+			String string = an.toString();
+			// clean it
+			for (int i = 0; i < string.length(); i++) {
+				if (Character.isUpperCase(string.charAt(i)))
+					meths += string.charAt(i);
+			}
+			meths += "|";
+		}
+		if (meths.endsWith("|"))
+				meths = meths.substring(0, meths.length() - 1);
+				
+		return meths + " " + pathSpec.replaceAll("\\\\", "") + "\t -> \t" + meth.getDeclaringClass().getCanonicalName() + "." + meth.getName() + "()";
 	}
 }

@@ -3,7 +3,10 @@
  */
 package cn.bran.play.routing;
 
-import java.lang.reflect.AnnotatedElement;
+import static org.reflections.ReflectionUtils.getAllMethods;
+import static org.reflections.ReflectionUtils.withModifier;
+import static org.reflections.ReflectionUtils.withReturnType;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -11,20 +14,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.OPTIONS;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-
-import static org.reflections.ReflectionUtils.*;
 
 import play.libs.F.Tuple;
 import play.mvc.Result;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
 /**
@@ -35,8 +29,12 @@ public class RouterClass {
 	String absPath;
 	Pattern absPathPatternForValues;
 
-	List<String> routeTable = new ArrayList<String>();
+//	List<String> routeTable = new ArrayList<String>();
 	
+	Class<?> clz;
+	private String path;
+	List<RouterMethod> routerMethods = new ArrayList<RouterMethod>();
+
 	/**
 	 * @param cl
 	 */
@@ -87,7 +85,13 @@ public class RouterClass {
 		return null;
 	}
 
-	Class<?> clz;
-	private String path;
-	List<RouterMethod> routerMethods = new ArrayList<RouterMethod>();
+	
+	@Override
+	public String toString() {
+		String ret = "";
+		for (RouterMethod m : routerMethods) {
+			ret += m.toString() + "\n";
+		}
+		return ret;
+	}
 }

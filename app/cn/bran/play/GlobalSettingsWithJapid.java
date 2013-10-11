@@ -28,7 +28,7 @@ import play.libs.F.Promise;
 
 /**
  * @author bran
- *
+ * 
  */
 public class GlobalSettingsWithJapid extends GlobalSettings {
 	/**
@@ -39,7 +39,7 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	private static String dumpRequest;
 	public static Application _app;
 	private boolean cacheResponse = true; // support @Cache annotation
-	private boolean useJaxrs;
+	private boolean useJaxrs = true;
 
 	/**
 	 * @author Bing Ran (bing.ran@hotmail.com)
@@ -66,14 +66,21 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		super.onStart(app);
 		onStartJapid();
 		JapidRenderer.init(app.isDev(), app.configuration().asMap(), app.classloader());
-		JaxrsRouter.setClassLoader( app.classloader());
-//		if (JapidFlags.verbose) {
-//			JapidFlags.log("You can turn off Japid logging in the console by calling JapidRenderer.setLogVerbose(false) in the Global's onStartJapid() method.");
-//		}
-		
-		JaxrsRouter.init(app, this);
-	}
+		JaxrsRouter.setClassLoader(app.classloader());
+		// if (JapidFlags.verbose) {
+		// JapidFlags.log("You can turn off Japid logging in the console by calling JapidRenderer.setLogVerbose(false) in the Global's onStartJapid() method.");
+		// }
 
+		JaxrsRouter.init(app, this);
+		JapidFlags.printLogLevel();
+		JapidFlags.warn("==== Route table derived from jaxRS annotations: ====");
+		String tab = JaxrsRouter.getRouteTable();
+		String[] tabs = tab.split("\n");
+		for (String t : tabs) {
+			JapidFlags.warn(t);
+		}
+		JapidFlags.warn("====================================================");
+	}
 
 	/**
 	 * sub classes do more customization of Japid here
@@ -83,7 +90,6 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	public void onStartJapid() {
 	};
 
-
 	@Override
 	public Action<?> onRequest(Request request, final Method actionMethod) {
 		final String actionName = actionMethod.getDeclaringClass().getName() + "." + actionMethod.getName();
@@ -91,9 +97,12 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		if (!cacheResponse) {
 			return new Action.Simple() {
 				public Promise<SimpleResult> call(Context ctx) throws Throwable {
-					// pass the FQN to the japid controller to determine the template to use
-					// will be cleared right when the value is retrieved in the japid controller
-					// assuming the delegate call will take place in the same thread
+					// pass the FQN to the japid controller to determine the
+					// template to use
+					// will be cleared right when the value is retrieved in the
+					// japid controller
+					// assuming the delegate call will take place in the same
+					// thread
 					threadData.put(ACTION_METHOD, actionName);
 					Promise<SimpleResult> call = delegate.call(ctx);
 					threadData.remove(ACTION_METHOD);
@@ -101,7 +110,7 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 				}
 			};
 		}
-		
+
 		return new Action<Cached>() {
 			public Promise<SimpleResult> call(Context ctx) {
 				try {
@@ -134,12 +143,11 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 						}
 						onActionInvocationResult(ctx);
 						return ps;
-					}
-					else {
+					} else {
 						onActionInvocationResult(ctx);
 						return Promise.pure(result);
 					}
-					
+
 				} catch (RuntimeException e) {
 					throw e;
 				} catch (Throwable t) {
@@ -162,16 +170,24 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 
 	@Override
 	public Handler onRouteRequest(RequestHeader request) {
-		if (useJaxrs)
-		     return JaxrsRouter.handlerFor(request);
-		else
+		if (useJaxrs) {
+			if (_app.isDev())
+				JapidFlags.info("route with Japid router");
+
+			Handler handlerFor = JaxrsRouter.handlerFor(request);
+			if (handlerFor == null) {
+				handlerFor = super.onRouteRequest(request);
+				if (handlerFor == null && _app.isDev()) {
+					JapidFlags.warn("Japid router could not route the request: " + request.toString());
+				}
+			}
+			return handlerFor;
+		} else
 			return super.onRouteRequest(request);
 	}
 
-
-
 	public void onActionInvocationResult(Context ctx) {
-		
+
 		play.mvc.Http.Flash fl = ctx.flash();
 		if (RenderResultCache.shouldIgnoreCacheInCurrentAndNextReq()) {
 			fl.put(RenderResultCache.READ_THRU_FLASH, "yes");
@@ -183,7 +199,6 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		// request processing
 		RenderResultCache.setIgnoreCacheInCurrentAndNextReq(false);
 	}
-
 
 	public static void beforeActionInvocation(Context ctx, Method actionMethod) {
 		Request request = ctx.request();
@@ -229,50 +244,50 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 		}
 	}
 
-//	static private void getDumpRequest() {
-//		String property = _app.configuration().getString("japid.dump.request");
-//		dumpRequest = property;
-//	}
+	// static private void getDumpRequest() {
+	// String property = _app.configuration().getString("japid.dump.request");
+	// dumpRequest = property;
+	// }
 
 	public void addImport(String imp) {
 		JapidRenderer.addImport(imp);
 	}
-	
+
 	public void addImport(Class<?> cls) {
 		JapidRenderer.addImport(cls);
 	}
-	
-	
+
 	public void addImportStatic(String imp) {
 		JapidRenderer.addImportStatic(imp);
 	}
-	
+
 	public void addImportStatic(Class<?> cls) {
 		JapidRenderer.addImportStatic(cls);
 	}
-	
+
 	public void setKeepJavaFiles(boolean keepJava) {
 		JapidRenderer.setKeepJavaFiles(keepJava);
 	}
-	
+
 	public void setLogVerbose(boolean verb) {
 		JapidRenderer.setLogVerbose(verb);
 	}
-	
+
 	public static void setTemplateRoot(String... root) {
 		JapidRenderer.setTemplateRoot(root);
 	}
-	
+
 	public static void setRefreshInterval(int i) {
 		JapidRenderer.setRefreshInterval(i);
 	}
-	
+
 	public void setCacheResponse(boolean c) {
 		this.cacheResponse = c;
 	}
 
 	/**
-	 * set the switch to present a Japid error in pretty HTML page, or it throws an exception. The default is true;
+	 * set the switch to present a Japid error in pretty HTML page, or it throws
+	 * an exception. The default is true;
 	 * 
 	 * @author Bing Ran (bing.ran@gmail.com)
 	 * @param presentErrorInHtml
@@ -283,8 +298,9 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 
 	/**
 	 * controls if Just-In-Time persisting of the Japid classes is enabled.
-	 *  
-	 * @param enableJITCachePersistence the enableJITCachePersistence to set
+	 * 
+	 * @param enableJITCachePersistence
+	 *            the enableJITCachePersistence to set
 	 */
 	public static void setEnableJITCachePersistence(boolean enableJITCachePersistence) {
 		JapidRenderer.setEnableJITCachePersistence(enableJITCachePersistence);
@@ -293,7 +309,8 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	/**
 	 * set the folder to save the japid classes cache file
 	 * 
-	 * @param classCacheRoot the classCacheRoot to set
+	 * @param classCacheRoot
+	 *            the classCacheRoot to set
 	 */
 	public static void setClassCacheRoot(String classCacheRoot) {
 		JapidRenderer.setClassCacheRoot(classCacheRoot);
@@ -309,18 +326,19 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	/**
 	 * set to use Jax-RS protocol based routing mechanism
 	 * 
-	 * @param useJaxrs the useJaxrs to set
+	 * @param useJaxrs
+	 *            the useJaxrs to set
 	 */
 	public void setUseJapidRouting(boolean useJaxrs) {
 		this.useJaxrs = useJaxrs;
 	}
-	
+
 	/**
 	 * tell Japid engine to search for Japid scripts from classpath only
+	 * 
 	 * @author Bing Ran (bing.ran@gmail.com)
 	 */
 	public void setScanClasspathOnly() {
-		setTemplateRoot((String[])null);
+		setTemplateRoot((String[]) null);
 	}
 }
-

@@ -21,9 +21,9 @@ public class RendererClass implements Serializable{
 	transient private Constructor<? extends JapidTemplateBaseWithoutPlay> constructor;
 	private long lastCompiled;
 	private long lastDefined;
-	private long scripTimestamp;
+	private long scriptTimestamp;
 	// who has contributed this class. options: "jar"
-	private String contributor;
+	private String contributor = "";
 	
 //	public ClassLoader getCl() {
 //		return cl;
@@ -79,7 +79,7 @@ public class RendererClass implements Serializable{
 	public void setScriptFile(File srcFile) {
 		if (srcFile.exists()) {
 			this.scriptFile = srcFile;
-			this.scripTimestamp = srcFile.lastModified();
+			this.scriptTimestamp = srcFile.lastModified();
 		}
 		else
 			throw new RuntimeException("japid script does not exist: " + srcFile.getAbsolutePath());
@@ -173,14 +173,14 @@ public class RendererClass implements Serializable{
 	/**
 	 * @return the scripTimestamp
 	 */
-	public long getScripTimestamp() {
-		return scripTimestamp;
+	public long getScriptTimestamp() {
+		return scriptTimestamp;
 	}
 	/**
 	 * @param scripTimestamp the scripTimestamp to set
 	 */
-	public void setScripTimestamp(long scripTimestamp) {
-		this.scripTimestamp = scripTimestamp;
+	public void setScriptTimestamp(long scriptTimestamp) {
+		this.scriptTimestamp = scriptTimestamp;
 	}
 	/**
 	 * @author Bing Ran (bing.ran@hotmail.com)
