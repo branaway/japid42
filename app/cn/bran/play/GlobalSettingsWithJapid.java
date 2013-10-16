@@ -15,7 +15,9 @@ import play.Play;
 import play.api.mvc.Handler;
 import play.cache.Cache;
 import play.cache.Cached;
+import play.core.Router.Routes;
 import play.mvc.Action;
+import play.mvc.Results;
 import play.mvc.Http.Context;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestHeader;
@@ -25,6 +27,9 @@ import cn.bran.japid.util.JapidFlags;
 import cn.bran.japid.util.StringUtils;
 import cn.bran.play.routing.JaxrsRouter;
 import play.libs.F.Promise;
+import scala.Option;
+import scala.Tuple3;
+import scala.collection.Seq;
 
 /**
  * @author bran
@@ -73,13 +78,29 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 
 		JaxrsRouter.init(app, this);
 		JapidFlags.printLogLevel();
-		JapidFlags.warn("==== Route table derived from jaxRS annotations: ====");
-		String tab = JaxrsRouter.getRouteTable();
+//		printRouteTable();
+
+	}
+
+	protected List<Tuple3<String, String, String>> getPlayRoutes() {
+		play.api.Application realApp = _app.getWrappedApplication();
+		Option<Routes> routes = realApp.routes();
+		if (routes.isDefined()) {
+			Routes r = routes.get();
+			Seq<Tuple3<String, String, String>> docs = r.documentation();
+			return scala.collection.JavaConversions.seqAsJavaList(docs);
+		}
+		return null;
+	}
+
+	private void printRouteTable() {
+		JapidFlags.out("<==== Route table derived from jaxRS annotations =====>");
+		String tab = JaxrsRouter.getRouteTableString();
 		String[] tabs = tab.split("\n");
 		for (String t : tabs) {
-			JapidFlags.warn(t);
+			JapidFlags.out("\t" + t);
 		}
-		JapidFlags.warn("====================================================");
+		JapidFlags.out("<=====================================================>");
 	}
 
 	/**
@@ -177,9 +198,10 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 			Handler handlerFor = JaxrsRouter.handlerFor(request);
 			if (handlerFor == null) {
 				handlerFor = super.onRouteRequest(request);
-				if (handlerFor == null && _app.isDev()) {
-					JapidFlags.warn("Japid router could not route the request: " + request.toString());
-				}
+				// if (handlerFor == null && _app.isDev()) {
+				// JapidFlags.warn("Japid router could not route the request: "
+				// + request.toString());
+				// }
 			}
 			return handlerFor;
 		} else
@@ -341,4 +363,21 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	public void setScanClasspathOnly() {
 		setTemplateRoot((String[]) null);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see play.GlobalSettings#onHandlerNotFound(play.mvc.Http.RequestHeader)
+	 */
+	@Override
+	public Promise<SimpleResult> onHandlerNotFound(RequestHeader arg0) {
+		if (_app.isDev()) {
+			List<Tuple3<String, String, String>> playRoutes = getPlayRoutes();
+			JapidResult r = new JapidResult(JapidRenderer.renderWith(japidviews.dev404.class, arg0, playRoutes, JaxrsRouter.getRouteTable()));
+			Promise<SimpleResult> pure = play.libs.F.Promise.pure((SimpleResult) Results.notFound(r));
+			return pure;
+		} else
+			return super.onHandlerNotFound(arg0);
+	}
+
 }

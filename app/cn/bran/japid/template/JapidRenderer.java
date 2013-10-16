@@ -75,10 +75,7 @@ import cn.bran.japid.util.WebUtils;
  * 
  */
 public final class JapidRenderer {
-	/**
-	 * 
-	 */
-	public static final String VERSION = "0.9.11";
+	public static final String VERSION = "0.9.12"; // need to match that in the build.scala
 
 	private static final String JAPIDROOT = "japidroot";
 	// private static final String RENDER_JAPID_WITH = "/renderJapidWith";
@@ -674,6 +671,7 @@ public final class JapidRenderer {
 
 	public static RendererCompiler compiler;
 	public static String[] templateRoots = { JAPIDROOT };
+	private static boolean rootsSet = false;
 	public static final String JAPIDVIEWS = "japidviews";
 	public static final String SEP = File.separator;
 	// public static String[] japidviews;
@@ -787,6 +785,7 @@ public final class JapidRenderer {
 	 */
 	public static void setTemplateRoot(String... roots) {
 		templateRoots = roots;
+		rootsSet = true;
 		if (roots == null) {
 			JapidFlags.info("japid roots was set to null. Will search classpth only for Japid scripts.");
 		} else {
@@ -1158,10 +1157,11 @@ public final class JapidRenderer {
 		String path = cf.getAbsolutePath();
 		setClassCacheRoot(path);
 		japidResourceCompiled = false;
-		
+
 		inited = true;
 		JapidRenderer.opMode = opMode == null ? OpMode.dev : opMode;
-		setTemplateRoot(templateRoot);
+		if (!rootsSet)
+			setTemplateRoot(templateRoot);
 		setRefreshInterval(refreshInterval);
 
 		boolean yesno = false;
@@ -1249,13 +1249,21 @@ public final class JapidRenderer {
 		File file = new File(new File(templateRoot), JAPID_CLASSES_CACHE);
 		try {
 			if (file.exists()) {
-				fos = new FileInputStream(file);
-				BufferedInputStream bos = new BufferedInputStream(fos);
-				ObjectInputStream ois = new ObjectInputStream(bos);
-				japidClasses = (Map<String, RendererClass>) ois.readObject();
-				resourceJars = (HashSet<File>) ois.readObject();
-				ois.close();
-				JapidFlags.debug("recovered Japid classes from cache");
+				// discard it if the file is too old
+				long t = System.currentTimeMillis();
+				if (t - file.lastModified() > 1000000) {
+					// too old
+					JapidFlags.debug("the japid cache was too old. discarded.");
+					file.delete();
+				} else {
+					fos = new FileInputStream(file);
+					BufferedInputStream bos = new BufferedInputStream(fos);
+					ObjectInputStream ois = new ObjectInputStream(bos);
+					japidClasses = (Map<String, RendererClass>) ois.readObject();
+					resourceJars = (HashSet<File>) ois.readObject();
+					ois.close();
+					JapidFlags.debug("recovered Japid classes from cache");
+				}
 			}
 		} catch (IOException e) {
 			JapidFlags.info("error in recovering class cache. Ignored: " + e);
@@ -1755,8 +1763,8 @@ public final class JapidRenderer {
 					}
 					path = path.substring(0, path.lastIndexOf('!'));
 					// test if already in cache
-					// if (cachedAlready(path))
-					// continue;
+					if (cachedAlready(path))
+						continue;
 					JarFile jarFile = new JarFile(path);
 					Enumeration<JarEntry> entries = jarFile.entries();
 
@@ -1768,7 +1776,7 @@ public final class JapidRenderer {
 						if (name.startsWith("japidviews/") && !name.endsWith("/")) {
 							RendererClass rc = process((name), jarFile.getInputStream(entry));
 							rc.setContributor(u.toString());
-							JapidFlags.log("converted contributed script: " + u + ":" + name);
+							JapidFlags.debug("converted contributed script: " + u + ":" + name);
 							String cname = DirUtil.deriveClassName(name);
 							scriptNames.add(cname);
 							specialClasses.add(cname);
@@ -1862,7 +1870,7 @@ public final class JapidRenderer {
 	 * @param args
 	 * @return
 	 */
-	public static RenderResult renderWith(Class<JapidTemplateBaseWithoutPlay> rendererClass, Object... args) {
+	public static RenderResult renderWith(Class<? extends JapidTemplateBaseWithoutPlay> rendererClass, Object... args) {
 		try {
 			return RenderInvokerUtils.invokeRender(rendererClass, args);
 		} catch (Throwable t) {

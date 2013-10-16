@@ -27,10 +27,19 @@ import cn.bran.japid.util.StringUtils;
 public class RouterMethod {
 	private boolean autoRouting;
 	private String withExtension = ""; // the artificial url extension such as .html
+	List<Annotation> httpMethodAnnotations = new ArrayList<Annotation>();
+	Method meth;
+	String pathSpec;
+	Pattern pathSpecPattern;
+	public Pattern valueExtractionPattern;
+	String produce;
+	String[] consumeTypes = new String[] {};
+	List<ParamSpec> paramSpecList = new ArrayList<ParamSpec>();
 
 	/**
 	 * 
 	 * no method annotation means taking "any"
+	 * 
 	 * @param m
 	 */
 	public RouterMethod(Method m, String pathPrefix) {
@@ -49,7 +58,7 @@ public class RouterMethod {
 		OptionalExt artExt = m.getAnnotation(OptionalExt.class);
 		if (artExt != null)
 			this.withExtension = artExt.value();
-		
+
 		Annotation[][] parameterAnnotations = m.getParameterAnnotations();
 		Class<?>[] paramTypes = m.getParameterTypes();
 		// now parse the path spec
@@ -123,15 +132,14 @@ public class RouterMethod {
 				}
 
 			}
-		}
-		else {
+		} else {
 			// auto-routing mechanism:
 			// 1. use method name as the first part
 			this.autoRouting = true;
 			pathSpec = pathPrefix + "\\." + m.getName();
 
 			int pos = 0; // path param position
-			int ppos = 0; //natural parameter 
+			int ppos = 0; // natural parameter
 			for (Annotation[] pa : parameterAnnotations) {
 				boolean isQueryParam = false;
 				for (Annotation a : pa) {
@@ -146,16 +154,15 @@ public class RouterMethod {
 				if (!isQueryParam) {
 					// decorate a PathParam
 					String s = "_" + pos++;
-					pathSpec += "/" + "{" + s + "}";
 					ParamSpec ps = new ParamSpec(s);
 					ps.type = paramTypes[ppos];
 					paramSpecList.add(ps);
+					pathSpec += "/" + "{" + s + "}";
 				}
 				ppos++;
 			}
 			pathSpecPattern = Pattern.compile(pathSpec.replaceAll(JaxrsRouter.urlParamCapture, "\\\\{(.*)\\\\}"));
 		}
-
 
 		valueExtractionPattern = Pattern.compile(pathSpec.replaceAll(JaxrsRouter.urlParamCapture, "(.*)"));
 
@@ -183,7 +190,7 @@ public class RouterMethod {
 		String path = r.path();
 		if (path.endsWith(withExtension))
 			path = path.substring(0, path.lastIndexOf(withExtension));
-		
+
 		List<RegMatch> rootParamValueMatches = RegMatch.findAllMatchesIn(valueExtractionPattern, path);
 		List<String> rootParamValues = new ArrayList<String>();
 		for (RegMatch rm : rootParamValueMatches) {
@@ -192,7 +199,7 @@ public class RouterMethod {
 
 		if (rootParamValues.size() != paramSpecList.size()) {
 			throw new RuntimeException("param spec number does not match that from URI capturing. Spec contains: "
-					+ paramSpecList.size() + " while the URI contains: " + rootParamValues.size());
+					+ paramSpecList.size() + " while the URI contains: " + rootParamValues.size() + ". The route entry is: " + this.toString());
 		}
 
 		Map<String, Object> args = new java.util.HashMap<String, Object>();
@@ -202,7 +209,7 @@ public class RouterMethod {
 			String value = rootParamValues.get(c++);
 			if (!paramSpec.formatPattern.matcher(value).matches()) {
 				throw new IllegalArgumentException("format mismatch for : (" + name + ")" + value
-						+ ". The format in RegEx is: " + paramSpec.format);
+						+ ". The route entry is: " + this.toString());
 			}
 
 			Class<?> type = paramSpec.type;
@@ -237,18 +244,20 @@ public class RouterMethod {
 							+ pathParam.value() + "in " + meth.getDeclaringClass() + "#" + meth);
 			} else if (queryParam != null) {
 				String name = queryParam.value();
-				String queryString = r.getQueryString(name); // XXX should this be of String[]?
+				String queryString = r.getQueryString(name); // XXX should this
+																// be of
+																// String[]?
 				argVals.add(convertArgType(c, name, queryString, meth.getParameterTypes()[c]));
 			} else if (autoRouting) {
 				Object v = args.get("_" + pos++);
 				if (v != null)
 					argVals.add(v);
 				else
-					throw new IllegalArgumentException("can not find value for param No. " + c + " in " + meth.getDeclaringClass() + "#" + meth);
+					throw new IllegalArgumentException("can not find value for param No. " + c + " in "
+							+ meth.getDeclaringClass() + "#" + meth);
 			} else
-				throw new IllegalArgumentException(
-						"can not find how to map the value for an argument for method:"
-								+ meth.getDeclaringClass() + "#" + meth + ". The parameter position is(0-based): " + c);
+				throw new IllegalArgumentException("can not find how to map the value for an argument for method:"
+						+ meth.getDeclaringClass() + "#" + meth + ". The parameter position is(0-based): " + c);
 			c++;
 		}
 		argValues = argVals.toArray(argValues);
@@ -278,12 +287,13 @@ public class RouterMethod {
 		} else if (type == Short.class || type == short.class) {
 			val = Short.valueOf(value);
 		} else if (type == String.class) {
-//			try {
-//				val = URLDecoder.decode(value, "UTF-8");// not necessary. Seems already decoded
-				val = value;
-//			} catch (UnsupportedEncodingException e) {
-//				e.printStackTrace();
-//			}
+			// try {
+			// val = URLDecoder.decode(value, "UTF-8");// not necessary. Seems
+			// already decoded
+			val = value;
+			// } catch (UnsupportedEncodingException e) {
+			// e.printStackTrace();
+			// }
 		} else {
 			throw new RuntimeException(
 					"this version supports capturing primitive parameters, their object wrappers or strings. This param is not of primitive type: "
@@ -292,14 +302,6 @@ public class RouterMethod {
 		return val;
 	}
 
-	List<Annotation> httpMethodAnnotations = new ArrayList<Annotation>();
-	Method meth;
-	String pathSpec;
-	Pattern pathSpecPattern;
-	public Pattern valueExtractionPattern;
-	String produce;
-	String[] consumeTypes = new String[] {};
-	List<ParamSpec> paramSpecList = new ArrayList<ParamSpec>();
 
 	/**
 	 * @author Bing Ran (bing.ran@gmail.com)
@@ -341,9 +343,24 @@ public class RouterMethod {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public String toString() {
+		String meths = getVerb();
+		String path = getPath();
+		String action = getAction();
+		return meths + " \t" + path + "\t -> \t" + action;
+	}
+
+	private String getAction() {
+		return meth.getDeclaringClass().getCanonicalName() + "." + meth.getName() + "(" + getParamListString() + ")" + (produce != null? " : " + produce : "");
+	}
+
+	private String getPath() {
+		return pathSpec.replaceAll("\\\\", "") + withExtension;
+	}
+
+	private String getVerb() {
 		String meths = "";
 		for (Annotation an : httpMethodAnnotations) {
 			String string = an.toString();
@@ -355,8 +372,21 @@ public class RouterMethod {
 			meths += "|";
 		}
 		if (meths.endsWith("|"))
-				meths = meths.substring(0, meths.length() - 1);
-				
-		return meths + " " + pathSpec.replaceAll("\\\\", "") + "\t -> \t" + meth.getDeclaringClass().getCanonicalName() + "." + meth.getName() + "()";
+			meths = meths.substring(0, meths.length() - 1);
+		else
+			meths = "*";
+		return meths;
+	}
+	
+	private String getParamListString() {
+		return StringUtils.join(paramSpecList, ",");
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @return
+	 */
+	public RouteEntry getRouteEntry() {
+		return new RouteEntry(getVerb(), getPath(), getAction());
 	}
 }

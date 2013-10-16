@@ -1,5 +1,7 @@
 package cn.bran.japid.util;
 
+import scala.reflect.internal.Trees.This;
+
 public class JapidFlags {
 	static enum LogLevel{
 		debug(0), info(1), warn(2), error(3);
@@ -33,7 +35,7 @@ public class JapidFlags {
 			out(string);
 	}
 
-	private static void out(String string) {
+	public static void out(String string) {
 		if (!string.startsWith("["))
 			string = "[Japid]" + " " + string.trim();
 		System.out.println(string);
@@ -96,7 +98,7 @@ public class JapidFlags {
 	 * @author Bing Ran (bing.ran@gmail.com)
 	 */
 	public static void printLogLevel() {
-		out("japid log level: " + logLevel);
+		out("japid log level: " + logLevel + ". Call " + JapidFlags.class.getCanonicalName() + ".setLogLevel(LogLevel ll) to change it.");
 	}
 	
 	

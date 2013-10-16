@@ -105,8 +105,7 @@ public class JaxrsRouter {
 			if (targetRouterClass == null)
 				return null;
 
-			final Tuple<Method, Object[]> methodWithArgs = targetRouterClass
-					.findMethodAndGenerateArgs(r);
+			final Tuple<Method, Object[]> methodWithArgs = targetRouterClass.findMethodAndGenerateArgs(r);
 
 			if (methodWithArgs != null) {
 				ResultBuilder resultBuilder = new ResultBuilder() {
@@ -150,11 +149,19 @@ public class JaxrsRouter {
 		parentClassloader = classloader;
 	}
 
-	public static String getRouteTable() {
+	public static String getRouteTableString() {
 		String s = "";
 		for (RouterClass c : routerClasses) {
 			s += c.toString();
 		}
 		return s;
+	}
+
+	public static List<RouteEntry> getRouteTable() {
+		List<RouteEntry> ret = new ArrayList<RouteEntry>();
+		for (RouterClass c : routerClasses) {
+			ret.addAll(c.getRouteTable());
+		}
+		return ret;
 	}
 }

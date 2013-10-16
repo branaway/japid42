@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra">
-	<info organisation="japid42" module="japid42_2.10" revision="0.9.11" status="release" publication="20131014194416">
+	<info organisation="japid42" module="japid42_2.10" revision="0.9.12" status="release" publication="20131016211402">
 		<description>
 		japid42
 		</description>

@@ -576,3 +576,8 @@ Pay attention to the renderDynamic(...) and renderWith(...) methods.
 # bug fix: An app would always compile the Japid on each request, when set to keep Japid Java files on disk.
 # bug fix: Japid scripts contained in jars were not picked after an app reloading. 
 
+2013.10.15 version 0.9.12
+# enhancement: routes dervied from jax-rs annotations were added to the 404 page in dev mode. 
+# enhancement: japid cached would get cleared if the cache file was deemed too old (about 20 mins) 
+ 
+

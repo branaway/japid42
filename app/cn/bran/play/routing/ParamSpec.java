@@ -34,4 +34,9 @@ public class ParamSpec {
 		}
 		formatPattern = Pattern.compile(format);
 	}
+	
+	@Override
+	public String toString() {
+		return type.getSimpleName() + " " + name;
+	}
 }

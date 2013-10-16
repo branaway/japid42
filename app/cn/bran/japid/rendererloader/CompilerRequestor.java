@@ -88,7 +88,7 @@ import cn.bran.japid.util.JapidFlags;
 					clazzName.append(compoundName[j]);
 				}
 				byte[] bytes = clazzFile.getBytes();
-				JapidFlags.log("compiled: " + clazzName);
+				JapidFlags.debug("compiled: " + clazzName);
 				// XXX address anonymous inner class issue!! ....$1...
 				String cname = clazzName.toString();
 				RendererClass rc = JapidRenderer.japidClasses.get(cname);

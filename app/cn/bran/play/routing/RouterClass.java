@@ -19,6 +19,9 @@ import javax.ws.rs.Path;
 import play.libs.F.Tuple;
 import play.mvc.Result;
 
+import cn.bran.japid.util.JapidFlags;
+import cn.bran.play.GlobalSettingsWithJapid;
+
 import com.google.common.base.Predicates;
 
 /**
@@ -75,13 +78,21 @@ public class RouterClass {
 		if (ct != null && ct.length > 0)
 			contentType = ct[0];
 		
-		for (RouterMethod m : routerMethods) {
-			if (m.containsConsumeType(contentType) 
-					&& m.supportHttpMethod(r.method())
-					&& m.matchURI(uri)) {
-				return new Tuple<Method, Object[]>(m.meth, m.extractArguments(r));
+		try {
+			for (RouterMethod m : routerMethods) {
+				if (m.containsConsumeType(contentType) 
+						&& m.supportHttpMethod(r.method())
+						&& m.matchURI(uri)) {
+					return new Tuple<Method, Object[]>(m.meth, m.extractArguments(r));
+				}
 			}
+		} catch (Exception e) {
+			if (GlobalSettingsWithJapid._app.isDev())
+				JapidFlags.warn(e.toString());
+			else
+				JapidFlags.debug(e.toString());
 		}
+		
 		return null;
 	}
 
@@ -93,5 +104,13 @@ public class RouterClass {
 			ret += m.toString() + "\n";
 		}
 		return ret;
+	}
+	
+	public List<RouteEntry> getRouteTable(){
+		List<RouteEntry> entries  = new ArrayList<RouteEntry>();
+		for (RouterMethod m : routerMethods) {
+			entries.add(m.getRouteEntry());
+		}
+		return entries;
 	}
 }
