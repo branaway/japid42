@@ -193,7 +193,7 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	public Handler onRouteRequest(RequestHeader request) {
 		if (useJaxrs) {
 			if (_app.isDev())
-				JapidFlags.info("route with Japid router");
+				JapidFlags.debug("route with Japid router");
 
 			Handler handlerFor = JaxrsRouter.handlerFor(request);
 			if (handlerFor == null) {

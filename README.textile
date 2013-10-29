@@ -2,7 +2,7 @@ h1. japid42 - Japid for Play 2
 
 Bing Ran (bing.ran@gmail.com)
 
-version 0.9.11
+version: see the end of this file for version information
 Compatibility: Play 2.1.x, 2.2.x
 
 Note: version 0.7.4 and older is compatible with 2.0.4. Version 0.9.9.1 or earlier is compatible with Play2.1.x.
@@ -580,4 +580,7 @@ Pay attention to the renderDynamic(...) and renderWith(...) methods.
 # enhancement: routes dervied from jax-rs annotations were added to the 404 page in dev mode. 
 # enhancement: japid cached would get cleared if the cache file was deemed too old (about 20 mins) 
  
+2013.10.29 version 0.9.13
+# bug fix: callback param list of tag invocation did not allow generics 
+# bug fix: application.conf has been wrongly packged in the distribution. It was removed since. 
 

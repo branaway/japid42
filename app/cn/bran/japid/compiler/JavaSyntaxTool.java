@@ -205,6 +205,8 @@ public class JavaSyntaxTool {
 	private static final String classTempForArgs = "class T {  {  foo(%s); } }";
 	private static final String classTempForArgsNoParenthesis = "class T {  {  foo%s; } }";
 
+	// XXX this method does not properly parse thingsl like A<t> a
+	// it does not detect the error
 	@SuppressWarnings("unchecked")
 	public static List<String> parseArgs(String line) {
 		final List<String> ret = new ArrayList<String>();
