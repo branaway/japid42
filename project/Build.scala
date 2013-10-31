@@ -5,7 +5,7 @@ import play.Project._
 object ApplicationBuild extends Build {
 
   val appName         = "japid42"
-  val appVersion      = "0.9.13" // note: update the version name in the JapidRenderer to match this.
+  val appVersion      = "0.9.13.1" // note: update the version name in the JapidRenderer to match this.
 
   val appDependencies = Seq(
     javaCore

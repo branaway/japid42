@@ -64,7 +64,7 @@ Basically you'll need to do three things:
     )
 
     val main = PlayProject(appName, appVersion, appDependencies).settings(
-      resolvers += Resolver.url("My GitHub Play Repository", url("http://branaway.github.com/releases/"))(Resolver.ivyStylePatterns)
+      resolvers += Resolver.url("My GitHub Play Repository", url("http://branaway.github.io/releases/"))(Resolver.ivyStylePatterns)
     )
 //...
 </pre>
@@ -162,7 +162,7 @@ In Build.scala, you may have a sub-project defined like this:
     val foo = PlayProject("foo", "0.1", appDependencies, path = file("modules/foo"))
 
     val main = PlayProject(appName, appVersion, appDependencies).settings(
-      resolvers += Resolver.url("Japid on Github", url("http://branaway.github.com/releases/"))(Resolver.ivyStylePatterns)
+      resolvers += Resolver.url("Japid on Github", url("http://branaway.github.io/releases/"))(Resolver.ivyStylePatterns)
     ).dependsOn(foo)
     
 </code></pre>
@@ -584,3 +584,5 @@ Pay attention to the renderDynamic(...) and renderWith(...) methods.
 # bug fix: callback param list of tag invocation did not allow generics 
 # bug fix: application.conf has been wrongly packged in the distribution. It was removed since. 
 
+2013.10.31 version 0.9.13.1
+# repository change: github has changed the root domain for the "pages" feature from "github.com" to "github.io". Any apps using Japid must change the japid repository domain from branaway.github.com to branaway.github.io, otherwise a "dependency cannot be resolved" error is due.  
