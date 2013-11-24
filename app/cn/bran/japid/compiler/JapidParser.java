@@ -610,6 +610,10 @@ public class JapidParser {
 	String getRestLine() {
 		return getRestLine(pageSource, end - 1);
 	}
+
+	String getRestLineIncludingLineBreaks() {
+		return getRestLineIncludingLineBreaks(pageSource, end - 1);
+	}
 	/**
 	 * get the rest of the current line 
 	 * @return
@@ -633,6 +637,32 @@ public class JapidParser {
 		}
 		return src.substring(++begin, endp);
 
+	}
+
+	static String getRestLineIncludingLineBreaks(String src, int pos) {
+		int begin = pos, endp = 0;
+		int i = 1;
+		int length = src.length();
+		boolean breakFound = false;
+		while (true) {
+			endp = begin + i++;
+			if (endp < length) {
+				char charAt = src.charAt(endp);
+				if (charAt == '\n' || charAt == '\r') {
+					breakFound = true;
+				}else {
+					if (breakFound) {
+						// good to go
+						break;
+					}
+				}
+			} else {
+				break;
+			}
+			
+		}
+		return src.substring(++begin, endp);
+		
 	}
 	static String getCurrentLine(String src, final int pos) {
 		int begin = 0, endp = 0;

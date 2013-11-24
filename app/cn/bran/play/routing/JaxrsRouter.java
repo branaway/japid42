@@ -99,7 +99,8 @@ public class JaxrsRouter {
 	public static Handler handlerFor(final play.mvc.Http.RequestHeader r) {
 		if (assetServing.length == 2 && r.path().startsWith(assetServing[0])) {
 			// serve static asset
-			return controllers.Assets.at(assetServing[1], r.path().replaceFirst(assetServing[0], ""));
+//			return controllers.Assets.at(assetServing[1], r.path().replaceFirst(assetServing[0], ""));
+			return null;
 		} else {
 			final RouterClass targetRouterClass = RouterUtils.findLongestMatch(routerClasses, r);
 			if (targetRouterClass == null)

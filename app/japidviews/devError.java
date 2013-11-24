@@ -25,7 +25,7 @@ public class devError extends cn.bran.play.JapidTemplateBase
 
 
 	public devError() {
-		super(null);
+		super((StringBuilder)null);
 	}
 	public devError(StringBuilder out) {
 		super(out);
@@ -168,46 +168,30 @@ public class devError extends cn.bran.play.JapidTemplateBase
 "	<body>\n" + 
 "		<h1>");// line 6
 		p(escape(error.title));// line 104
-		p("</h1>\n" + 
-"\n" + 
-"		<p id=\"detail\">\n" + 
-"		    ");// line 104
+		p("</h1>\n" + "\n" + "		<p id=\"detail\">\n" + "		    ");// line 104
 		p(escape(error.description));// line 107
-		p("		</p>\n" + 
-"		");// line 107
-		p("        <div>\n" + 
-"        	");// line 113
+		p("		</p>\n" + "		");// line 107
+		p("        <div>\n" + "        	");// line 113
 		TreeMap<Integer, String> lines = error.interestingLines; // line 115
-			for(int i : lines.keySet()) {// line 116
-				String line = lines.get(i);// line 117
-				if(error.errLineNum == i) {// line 118
-		p("					<pre class=\"error\"><span class=\"line\">");// line 118
-		p(i);// line 119
-		p("</span><span class=\"code\">");// line 119
-		p(escape(line));// line 119
-		p("</span></pre>\n" + 
-"				");// line 119
-		} else {// line 120
-		p("					<pre><span class=\"line\">");// line 120
-		p(i);// line 121
-		p("</span><span class=\"code\">");// line 121
-		p(escape(line));// line 121
-		p("</span></pre>\n" + 
-"				");// line 121
-		}// line 122
-			} // line 123
-		p("		</div>\n" + 
-"			    \n" + 
-"	</body>\n" + 
-"</html>\n" + 
-"\n" + 
-"\n" + 
-"\n" + 
-"\n" + 
-"\n" + 
-"\n" + 
-"\n");// line 123
-		
+		for (int i : lines.keySet()) {// line 116
+			String line = lines.get(i);// line 117
+			if (error.errLineNum == i) {// line 118
+				p("					<pre class=\"error\"><span class=\"line\">");// line 118
+				p(i);// line 119
+				p("</span><span class=\"code\">");// line 119
+				p(escape(line));// line 119
+				p("</span></pre>\n" + "				");// line 119
+			} else {// line 120
+				p("					<pre><span class=\"line\">");// line 120
+				p(i);// line 121
+				p("</span><span class=\"code\">");// line 121
+				p(escape(line));// line 121
+				p("</span></pre>\n" + "				");// line 121
+			}// line 122
+		} // line 123
+		p("		</div>\n" + "			    \n" + "	</body>\n" + "</html>\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n" + "\n");// line
+																													// 123
+
 		endDoLayout(sourceTemplate);
 	}
 

@@ -19,23 +19,23 @@
         <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>play_2.10</artifactId>
-            <version>2.2.0</version>
+            <version>2.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>play-test_2.10</artifactId>
-            <version>2.2.0</version>
+            <version>2.2.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>play-java_2.10</artifactId>
-            <version>2.2.0</version>
+            <version>2.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>play-cache_2.10</artifactId>
-            <version>2.2.0</version>
+            <version>2.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -64,12 +64,6 @@
         </dependency>
     </dependencies>
     <repositories>
-        <repository>
-            <id>sonatypeosssnapshots</id>
-            <name>sonatype-oss-snapshots</name>
-            <url>http://oss.sonatype.org/content/repositories/snapshots/</url>
-            <layout>default</layout>
-        </repository>
         <repository>
             <id>TypesafeReleasesRepository</id>
             <name>Typesafe Releases Repository</name>

@@ -129,6 +129,7 @@ public class RenderInvokerUtils {
 			StringBuilder sb = new StringBuilder(8000);
 			T t = ctor.newInstance(sb);
 			RenderResult rr = render(t, args);
+			JapidFlags.logTimeLogs(t);
 			return rr;
 		} catch (InstantiationException e) {
 			// e.printStackTrace();
@@ -169,8 +170,7 @@ public class RenderInvokerUtils {
 			StringBuilder sb = new StringBuilder(8000);
 			JapidTemplateBaseWithoutPlay t = ctor.newInstance(sb);
 			RenderResult rr = renderWithNamedArgs(t, args);
-			// RenderResult rr = (RenderResult) MethodUtils.invokeMethod(t,
-			// methodName, args);
+			JapidFlags.logTimeLogs(t);
 			return rr;
 		} catch (NoSuchMethodException e) {
 			throw new RuntimeException("Could not match the arguments with the template args.");

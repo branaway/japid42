@@ -16,6 +16,7 @@ package cn.bran.japid.compiler;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.regex.Pattern;
 
@@ -117,6 +118,21 @@ public class JapidTemplateTransformer {
 		String realSrcFile = sourceFolder == null ? fileName : sourceFolder + "/" + fileName;
 		String src = DirUtil.readFileAsString(realSrcFile);
 		JapidTemplate temp = new JapidTemplate(fileName, src);
+		JapidAbstractCompiler c = selectCompiler(src);
+		c.setUseWithPlay(usePlay);
+		c.compile(temp);
+		String jsrc = temp.javaSource;
+
+		String fileNameRoot = DirUtil.mapSrcToJava(fileName);
+
+		String target = targetFolder == null ? sourceFolder : targetFolder;
+		String realTargetFile = target == null ? fileNameRoot : target + "/" + fileNameRoot;
+
+		File f = DirUtil.writeToFile(jsrc, realTargetFile);
+		return f;
+	}
+
+	public static JapidAbstractCompiler selectCompiler(String src) {
 		JapidAbstractCompiler c = null;
 		// TODO: more robust way of determine layout file or view file
 		if (looksLikeLayout(src)) {
@@ -125,31 +141,9 @@ public class JapidTemplateTransformer {
 			// regular template and tag are the same thing
 			c = new JapidTemplateCompiler();
 		}
-		c.setUseWithPlay(usePlay);
-		c.compile(temp);
-		String jsrc = temp.javaSource;
-
-//		String fileNameRoot = fileName;
-//		if (fileName.endsWith(HTML)) {
-//			fileNameRoot = fileName.substring(0, fileName.indexOf(HTML));
-//		}
-
-		String fileNameRoot = DirUtil.mapSrcToJava(fileName);
-
-		String target = targetFolder == null ? sourceFolder : targetFolder;
-		String realTargetFile = target == null ? fileNameRoot : target + "/" + fileNameRoot;
-		File f = new File(realTargetFile);
-		if (!f.exists()) {
-			String parent = f.getParent();
-			new File(parent).mkdirs();
-		}
-		BufferedOutputStream bf = new BufferedOutputStream(new FileOutputStream(f));
-		bf.write(jsrc.getBytes("UTF-8"));
-		bf.close();
-		return f;
-
+		return c;
 	}
-
+	
 	/**
 	 * compile a script with the designated class name and MIME type
 	 * 
@@ -163,7 +157,7 @@ public class JapidTemplateTransformer {
 		JapidTemplate temp = new JapidTemplate(fqName, mime, scriptSrc);
 		return compileJapid(scriptSrc, usePlay, temp);
 	}
-	
+
 	/**
 	 * 
 	 * @author Bing Ran (bing.ran@hotmail.com)
@@ -191,6 +185,24 @@ public class JapidTemplateTransformer {
 		return jsrc;
 	}
 
+
+	/**
+	 * a utility method. Should be somewhere else.
+	 * 
+	 * @param srcDir
+	 * @param cf
+	 * @throws IOException
+	 */
+	public static String getRelativePath(File child, File parent) throws IOException {
+		String curPath = parent.getCanonicalPath();
+		String childPath = child.getCanonicalPath();
+		assert (childPath.startsWith(curPath));
+		String srcRelative = childPath.substring(curPath.length());
+		if (srcRelative.startsWith(File.separator)) {
+			srcRelative = srcRelative.substring(File.separator.length());
+		}
+		return srcRelative;
+	}
 
 	/**
 	 * transform a source template to Java

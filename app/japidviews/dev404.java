@@ -35,7 +35,7 @@ boolean hasHttpContext = play.mvc.Http.Context.current.get() != null ? true : fa
 
 
 	public dev404() {
-		super(null);
+		super((StringBuilder)null);
 	}
 	public dev404(StringBuilder out) {
 		super(out);

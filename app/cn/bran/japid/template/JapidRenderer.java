@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import cn.bran.japid.classmeta.AbstractTemplateClassMetaData;
 import cn.bran.japid.classmeta.MimeTypeEnum;
 import cn.bran.japid.compiler.JapidCompilationException;
 import cn.bran.japid.compiler.JapidTemplateTransformer;
@@ -75,7 +76,7 @@ import cn.bran.japid.util.WebUtils;
  * 
  */
 public final class JapidRenderer {
-	public static final String VERSION = "0.9.13.1"; // need to match that in the build.scala
+	public static final String VERSION = "0.9.16"; // need to match that in the build.scala
 
 	private static final String JAPIDROOT = "japidroot";
 	// private static final String RENDER_JAPID_WITH = "/renderJapidWith";
@@ -761,6 +762,20 @@ public final class JapidRenderer {
 		return b.toString();
 	}
 
+	public static String readFirstLine(File f) {
+		try {
+			FileInputStream fis = new FileInputStream(f);
+			BufferedInputStream bis = new BufferedInputStream(fis, 160);
+			BufferedReader br = new BufferedReader(new InputStreamReader(bis, "UTF-8"));
+			String line = br.readLine();
+			br.close();
+			return line;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	
 	static String getClassName(File f) {
 		String substring = cleanPath(f);
 		return DirUtil.deriveClassName(substring);
@@ -1201,6 +1216,10 @@ public final class JapidRenderer {
 			recoverClasses();
 		dynamicClasses.clear();
 
+		DirUtil.curVersion = VERSION;
+		AbstractTemplateClassMetaData.curVersion = VERSION;
+		JapidFlags.debug("Before compiling Japid script from classpath. version " + VERSION );
+
 		setupImports();
 
 		compileJapidResources();
@@ -1259,16 +1278,21 @@ public final class JapidRenderer {
 					fos = new FileInputStream(file);
 					BufferedInputStream bos = new BufferedInputStream(fos);
 					ObjectInputStream ois = new ObjectInputStream(bos);
-					japidClasses = (Map<String, RendererClass>) ois.readObject();
-					resourceJars = (HashSet<File>) ois.readObject();
+					String version = (String) ois.readObject();
+					JapidFlags.debug("Japid version: " + VERSION + ". JapidCache version: " + version);
+					
+					if (!version.equals(VERSION)) {
+						JapidFlags.debug("Japid classes mismatch. Discard cache.");
+					}
+					else {
+						japidClasses = (Map<String, RendererClass>) ois.readObject();
+						resourceJars = (HashSet<File>) ois.readObject();
+						JapidFlags.debug("recovered Japid classes from cache");
+					}
 					ois.close();
-					JapidFlags.debug("recovered Japid classes from cache");
 				}
 			}
-		} catch (IOException e) {
-			JapidFlags.info("error in recovering class cache. Ignored: " + e);
-			// e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
 			JapidFlags.info("error in recovering class cache. Ignored: " + e);
 			// e.printStackTrace();
 		} finally {
@@ -1456,6 +1480,7 @@ public final class JapidRenderer {
 			ObjectOutputStream oos = null;
 			try {
 				oos = new ObjectOutputStream(bos);
+				oos.writeObject(VERSION);
 				oos.writeObject(japidClasses);
 				oos.writeObject(resourceJars);
 				JapidFlags.debug("japid template classes cached on disk.");

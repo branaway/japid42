@@ -4,6 +4,8 @@ Bing Ran (bing.ran@gmail.com)
 
 version: see the end of this file for version information
 Compatibility: Play 2.1.x, 2.2.x
+Note: One must use Japid42 version 0.9.16 or later with Play 2.2.1 or later.
+ 
 
 Note: version 0.7.4 and older is compatible with 2.0.4. Version 0.9.9.1 or earlier is compatible with Play2.1.x.
 
@@ -122,11 +124,11 @@ Hello, $m!
 
 4. Hit http://localhost:9000/ to see Japid at work!
 
-h2. Packaging Japid scripts in jar files
+h2. Releasing Your Application
 
-When an app is ready to be distributed in a jar file, you'll need to modify the build.scala to prepare your project for distribution. There are two things needed to be done:
+When an app is ready to be distributed, you'll need to modify the build.scala to prepare your project for distribution. There are two things needed to be done:
 
-# include a directive in the build.scala, so the Japid scripts are included in the generated jar file. Note, you'll want to leave it commented out in dev mode, since it would trigger app reloading when a Japid script is changed. 
+# include a directive in the build.scala to specify where the Japid root directory is, so the Japid scripts are included in the generated jar file. Note, you'll want to leave it commented out in dev mode, since it would trigger app reloading when a Japid script is changed. 
 <pre><code>
     val main = play.Project(appName, appVersion, Seq()).settings(
         ...
@@ -139,7 +141,7 @@ When an app is ready to be distributed in a jar file, you'll need to modify the 
         @Override
         public void onStartJapid() {
             if (_app.isDev())
-                setTemplateRoot("japidroot", "app");
+                setTemplateRoot("japidroot");
             else
                 setTemplateRoot((String[])null); // scan class only
         }
@@ -586,3 +588,12 @@ Pay attention to the renderDynamic(...) and renderWith(...) methods.
 
 2013.10.31 version 0.9.13.1
 # repository change: github has changed the root domain for the "pages" feature from "github.com" to "github.io". Any apps using Japid must change the japid repository domain from branaway.github.com to branaway.github.io, otherwise a "dependency cannot be resolved" error is due.  
+
+2013.11.14 version 0.9.14
+# play compatibility upgrade: compiled against play 2.2.1
+
+2013.11.24 version 0.9.16
+# bug fix: asset serving in JaxRouter did not work well in packaged distribution (jar files). Removed the logic.
+# API change for performance: the "lang" variable in template was deprecated because it would cost a ~100 micro-seconds CPU time. Use "Implicit.lang()" to get it explicitly.
+# enhancement: added japid version header to the generated Java files so Future Japid upgrade would invalidate the Java artifacts from older Japid versions. 
+# performance enhancement (from Japid 1): tag calling performance was improved by removing unnecessary initiation code in tag object initiation.

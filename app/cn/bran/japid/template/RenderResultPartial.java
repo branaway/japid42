@@ -77,5 +77,9 @@ public class RenderResultPartial extends RenderResult {
 		actionRunners = (Map<Integer, ActionRunner>) in.readObject();
 	}
 
+	@Override
+	public String toString() {
+		return getContent().toString();
+	}
 	
 }

@@ -17,6 +17,9 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.Serializable;
+import java.lang.String;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -31,16 +34,14 @@ import java.util.Map;
  */
 public class RenderResult implements Externalizable {
 	private static final String _NULL = "_null_";
-	private StringBuilder content; 
-	long renderTime; // in ms, for recording the time to render.
+	private StringBuilder content; // bran can this
+	long renderTime; // in us, (micro-second) for recording the time to render.
 	private Map<String, String> headers = new HashMap<String, String>();
 	
 	public RenderResult(Map<String, String> headers , StringBuilder content, long renderTime) {
 		this.content = content;
 		this.renderTime = renderTime;
 		this.headers = headers;
-		if (headers != null)
-			headers.put("X-Japid-Rendering-Duration-ms",  "" + renderTime);
 	}
 
 	public RenderResult() {

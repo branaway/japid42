@@ -15,12 +15,15 @@ package cn.bran.japid.classmeta;
 
 import japa.parser.ast.body.Parameter;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import cn.bran.japid.compiler.JavaSyntaxTool;
+import cn.bran.japid.compiler.NamedArgRuntime;
+import cn.bran.japid.compiler.Tag;
 import cn.bran.japid.compiler.Tag.TagSet;
 
 /**
@@ -84,17 +87,17 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 	 */
 	@Override
 	protected void getterSetter() {
-		// 	`set title = "something"
+		// `set title = "something"
 		pln();
 		for (Entry<String, String> en : setMethods.entrySet()) {
 			String meth = en.getKey();
 			String setBody = en.getValue();
 			pln("\t@Override protected void " + meth + "() {");
 			// local tag defs
-//			TagSet set = setTags.get(meth);
-//			for (Tag t: set.tags) {
-//				declareTagInstance(t);
-//			}
+			// TagSet set = setTags.get(meth);
+			// for (Tag t: set.tags) {
+			// declareTagInstance(t);
+			// }
 			pln("\t\t" + setBody + ";");
 			pln("\t}");
 		}
@@ -106,14 +109,8 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 	protected void layoutMethod() {
 		// doLayout body
 		pln(TAB + "@Override protected void doLayout() {");
-		pln(TAB + "\tbeginDoLayout(sourceTemplate);");
-		
-		super.setupTagObjectsAsFields();
-//		super.addImplicitVariables(); // move to fields
-		pln("//------");
-		pln(super.body);
-		pln(TAB + "\tendDoLayout(sourceTemplate);");
-		pln("\t}");
+
+		restOfBody();
 	}
 
 	/**
@@ -121,24 +118,24 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 	 * method while the layouts do not.
 	 */
 	protected void renderMethod() {
-		String resultType = true || useWithPlay? RENDER_RESULT : "String";
+		String resultType = useWithPlay ? RENDER_RESULT : "String";
 
 		String paramNameArray = "";
 		String paramTypeArray = "";
 		String paramDefaultsArray = "";
-		String currentClassFQN = (this.packageName == null ? "":  this.packageName + ".") + this.className;
+		String currentClassFQN = (this.packageName == null ? "" : this.packageName + ".") + this.className;
 		List<Parameter> params = JavaSyntaxTool.parseParams(this.renderArgs);
 		String renderArgsWithoutAnnos = "";
 
-		/// named param stuff
-		for (Parameter p: params) {
-			paramNameArray  += "\"" + p.getId() + "\", ";
-			paramTypeArray  += "\"" + p.getType() + "\", ";
+		// / named param stuff
+		for (Parameter p : params) {
+			paramNameArray += "\"" + p.getId() + "\", ";
+			paramTypeArray += "\"" + p.getType() + "\", ";
 			String defa = JavaSyntaxTool.getDefault(p);
 			paramDefaultsArray += defa + ",";
 			renderArgsWithoutAnnos += p.getType() + " " + p.getId() + ",";
 		}
-		if (renderArgsWithoutAnnos.endsWith(",")){
+		if (renderArgsWithoutAnnos.endsWith(",")) {
 			renderArgsWithoutAnnos = renderArgsWithoutAnnos.substring(0, renderArgsWithoutAnnos.length() - 1);
 		}
 
@@ -149,7 +146,7 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 			pln("	{ setHasDoBody(); }");
 
 		if (renderArgs != null) {
-			
+
 			for (Parameter p : params) {
 				addField(p);
 			}
@@ -161,7 +158,7 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 				// the field
 				pln(TAB + "private DoBody body;");
 				doBodyInterface();
-				
+
 				// now the render(...)
 				pln("\tpublic " + resultType + " render(" + renderArgsWithoutAnnos + ", DoBody body) {");
 				pln("\t\t" + "this.body = body;");
@@ -170,8 +167,8 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 					pln("\t\tthis." + p.getId() + " = " + p.getId() + ";");
 				}
 				restOfRenderBody(resultType);
-			} 
-			
+			}
+
 			// a version without the body part to allow optional body
 			pln("\tpublic " + resultType + " render(" + renderArgsWithoutAnnos + ") {");
 			// assign the params to fields
@@ -179,7 +176,6 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 				pln("\t\tthis." + p.getId() + " = " + p.getId() + ";");
 			}
 			restOfRenderBody(resultType);
-			// add static apply method
 		} else {
 			if (doBodyArgsString != null) {
 				pln(String.format(NAMED_PARAM_WITH_BODY, getLineMarker()));
@@ -191,15 +187,14 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 				pln("\tpublic " + resultType + " render(DoBody body) {");
 				pln("\t\t" + "this.body = body;");
 				restOfRenderBody(resultType);
-			} 
-
+			}
+			// the parameter-less render()
 			pln("\tpublic " + resultType + " render() {");
 			restOfRenderBody(resultType);
 		}
-
 		// the static apply method
 		String args = "";
-		for (Parameter p: params) {
+		for (Parameter p : params) {
 			args += p.getId() + COMMA;
 		}
 		if (args.endsWith(COMMA)) {
@@ -209,7 +204,7 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 				String.format(APPLY_METHOD_ABSTRACT, resultType, renderArgsWithoutAnnos, this.className, args) : 
 					String.format(APPLY_METHOD, resultType, renderArgsWithoutAnnos, this.className, args);
 		pln("\n" + applyMethod);
-	
+
 	}
 
 	static final String APPLY_METHOD = 
@@ -222,46 +217,21 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 					"		throw new RuntimeException(\"Cannot run an Japid template annotated as abstract.\");\n" + 
 					"	}\n" ;
 	
-	
+
 	private void restOfRenderBody(String resultType) {
 		if (stopWatch)
-			pln("\t\tlong __t = System.nanoTime();");
-		else
-			pln("\t\tlong __t = -1;");
-			
+			pln("\t\tsetStopwatchOn();");
 
-//		pln("\t\tsuper.layout(" + superClassRenderArgs +  ");");
-		pln("\t\ttry {super.layout(" + superClassRenderArgs +  ");} catch (RuntimeException e) { super.handleException(e);} " + getLineMarker());
-		if (stopWatch) {
-			pln("    __t = System.nanoTime() - __t; __t = java.util.concurrent.TimeUnit.MILLISECONDS.convert(__t, java.util.concurrent.TimeUnit.NANOSECONDS);");
-			pln("\t\tSystem.out.println(\"[" + super.className + "] rendering time(ms): \" + __t);");
-		}
-		// bug fix: always assume there is action invocation in the super class or it won't get rendered!
-		hasActionInvocation = true;
+//		pln("\t\tstartRendering(); ");
+		pln("\t\ttry {super.layout(" + superClassRenderArgs +  ");} catch (RuntimeException __e) { super.handleException(__e);} " + getLineMarker());
 
-		if (streaming) {
-			if (true || useWithPlay)
-				if (hasActionInvocation)
-					pln("\t\treturn new " + RENDER_RESULT_PARTIAL + "(getHeaders(), null, __t, " + ACTION_RUNNERS + ");");
-				else
-					pln("\t\treturn new " + resultType + "(getHeaders(), null, __t);");
-			else {
-				pln("\t\treturn getOut().toString();");
-			}
+		if (useWithPlay) {
+			pln("\t\treturn getRenderResult();");
 		} else {
-			if (true || useWithPlay) {
-				if (hasActionInvocation) 
-					pln("\t\treturn new " + RENDER_RESULT_PARTIAL + "(getHeaders(), getOut(), __t, " + ACTION_RUNNERS + ", sourceTemplate);");
-				else
-					pln("\t\treturn new " + resultType + "(getHeaders(), getOut(), __t);");
-			}
-			else {
-				pln("\t\treturn getOut().toString();");
-			}
+			pln("\t\treturn getRenderResult().toString();");
 		}
 		pln("\t}");
 	}
-	
 
 	private void doBodyInterface() {
 		// let do the doDody callback interface
@@ -280,14 +250,12 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 			if (genericTypeList.startsWith(",")) {
 				// remove the first comma
 				genericTypeList = "<" + genericTypeList.substring(1) + ">";
-				renderArgList = renderArgList.substring(1); 
+				renderArgList = renderArgList.substring(1);
 			}
 			pln("public static interface DoBody", genericTypeList, " {");
 			pln("		void render(" + renderArgList + ");");
-			pln("		void setBuffer(StringBuilder sb);\n" + 
-					"		void resetBuffer();\n" + 
-					"}");
-			
+			pln("		void setBuffer(StringBuilder sb);\n" + "		void resetBuffer();\n" + "}");
+
 			// add a convenient method to get the render result from the doBody object
 			String renderArgs = renderArgList.replaceAll("[A-Z]", "");
 			pln(genericTypeList, " String renderBody(" + renderArgList + ") {\n" + 
@@ -300,7 +268,7 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 					"		return sb.toString();\n" + 
 					"	}");
 			
-			
+
 		}
 	}
 
@@ -325,11 +293,31 @@ public class TemplateClassMetaData extends AbstractTemplateClassMetaData {
 			"\t}\n" +
 			"" + 
 			"////// end of named args stuff\n";
-	
-	protected static final String NAMED_PARAM_WITH_BODY = 
-		"public cn.bran.japid.template.RenderResult render(DoBody body, cn.bran.japid.compiler.NamedArgRuntime... named) {\n" + 
-		"    Object[] args = buildArgs(named, body);\n" + 
-		"    try {return runRenderer(args);} catch(RuntimeException e) {handleException(e); throw e;} %s\n" + 
-		"}\n"; 
+
+	protected static final String NAMED_PARAM_WITH_BODY = "public cn.bran.japid.template.RenderResult render(DoBody body, cn.bran.japid.compiler.NamedArgRuntime... named) {\n"
+			+ "    Object[] args = buildArgs(named, body);\n"
+			+ "    try {return runRenderer(args);} catch(RuntimeException e) {handleException(e); throw e;} %s\n"
+			+ "}\n";
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * cn.bran.japid.classmeta.AbstractTemplateClassMetaData#merge(cn.bran.japid
+	 * .classmeta.AbstractTemplateClassMetaData)
+	 */
+	@Override
+	public void merge(AbstractTemplateClassMetaData a) {
+		super.merge(a);
+		if (a instanceof TemplateClassMetaData) {
+			TemplateClassMetaData b = (TemplateClassMetaData) a;
+			this.setMethods.putAll(b.setMethods);
+			this.setTags.putAll(b.setTags);
+		}
+		else {
+			throw new RuntimeException("cannot merge metadata from another type to AbstractTemplateClassMetaData: " + a.className);
+		}
+
+	}
 
 }

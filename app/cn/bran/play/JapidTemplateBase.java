@@ -32,20 +32,43 @@ public abstract class JapidTemplateBase extends JapidTemplateBaseWithoutPlay {
 
 	public JapidTemplateBase(StringBuilder out) {
 		super(out);
+		initme();
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 */
+	private void initme() {
+		if (actionRunners == null) {
+			actionRunners = new TreeMap<Integer, cn.bran.japid.template.ActionRunner>();
+		}
+	}
+
+	public JapidTemplateBase(JapidTemplateBaseWithoutPlay caller) {
+		super(caller);
+		if (caller instanceof JapidTemplateBase){
+			setActionRunners(((JapidTemplateBase)caller).getActionRunners());
+		}
+		initme();
 	}
 
 	/**
 	 * to keep track of all the action invocations by #{invoke} tag
 	 */
-	protected TreeMap<Integer, cn.bran.japid.template.ActionRunner> actionRunners = new TreeMap<Integer, cn.bran.japid.template.ActionRunner>();
+	protected TreeMap<Integer, cn.bran.japid.template.ActionRunner> actionRunners;// = new TreeMap<Integer, cn.bran.japid.template.ActionRunner>();
 
 	public TreeMap<Integer, cn.bran.japid.template.ActionRunner> getActionRunners() {
 		return actionRunners;
 	}
 
-	public JapidTemplateBaseWithoutPlay setActionRunners(TreeMap<Integer, cn.bran.japid.template.ActionRunner> actionRunners) {
+	public JapidTemplateBaseWithoutPlay setActionRunners(
+			TreeMap<Integer, cn.bran.japid.template.ActionRunner> actionRunners) {
 		this.actionRunners = actionRunners;
 		return this;
+	}
+
+	protected cn.bran.japid.template.RenderResult getRenderResult() {
+		return new cn.bran.japid.template.RenderResultPartial(getHeaders(), getOut(), renderingTime, actionRunners, sourceTemplate);
 	}
 
 }

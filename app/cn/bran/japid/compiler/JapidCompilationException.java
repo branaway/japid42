@@ -38,4 +38,12 @@ public class JapidCompilationException extends RuntimeException {
 		return template.source;
 	}
 
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @return
+	 */
+	public String getLocation() {
+		return template.name + ": line " + startLine;
+	}
+
 }

@@ -33,10 +33,13 @@ import cn.bran.japid.compiler.JapidAbstractCompiler;
 //import cn.bran.japid.compiler.Tag;
 import cn.bran.japid.compiler.Tag.TagDef;
 import cn.bran.japid.template.ActionRunner;
+import cn.bran.japid.template.JapidRenderer;
 import cn.bran.japid.template.JapidTemplateBaseStreaming;
 import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
 import cn.bran.japid.template.RenderResult;
 import cn.bran.japid.template.RenderResultPartial;
+import cn.bran.japid.util.DirUtil;
+import cn.bran.japid.util.JapidFlags;
 
 /**
  * lots of the code block generation is done here
@@ -45,6 +48,10 @@ import cn.bran.japid.template.RenderResultPartial;
  * 
  */
 public abstract class AbstractTemplateClassMetaData {
+	/**
+	 * 
+	 */
+	public static final String VERSION_HEADER = "//version: ";
 	private static final String PUBLIC = "public ";
 	private static final String COMMA = ";";
 	private static final String SPACE = " ";
@@ -80,6 +87,14 @@ public abstract class AbstractTemplateClassMetaData {
 	public static final String ACTION_RUNNERS = "actionRunners";
 	private static final String IMPORT_SPACE = IMPORT + SPACE;
 	private static final String CONTENT_TYPE = "Content-Type";
+	/**
+	 * 
+	 */
+	public static final String END_DO_LAYOUT = "endDoLayout";
+	/**
+	 * 
+	 */
+	public static final String BEGIN_DO_LAYOUT = "beginDoLayout";
 	public String packageName;
 	protected String className;
 
@@ -106,6 +121,7 @@ public abstract class AbstractTemplateClassMetaData {
 	protected List<InnerClassMeta> innersforTagCalls = new ArrayList<InnerClassMeta>();
 	protected List<InnerClassMeta> innersInvokeCalls = new ArrayList<InnerClassMeta>();
 	protected boolean isAbstract;
+	public static String curVersion;
 
 	public AbstractTemplateClassMetaData() {
 		super();
@@ -148,6 +164,7 @@ public abstract class AbstractTemplateClassMetaData {
 	 * 
 	 */
 	public void printHeaders() {
+		printVersion();
 		if (packageName != null) {
 			pln("package " + packageName + SEMI);
 		}
@@ -163,7 +180,7 @@ public abstract class AbstractTemplateClassMetaData {
 		else
 			pln(IMPORT_SPACE + cn.bran.japid.tags.Each.class.getName() + COMMA);
 
-		if (hasActionInvocation && (true || useWithPlay)) {
+		if (hasActionInvocation && useWithPlay) {
 			pln(IMPORT_SPACE + ActionRunner.class.getName() + COMMA);
 		}
 
@@ -226,6 +243,15 @@ public abstract class AbstractTemplateClassMetaData {
 		pln("// Change to this file will be lost next time the template file is compiled.");
 		pln("//");
 
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 */
+	private void printVersion() {
+		String v = VERSION_HEADER + curVersion;
+		JapidFlags.debug("wrote version tag to Java derives: " + v );
+		pln (v);
 	}
 
 	private boolean considerPlayDependency(String l) {
@@ -337,33 +363,6 @@ public abstract class AbstractTemplateClassMetaData {
 		// don't declare in the front. always declare where it is used for safety
 		// see JapidAbstractCompiler#regularTagInvoke
 	 */
-	protected void setupTagObjectsAsFields() {
-//		boolean hasTags = this.innersforTagCalls.size() > 0;
-//		if (hasTags)
-//			pln("\n// -- set up the tag objects");
-//		for (InnerClassMeta inner : this.innersforTagCalls) {
-//			// create a reusable instance _tagName_indexand a instance
-//			// initializer
-//			String tagClassName = inner.tagName;
-//			String var = "_" + inner.getVarRoot() + inner.counter;
-//			
-//			if (tagClassName.equals("this")) {
-//				tagClassName = this.className;
-//			}
-//
-//			String decl = "final " + tagClassName + " " + var + " = new " + tagClassName + "(getOut());";
-//			pln(decl);
-//
-//			// changed to wait until tag invocation to set the runners
-////			if (useWithPlay && !tagClassName.equals("Each")) {
-////				String addRunner = "{ " +  var + ".setActionRunners(getActionRunners()); }";
-////				pln(addRunner);
-////			}
-//			pln();
-//		}
-//		if (hasTags)
-//			pln("// -- end of the tag objects\n");
-	}
 
 	protected void printAnnotations() {
 		for (Class<? extends Annotation> anno : typeAnnotations) {
@@ -398,8 +397,11 @@ public abstract class AbstractTemplateClassMetaData {
 	protected void addConstructors() {
 		if (!streaming) {
 			// for StringBuilder data collection, create a default constructor
-			pln(TAB + PUBLIC + className + "() {\n" + "		super(null);\n" + "	}");
-
+			pln(TAB + PUBLIC + className + "() {");
+			pln(TAB + "super((StringBuilder)null);");
+			if (useWithPlay)
+				pln(TAB + "initHeaders();");
+			pln(TAB +  "}");
 		}
 
 		if (streaming)
@@ -408,7 +410,14 @@ public abstract class AbstractTemplateClassMetaData {
 			pln(TAB + PUBLIC + className + "(StringBuilder out) {");
 
 		pln(TAB + TAB + "super(out);");
+		if (useWithPlay)
+			pln(TAB + TAB + "initHeaders();");
 		pln(TAB + "}");
+		
+		pln(TAB + PUBLIC + className + "(" + JapidTemplateBaseWithoutPlay.class.getName() + " caller) {\n" + 
+				"		super(caller);\n" + 
+				"	}\n" + 
+				"");
 	}
 
 	/**
@@ -416,7 +425,7 @@ public abstract class AbstractTemplateClassMetaData {
 	 */
 	private void classDeclare() {
 		if (superClass == null) {
-			if (true || useWithPlay) {
+			if (useWithPlay) {
 //				superClass = JapidTemplateBase.class.getName();
 				superClass = "cn.bran.play.JapidTemplateBase";
 				
@@ -568,14 +577,17 @@ public abstract class AbstractTemplateClassMetaData {
 		// now we use the headers var the template base, for slightly
 		// performance penalty
 		// pln("	private static final Map<String, String> headers = new HashMap<String, String>();");
-		if ((true || useWithPlay) && headers.size() > 0) {
+		if (useWithPlay && headers.size() > 0) {
 			// pln("	static {");
-			pln("\t{");
+			pln("\t private void initHeaders() {");
 			for (String k : headers.keySet()) {
 				String v = headers.get(k);
 				pln("\t\tputHeader(\"" + k + "\", \"" + v + "\");");
 			}
 			pln("\t\tsetContentType(\"" + contentType + "\");");
+			pln("\t}");
+		}
+		pln("\t{");
 			if (traceFile != null)
 				if (traceFile)
 					pln("\t\tsetTraceFile(true);");
@@ -584,7 +596,6 @@ public abstract class AbstractTemplateClassMetaData {
 					
 			pln("\t}");
 		}
-	}
 
 	public void addDefTag(TagDef tag) {
 		this.defTags.add(tag);
@@ -601,26 +612,26 @@ public abstract class AbstractTemplateClassMetaData {
 			pln("StringBuilder sb = new StringBuilder();");
 			pln("StringBuilder ori = getOut();");
 			pln("this.setOut(sb);");
-			if (true || useWithPlay)
+			if (useWithPlay)
 				pln("TreeMap<Integer, cn.bran.japid.template.ActionRunner> parentActionRunners = actionRunners;\n" + 
 						"actionRunners = new TreeMap<Integer, cn.bran.japid.template.ActionRunner>();" );
 			
 			pln(tag.getBodyText());
 			pln("this.setOut(ori);");
-			if (true || useWithPlay)
+			if (useWithPlay)
 				pln("if (actionRunners.size() > 0) {\n" + 
-						"	StringBuilder sb2 = new StringBuilder();\n" + 
+						"	StringBuilder _sb2 = new StringBuilder();\n" + 
 						"	int segStart = 0;\n" + 
-						"	for (Map.Entry<Integer, cn.bran.japid.template.ActionRunner> arEntry : actionRunners.entrySet()) {\n" + 
-						"		int pos = arEntry.getKey();\n" + 
-						"		sb2.append(sb.substring(segStart, pos));\n" + 
+						"	for (Map.Entry<Integer, cn.bran.japid.template.ActionRunner> _arEntry : actionRunners.entrySet()) {\n" + 
+						"		int pos = _arEntry.getKey();\n" + 
+						"		_sb2.append(sb.substring(segStart, pos));\n" + 
 						"		segStart = pos;\n" + 
-						"		cn.bran.japid.template.ActionRunner a = arEntry.getValue();\n" + 
-						"		sb2.append(a.run().getContent().toString());\n" + 
+						"		cn.bran.japid.template.ActionRunner _a_ = _arEntry.getValue();\n" + 
+						"		_sb2.append(_a_.run().getContent().toString());\n" + 
 						"	}\n" + 
-						"	sb2.append(sb.substring(segStart));\n" + 
+						"	_sb2.append(sb.substring(segStart));\n" + 
 						"	actionRunners = parentActionRunners;\n" + 
-						"	return sb2.toString();\n" + 
+						"	return _sb2.toString();\n" + 
 						"} else {\n" + 
 						"	actionRunners = parentActionRunners;\n" + 
 						"	return sb.toString();\n" + 
@@ -667,7 +678,7 @@ public abstract class AbstractTemplateClassMetaData {
 					"	final Response response = hasHttpContext ? Implicit.response() : null;\n" + 
 					"	final Session session = hasHttpContext ? Implicit.session() : null;\n" + 
 					"	final Flash flash = hasHttpContext ? Implicit.flash() : null;\n" + 
-					"	final Lang lang = hasHttpContext ? Implicit.lang() : null;\n" + 
+//					"	final Lang lang = hasHttpContext ? Implicit.lang() : null;\n" + // a performance hit. replace by a lang() call
 					"	final play.Play _play = new play.Play(); \n" + 
 					"");
 			pln("// - end of implicit fields with Play \n\n");
@@ -685,7 +696,7 @@ public abstract class AbstractTemplateClassMetaData {
 		String s = this.staticsSrc.get(last);
 		char[] charArray = s.toCharArray();
 		for (char c : charArray) {
-			if (!Character.isSpaceChar(c) && c != '\t')
+			if (!Character.isWhitespace(c))
 				return null;
 		}
 
@@ -718,7 +729,9 @@ public abstract class AbstractTemplateClassMetaData {
 		embedSourceTemplateName();
 		printInitializer();
 		// buildStatics();
+		if (useWithPlay) {
 		addImplicitFields();
+		}
 		// now tags are local variables in dolayout for better safety
 //		setupTagObjectsAsFields();
 		
@@ -763,7 +776,8 @@ public abstract class AbstractTemplateClassMetaData {
 	}
 
 	protected String getLineMarker() {
-		return JapidAbstractCompiler.makeLineMarker(argsLineNum);
+//		return JapidAbstractCompiler.makeLineMarker(argsLineNum);
+		return DirUtil.LINE_MARKER + argsLineNum + DirUtil.OF + originalTemplate;
 	}
 
 	public static void clearImports() {
@@ -787,6 +801,23 @@ public abstract class AbstractTemplateClassMetaData {
 	 */
 	public void turnOffTraceFile() {
 		this.traceFile = false;
+	}
+
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param templateClassMetaData
+	 */
+	public void merge(AbstractTemplateClassMetaData a) {
+		this.imports.addAll(a.imports);
+		this.innersforTagCalls.addAll(a.innersforTagCalls);
+		this.innersInvokeCalls.addAll(a.innersInvokeCalls);
+	}
+
+	protected void restOfBody() {
+		pln(TAB + TAB + BEGIN_DO_LAYOUT + "(sourceTemplate);");
+		pln(body);
+		pln(TAB + TAB + END_DO_LAYOUT + "(sourceTemplate);");
+		pln("\t}");
 	}
 
 }
