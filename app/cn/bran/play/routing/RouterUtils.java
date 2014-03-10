@@ -248,19 +248,18 @@ public class RouterUtils {
 		}
 	}
 
-	// TODO: find out why ref.getTypesAnnotatedWith(classOf[Path]) is not
-	// working
 	static Set<Class<?>> classes(ClassLoader parentClassloader) {
-		Set<String> typesAnnotatedWith = JaxrsRouter.ref.getStore().getTypesAnnotatedWith(Path.class.getName());
-		Set<Class<?>> clazz = new HashSet<Class<?>>();
-		for (String t : typesAnnotatedWith) {
-			try {
-				clazz.add(Class.forName(t, true, parentClassloader));
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return clazz;
+		return JaxrsRouter.getControllersWithPath();
+//		Set<String> typesAnnotatedWith = JaxrsRouter.ref.getStore().getTypesAnnotatedWith(Path.class.getName());
+//		Set<Class<?>> clazz = new HashSet<Class<?>>();
+//		for (String t : typesAnnotatedWith) {
+//			try {
+//				clazz.add(Class.forName(t, true, parentClassloader));
+//			} catch (ClassNotFoundException e) {
+////				throw new RuntimeException(e);
+//			}
+//		}
+//		return clazz;
 	}
 
 }

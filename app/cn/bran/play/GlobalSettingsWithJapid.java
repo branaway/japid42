@@ -46,6 +46,15 @@ public class GlobalSettingsWithJapid extends GlobalSettings {
 	private boolean cacheResponse = true; // support @Cache annotation
 	private boolean useJaxrs = true;
 
+	
+	public GlobalSettingsWithJapid() {
+		System.out.println("GlobalSettingsWithJapid.<init>()");
+	}
+	
+	static {
+		System.out.println("GlobalSettingsWithJapid.<cinit>()");
+	}
+
 	/**
 	 * @author Bing Ran (bing.ran@hotmail.com)
 	 * @param app

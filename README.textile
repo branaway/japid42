@@ -2,7 +2,8 @@ h1. japid42 - Japid for Play 2
 
 Bing Ran (bing.ran@gmail.com)
 
-version: see the end of this file for version information
+The latest version: see the end of this file for version information
+
 Compatibility: Play 2.1.x, 2.2.x
 Note: One must use Japid42 version 0.9.16 or later with Play 2.2.1 or later.
  
@@ -597,3 +598,11 @@ Pay attention to the renderDynamic(...) and renderWith(...) methods.
 # API change for performance: the "lang" variable in template was deprecated because it would cost a ~100 micro-seconds CPU time. Use "Implicit.lang()" to get it explicitly.
 # enhancement: added japid version header to the generated Java files so Future Japid upgrade would invalidate the Java artifacts from older Japid versions. 
 # performance enhancement (from Japid 1): tag calling performance was improved by removing unnecessary initiation code in tag object initiation.
+
+2013.12.21 version 0.9.16.1
+# enhancement: to detect scripts with a future time stamp and reset them to current time so that newly generated java files would be always newer.  
+
+2014.3.11 version 0.9.17
+# bug fix: reflection did not detect added or removed controllers. See the new JaxrsRouter#getControllersWithPath()  
+# bug fix: added source and target spec for 1.6 in the build.scala
+# to be fixed: 

@@ -250,7 +250,7 @@ public abstract class AbstractTemplateClassMetaData {
 	 */
 	private void printVersion() {
 		String v = VERSION_HEADER + curVersion;
-		JapidFlags.debug("wrote version tag to Java derives: " + v );
+//		JapidFlags.debug("wrote version tag to Java derives: " + v );
 		pln (v);
 	}
 

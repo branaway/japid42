@@ -186,7 +186,12 @@ public class DirUtil {
 	}
 
 	// private static boolean firstTimeDetectingChanges = true;
-
+//	 private static final ThreadLocal<Set<File>> versionCheckedDirs = new ThreadLocal<Set<File>>() {
+//             @Override protected Set<File> initialValue() {
+//            	 return new HashSet<File>();
+//             }
+//	 };
+			 
 	static private Set<File> versionCheckedDirs = new HashSet<File>();
 	public static String curVersion;
 	
@@ -201,23 +206,43 @@ public class DirUtil {
 		Map<String, Long> javaFiles = new HashMap<String, Long>();
 		Map<String, Long> scriptFiles = new HashMap<String, Long>();
 
+		long now = System.currentTimeMillis();
+		boolean hasFutureTimestamp = false;
+
 		for (File f : allSrc) {
 			String path = f.getPath();
 			long modi = f.lastModified();
 			// System.out.println("file: " + path + ":" + modi);
 			if (path.endsWith(".java")) {
+				if (modi > now) {
+					// for some reason(e.g., copies from other file system), the last modified time is in the future
+					// let's reset it.
+					hasFutureTimestamp = true;
+					f.setLastModified(now - 1);
+				}
 				javaFiles.put(path, modi);
 			} else {
 				// validate file name to filter out dubious files such as
 				// temporary files
-				if (fileNameIsValidClassName(f))
+				if (fileNameIsValidClassName(f)) {
+					if (modi > now) {
+						// for some reason(e.g., copies from other file system), the last modified time is in the future
+						// let's reset it.
+						hasFutureTimestamp = true;
+						f.setLastModified(now);
+					}
 					scriptFiles.put(path, modi);
+				}
 			}
 		}
 
-		List<File> changedScripts = new ArrayList<File>();
+		if (hasFutureTimestamp) {
+			JapidFlags.warn("Some of the Japid files have a timestamp in the future. It could have been caused by out-of-synch system time.");
+		}
 
-		boolean japidVersionChecked = versionCheckedDirs.contains(srcDir);
+		List<File> changedScripts = new ArrayList<File>();
+		
+		boolean japidVersionChecked = versionChecked(srcDir);
 		if (!japidVersionChecked)
 			JapidFlags.debug("to version-check the japid scripts in: " + srcDir + ". Current version is: " + curVersion);
 
@@ -252,7 +277,7 @@ public class DirUtil {
 									changedScripts.add(new File(script));
 								}
 								else {
-									JapidFlags.debug("japid versions match for " + javaFileName);
+//									JapidFlags.debug("japid versions match for " + javaFileName);
 								}
 							} else {
 								JapidFlags.debug("japid version mismatch. to refresh " + javaFileName);
@@ -264,9 +289,15 @@ public class DirUtil {
 				}
 			}
 		}
+//		versionCheckedDirs.get().add(srcDir);
 		versionCheckedDirs.add(srcDir);
 		// firstTimeDetectingChanges = false;
 		return changedScripts;
+	}
+
+	private static boolean versionChecked(File srcDir) {
+		return versionCheckedDirs.contains(srcDir);
+//		return versionCheckedDirs.get().contains(srcDir);
 	}
 
 	/**

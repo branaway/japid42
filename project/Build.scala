@@ -5,7 +5,7 @@ import play.Project._
 object ApplicationBuild extends Build {
 
   val appName         = "japid42"
-  val appVersion      = "0.9.16" // note: update the version name in the JapidRenderer to match this.
+  val appVersion      = "0.9.17" // note: update the version name in the JapidRenderer to match this.
 
   val appDependencies = Seq(
     javaCore
@@ -19,8 +19,9 @@ object ApplicationBuild extends Build {
 
   val main = play.Project(
     appName, appVersion, appDependencies
+  ).settings(
+	 javacOptions in Compile ++= Seq("-source", "1.6", "-target", "1.6")
   )
-
 
   /*
   publishTo := Some(Resolver.file("file",  new File( "~bran/projects/branaway.github.com/releases" )) )

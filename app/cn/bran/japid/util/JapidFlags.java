@@ -4,6 +4,9 @@ import cn.bran.japid.MyTuple2;
 import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
 
 public class JapidFlags {
+	static {
+		System.out.println("JapidFlags.<cinit>()");
+	}
 	static enum LogLevel {
 		debug(0), info(1), warn(2), error(3);
 		LogLevel(int i) {

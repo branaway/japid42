@@ -76,7 +76,7 @@ import cn.bran.japid.util.WebUtils;
  * 
  */
 public final class JapidRenderer {
-	public static final String VERSION = "0.9.16"; // need to match that in the build.scala
+	public static final String VERSION = "0.9.17"; // need to match that in the build.scala
 
 	private static final String JAPIDROOT = "japidroot";
 	// private static final String RENDER_JAPID_WITH = "/renderJapidWith";
@@ -863,13 +863,13 @@ public final class JapidRenderer {
 		}
 	}
 
-	private static void changed(String root) {
-		List<File> changedFiles = DirUtil.findChangedSrcFiles(new File(root));
-		for (File f : changedFiles) {
-			System.out.println("changed: " + f.getPath());
-		}
-
-	}
+//	private static void changed(String root) {
+//		List<File> changedFiles = DirUtil.findChangedSrcFiles(new File(root));
+//		for (File f : changedFiles) {
+//			System.out.println("changed: " + f.getPath());
+//		}
+//
+//	}
 
 	/**
 	 * note: create the basic layout: app/japidviews/_layouts

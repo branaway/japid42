@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 import org.reflections.Reflections;
@@ -21,7 +22,6 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
 import cn.bran.japid.util.JapidFlags;
-
 import play.Application;
 import play.GlobalSettings;
 import play.api.mvc.Handler;
@@ -38,10 +38,10 @@ public class JaxrsRouter {
 	static final String ASSET_SERVING = "jaxrc.assets.serving";
 	static String[] assetServing = new String[] { "/assets", "/public" }; // format:
 																			// "user space asset root, folder on file system"
-
-	static Reflections ref = new Reflections(new ConfigurationBuilder()
-			.filterInputsBy(new FilterBuilder().include(routerPackage + ".*"))
-			.setScanners(new TypeAnnotationsScanner()).setUrls(ClasspathHelper.forPackage(routerPackage)));
+//
+//	static Reflections ref = new Reflections(new ConfigurationBuilder()
+//			.filterInputsBy(new FilterBuilder().include(routerPackage + ".*"))
+//			.setScanners(new TypeAnnotationsScanner()).setUrls(ClasspathHelper.forPackage(routerPackage)));
 
 	static String urlParamCapture = "\\{(.*?)\\}";
 	static Pattern urlParamCaptureP = Pattern.compile(urlParamCapture);
@@ -59,7 +59,6 @@ public class JaxrsRouter {
 	public static void init(Application app, play.GlobalSettings g) {
 		parentClassloader = app.classloader();
 		classes = RouterUtils.classes(parentClassloader);
-
 		global = g;
 		ApplicationPath appPathAnno = global.getClass().getAnnotation(ApplicationPath.class);
 		if (appPathAnno != null)
@@ -81,6 +80,7 @@ public class JaxrsRouter {
 		List<RouterClass> routers = new ArrayList<RouterClass>();
 
 		for (Class<?> cl : classes2) {
+			JapidFlags.info("found class with JAX-RS Path annotation: " + cl.getName());
 			routers.add(new RouterClass(cl, appPath));
 		}
 		return routers;
@@ -164,5 +164,11 @@ public class JaxrsRouter {
 			ret.addAll(c.getRouteTable());
 		}
 		return ret;
+	}
+	
+	static public Set<Class<?>> getControllersWithPath() {
+		Reflections reflections = new Reflections(routerPackage);
+		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(Path.class);
+		return annotated;
 	}
 }
