@@ -76,7 +76,7 @@ import cn.bran.japid.util.WebUtils;
  * 
  */
 public final class JapidRenderer {
-	public static final String VERSION = "0.9.17"; // need to match that in the build.scala
+	public static final String VERSION = "0.9.17.1"; // need to match that in the build.scala
 
 	private static final String JAPIDROOT = "japidroot";
 	// private static final String RENDER_JAPID_WITH = "/renderJapidWith";
@@ -765,7 +765,7 @@ public final class JapidRenderer {
 	public static String readFirstLine(File f) {
 		try {
 			FileInputStream fis = new FileInputStream(f);
-			BufferedInputStream bis = new BufferedInputStream(fis, 160);
+			BufferedInputStream bis = new BufferedInputStream(fis, 40);
 			BufferedReader br = new BufferedReader(new InputStreamReader(bis, "UTF-8"));
 			String line = br.readLine();
 			br.close();
@@ -1270,7 +1270,7 @@ public final class JapidRenderer {
 			if (file.exists()) {
 				// discard it if the file is too old
 				long t = System.currentTimeMillis();
-				if (t - file.lastModified() > 1000000) {
+				if (t - file.lastModified() > 10000) {
 					// too old
 					JapidFlags.debug("the japid cache was too old. discarded.");
 					file.delete();
@@ -1287,6 +1287,8 @@ public final class JapidRenderer {
 					else {
 						japidClasses = (Map<String, RendererClass>) ois.readObject();
 						resourceJars = (HashSet<File>) ois.readObject();
+						HashSet<File> versionCheckedDirs = (HashSet<File>) ois.readObject();
+						JapidFlags.setVersionCheckedDirs(versionCheckedDirs);
 						JapidFlags.debug("recovered Japid classes from cache");
 					}
 					ois.close();
@@ -1483,6 +1485,7 @@ public final class JapidRenderer {
 				oos.writeObject(VERSION);
 				oos.writeObject(japidClasses);
 				oos.writeObject(resourceJars);
+				oos.writeObject(JapidFlags.getVersionCheckedDirs());
 				JapidFlags.debug("japid template classes cached on disk.");
 				oos.close();
 			} catch (Exception e) {

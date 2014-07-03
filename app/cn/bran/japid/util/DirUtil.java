@@ -192,7 +192,7 @@ public class DirUtil {
 //             }
 //	 };
 			 
-	static private Set<File> versionCheckedDirs = new HashSet<File>();
+	
 	public static String curVersion;
 	
 	public static List<File> findChangedSrcFiles(File srcDir) {
@@ -242,7 +242,7 @@ public class DirUtil {
 
 		List<File> changedScripts = new ArrayList<File>();
 		
-		boolean japidVersionChecked = versionChecked(srcDir);
+		boolean japidVersionChecked = JapidFlags.isDirVersionChecked(srcDir);
 		if (!japidVersionChecked)
 			JapidFlags.debug("to version-check the japid scripts in: " + srcDir + ". Current version is: " + curVersion);
 
@@ -277,7 +277,7 @@ public class DirUtil {
 									changedScripts.add(new File(script));
 								}
 								else {
-//									JapidFlags.debug("japid versions match for " + javaFileName);
+									JapidFlags.debug("japid version matches for " + javaFileName);
 								}
 							} else {
 								JapidFlags.debug("japid version mismatch. to refresh " + javaFileName);
@@ -290,14 +290,9 @@ public class DirUtil {
 			}
 		}
 //		versionCheckedDirs.get().add(srcDir);
-		versionCheckedDirs.add(srcDir);
+		JapidFlags.dirVersionChecked(srcDir);
 		// firstTimeDetectingChanges = false;
 		return changedScripts;
-	}
-
-	private static boolean versionChecked(File srcDir) {
-		return versionCheckedDirs.contains(srcDir);
-//		return versionCheckedDirs.get().contains(srcDir);
 	}
 
 	/**

@@ -1,12 +1,26 @@
 package cn.bran.japid.util;
 
+import java.io.File;
+import java.util.HashSet;
+
 import cn.bran.japid.MyTuple2;
 import cn.bran.japid.template.JapidTemplateBaseWithoutPlay;
 
 public class JapidFlags {
-	static {
-		System.out.println("JapidFlags.<cinit>()");
+//	static {
+//		System.out.println("JapidFlags.<cinit>()");
+//	}
+
+	static private HashSet<File> versionCheckedDirs = new HashSet<File>();
+	
+	static public boolean isDirVersionChecked (File dir) {
+		return versionCheckedDirs.contains(dir);
 	}
+	
+	static public void dirVersionChecked(File dir) {
+		versionCheckedDirs.add(dir);
+	}
+	
 	static enum LogLevel {
 		debug(0), info(1), warn(2), error(3);
 		LogLevel(int i) {
@@ -144,4 +158,15 @@ public class JapidFlags {
 		out("japid log level: " + logLevel + ". Call " + JapidFlags.class.getCanonicalName() + ".setLogLevel(LogLevel ll) to change it.");
 	}
 
+	/**
+	 * @author Bing Ran (bing.ran@gmail.com)
+	 * @param versionCheckedDirs2
+	 */
+	public static void setVersionCheckedDirs(HashSet<File> versionCheckedDirs2) {
+		versionCheckedDirs = versionCheckedDirs2;
+	}
+
+	public static HashSet<File> getVersionCheckedDirs() {
+		return versionCheckedDirs;
+	}
 }
