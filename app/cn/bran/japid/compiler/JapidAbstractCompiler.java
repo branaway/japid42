@@ -13,8 +13,6 @@
  */
 package cn.bran.japid.compiler;
 
-import japa.parser.ast.body.Parameter;
-
 import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -99,7 +97,7 @@ public abstract class JapidAbstractCompiler {
 
 	public void compile(JapidTemplate t) {
 		template = t;
-		String tname = t.name;
+		String tname = t.name.replace('\\', '/');
 		int lastSlash = tname.lastIndexOf("/");
 		if (lastSlash >= 0) {
 			tname = tname.substring(lastSlash + 1);
